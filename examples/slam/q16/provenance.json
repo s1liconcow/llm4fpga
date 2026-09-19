@@ -1,0 +1,102 @@
+{
+  "model": "gpt-6-astra",
+  "provider": "codex-cli",
+  "rounds_used": 2,
+  "source_sha256": "94e35f54eac3cbf0aa7214321f909344d36b283d2dc16bc2fd88a1f95fa36735",
+  "development_vectors_sha256": "7cb58bbbb48009e50c2072bb9f69a3dac9d5b253fc6f5fc80f00202bc2416f17",
+  "audit_vectors_sha256": "da84f66bb66bafaf6a15d34d85c8e9b9d4ad269d63c4c00851d8220407bd9902",
+  "contract": {
+    "clock_mhz": 100.0,
+    "description": "Compute the supplied Python 2D ICP normal_equations function for 0..8 point pairs. Input is packed little-endian by fields: each point pair i occupies bits 128*i..128*i+127, with signed 32-bit px,py,qx,qy in that order, lowest field first, all scaled by 2^16. Bits 1024..1055 are signed tx / 2^16; 1056..1087 signed ty / 2^16; 1088..1119 signed cosine / 2^30; 1120..1151 signed sine / 2^30; 1152..1155 unsigned active count, legal range 0..8. Ignore inactive pairs, whose bits are arbitrary. All coordinates and translations are bounded to [-16,16] metres; cosine/sine are in [-1,1]. Every output is signed 64-bit scaled by 2^32. From LSB to MSB: h02,h12,h22,g0,g1,g2,cost,count. The output count is also scaled by 2^32, NOT an unscaled integer. Zero active points must produce a completely zero packet. Use a sequential datapath to reuse multipliers across the eight pairs; <=64 cycles latency and one input packet per 64 cycles. Widen before products, sums, shifts and subtraction. Intermediate fixed-point rounding is allowed within the per-field error bounds. The entire rotation, residual/Jacobian calculation, matrix reduction and cost must be in VHDL.",
+    "feedback_bits": 0,
+    "initiation_interval": 64,
+    "input_bits": 1156,
+    "max_abs_error": 0.0,
+    "max_brams": 8,
+    "max_dsps": 40,
+    "max_ffs": 6000,
+    "max_latency": 64,
+    "max_luts": 8000,
+    "max_rms_error": 0.0,
+    "name": "slam",
+    "output_bits": 512,
+    "output_fields": [
+      {
+        "bits": 64,
+        "lsb": 0,
+        "max_abs_error": 0.02,
+        "max_rms_error": 0.005,
+        "name": "h02",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 64,
+        "max_abs_error": 0.02,
+        "max_rms_error": 0.005,
+        "name": "h12",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 128,
+        "max_abs_error": 0.02,
+        "max_rms_error": 0.005,
+        "name": "h22",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 192,
+        "max_abs_error": 0.02,
+        "max_rms_error": 0.005,
+        "name": "g0",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 256,
+        "max_abs_error": 0.02,
+        "max_rms_error": 0.005,
+        "name": "g1",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 320,
+        "max_abs_error": 0.02,
+        "max_rms_error": 0.005,
+        "name": "g2",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 384,
+        "max_abs_error": 0.02,
+        "max_rms_error": 0.005,
+        "name": "cost",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 448,
+        "max_abs_error": 0,
+        "max_rms_error": 0,
+        "name": "count",
+        "scale": 4294967296,
+        "signed": true
+      }
+    ],
+    "output_scale": 1.0,
+    "output_signed": false
+  },
+  "vhdl_sha256": "8654532ac52b3c5c08230b30a5a4b9bdc4bc42a09fadcc63c253f90b5f7012ec",
+  "first_round_failure": "RTL passed; Xilinx-mapped simulation failed g2 signed arithmetic; repaired in round 2."
+}

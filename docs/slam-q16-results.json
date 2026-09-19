@@ -1,0 +1,937 @@
+{
+  "kernel": {
+    "accepted": true,
+    "audit": {
+      "accepted": true,
+      "hardware": {
+        "brams": 0,
+        "cells": {
+          "BUFG": 1,
+          "CARRY4": 206,
+          "DSP48E1": 20,
+          "FDRE": 2192,
+          "INV": 93,
+          "LUT2": 1500,
+          "LUT3": 962,
+          "LUT4": 63,
+          "LUT5": 71,
+          "LUT6": 455,
+          "MUXF7": 71
+        },
+        "dsps": 20,
+        "ffs": 2192,
+        "luts": 3051,
+        "stage": "yosys-xilinx-technology-mapping",
+        "vivado_executed": false
+      },
+      "latency": 58,
+      "numeric": {
+        "comparison": "fieldwise-scaled-numerical",
+        "cycles": 51574,
+        "failures": [],
+        "fields": {
+          "cost": {
+            "max_abs_error": 8.812931446300354e-05,
+            "pass": true,
+            "rms_error": 1.7997673215960664e-05
+          },
+          "count": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "g0": {
+            "max_abs_error": 2.061545629317152e-06,
+            "pass": true,
+            "rms_error": 4.6317544489669463e-07
+          },
+          "g1": {
+            "max_abs_error": 1.8695250645350825e-06,
+            "pass": true,
+            "rms_error": 4.5177499799836083e-07
+          },
+          "g2": {
+            "max_abs_error": 4.136033498980396e-05,
+            "pass": true,
+            "rms_error": 8.371176373614449e-06
+          },
+          "h02": {
+            "max_abs_error": 1.8695250645350825e-06,
+            "pass": true,
+            "rms_error": 4.5177499795921086e-07
+          },
+          "h12": {
+            "max_abs_error": 2.061545629317152e-06,
+            "pass": true,
+            "rms_error": 4.6317544472534924e-07
+          },
+          "h22": {
+            "max_abs_error": 4.7737191835039994e-05,
+            "pass": true,
+            "rms_error": 9.02356228232928e-06
+          }
+        },
+        "max_abs_error": 8.812931446300354e-05,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 1.9421179484299994e-05,
+        "samples": 800,
+        "violations": 0
+      },
+      "physical_timing_measured": false,
+      "post_synthesis": {
+        "comparison": "fieldwise-scaled-numerical",
+        "cycles": 51574,
+        "failures": [],
+        "fields": {
+          "cost": {
+            "max_abs_error": 8.812931446300354e-05,
+            "pass": true,
+            "rms_error": 1.7997673215960664e-05
+          },
+          "count": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "g0": {
+            "max_abs_error": 2.061545629317152e-06,
+            "pass": true,
+            "rms_error": 4.6317544489669463e-07
+          },
+          "g1": {
+            "max_abs_error": 1.8695250645350825e-06,
+            "pass": true,
+            "rms_error": 4.5177499799836083e-07
+          },
+          "g2": {
+            "max_abs_error": 4.136033498980396e-05,
+            "pass": true,
+            "rms_error": 8.371176373614449e-06
+          },
+          "h02": {
+            "max_abs_error": 1.8695250645350825e-06,
+            "pass": true,
+            "rms_error": 4.5177499795921086e-07
+          },
+          "h12": {
+            "max_abs_error": 2.061545629317152e-06,
+            "pass": true,
+            "rms_error": 4.6317544472534924e-07
+          },
+          "h22": {
+            "max_abs_error": 4.7737191835039994e-05,
+            "pass": true,
+            "rms_error": 9.02356228232928e-06
+          }
+        },
+        "max_abs_error": 8.812931446300354e-05,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 1.9421179484299994e-05,
+        "samples": 800,
+        "simulator": "verilator (two-state); RTL checked by GHDL (four-state)",
+        "violations": 0
+      },
+      "synthesis_requested": true,
+      "target": "xilinx-7series",
+      "test_vectors": 800,
+      "unique_inputs": 800,
+      "vhdl_sha256": "8654532ac52b3c5c08230b30a5a4b9bdc4bc42a09fadcc63c253f90b5f7012ec"
+    },
+    "audit_vectors_sha256": "da84f66bb66bafaf6a15d34d85c8e9b9d4ad269d63c4c00851d8220407bd9902",
+    "contract": {
+      "clock_mhz": 100.0,
+      "description": "Compute the supplied Python 2D ICP normal_equations function for 0..8 point pairs. Input is packed little-endian by fields: each point pair i occupies bits 128*i..128*i+127, with signed 32-bit px,py,qx,qy in that order, lowest field first, all scaled by 2^16. Bits 1024..1055 are signed tx / 2^16; 1056..1087 signed ty / 2^16; 1088..1119 signed cosine / 2^30; 1120..1151 signed sine / 2^30; 1152..1155 unsigned active count, legal range 0..8. Ignore inactive pairs, whose bits are arbitrary. All coordinates and translations are bounded to [-16,16] metres; cosine/sine are in [-1,1]. Every output is signed 64-bit scaled by 2^32. From LSB to MSB: h02,h12,h22,g0,g1,g2,cost,count. The output count is also scaled by 2^32, NOT an unscaled integer. Zero active points must produce a completely zero packet. Use a sequential datapath to reuse multipliers across the eight pairs; <=64 cycles latency and one input packet per 64 cycles. Widen before products, sums, shifts and subtraction. Intermediate fixed-point rounding is allowed within the per-field error bounds. The entire rotation, residual/Jacobian calculation, matrix reduction and cost must be in VHDL.",
+      "feedback_bits": 0,
+      "initiation_interval": 64,
+      "input_bits": 1156,
+      "max_abs_error": 0.0,
+      "max_brams": 8,
+      "max_dsps": 40,
+      "max_ffs": 6000,
+      "max_latency": 64,
+      "max_luts": 8000,
+      "max_rms_error": 0.0,
+      "name": "slam",
+      "output_bits": 512,
+      "output_fields": [
+        {
+          "bits": 64,
+          "lsb": 0,
+          "max_abs_error": 0.02,
+          "max_rms_error": 0.005,
+          "name": "h02",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 64,
+          "max_abs_error": 0.02,
+          "max_rms_error": 0.005,
+          "name": "h12",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 128,
+          "max_abs_error": 0.02,
+          "max_rms_error": 0.005,
+          "name": "h22",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 192,
+          "max_abs_error": 0.02,
+          "max_rms_error": 0.005,
+          "name": "g0",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 256,
+          "max_abs_error": 0.02,
+          "max_rms_error": 0.005,
+          "name": "g1",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 320,
+          "max_abs_error": 0.02,
+          "max_rms_error": 0.005,
+          "name": "g2",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 384,
+          "max_abs_error": 0.02,
+          "max_rms_error": 0.005,
+          "name": "cost",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 448,
+          "max_abs_error": 0,
+          "max_rms_error": 0,
+          "name": "count",
+          "scale": 4294967296,
+          "signed": true
+        }
+      ],
+      "output_scale": 1.0,
+      "output_signed": false
+    },
+    "development": {
+      "accepted": true,
+      "hardware": {
+        "brams": 0,
+        "cells": {
+          "BUFG": 1,
+          "CARRY4": 206,
+          "DSP48E1": 20,
+          "FDRE": 2192,
+          "INV": 93,
+          "LUT2": 1500,
+          "LUT3": 962,
+          "LUT4": 63,
+          "LUT5": 71,
+          "LUT6": 455,
+          "MUXF7": 71
+        },
+        "dsps": 20,
+        "ffs": 2192,
+        "luts": 3051,
+        "stage": "yosys-xilinx-technology-mapping",
+        "vivado_executed": false
+      },
+      "latency": 58,
+      "numeric": {
+        "comparison": "fieldwise-scaled-numerical",
+        "cycles": 10437,
+        "failures": [],
+        "fields": {
+          "cost": {
+            "max_abs_error": 8.230381399698672e-05,
+            "pass": true,
+            "rms_error": 1.8116418121760933e-05
+          },
+          "count": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "g0": {
+            "max_abs_error": 1.9226969243391068e-06,
+            "pass": true,
+            "rms_error": 4.6688996839035626e-07
+          },
+          "g1": {
+            "max_abs_error": 1.7861578101019404e-06,
+            "pass": true,
+            "rms_error": 4.6532367318387044e-07
+          },
+          "g2": {
+            "max_abs_error": 3.6297445125319655e-05,
+            "pass": true,
+            "rms_error": 8.160295153319653e-06
+          },
+          "h02": {
+            "max_abs_error": 1.7861578101019404e-06,
+            "pass": true,
+            "rms_error": 4.653236728825527e-07
+          },
+          "h12": {
+            "max_abs_error": 1.9226969243391068e-06,
+            "pass": true,
+            "rms_error": 4.6688996839035626e-07
+          },
+          "h22": {
+            "max_abs_error": 3.955786905862624e-05,
+            "pass": true,
+            "rms_error": 9.09967795546067e-06
+          }
+        },
+        "max_abs_error": 8.230381399698672e-05,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 1.929408908984292e-05,
+        "samples": 160,
+        "violations": 0
+      },
+      "physical_timing_measured": false,
+      "post_synthesis": {
+        "comparison": "fieldwise-scaled-numerical",
+        "cycles": 10437,
+        "failures": [],
+        "fields": {
+          "cost": {
+            "max_abs_error": 8.230381399698672e-05,
+            "pass": true,
+            "rms_error": 1.8116418121760933e-05
+          },
+          "count": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "g0": {
+            "max_abs_error": 1.9226969243391068e-06,
+            "pass": true,
+            "rms_error": 4.6688996839035626e-07
+          },
+          "g1": {
+            "max_abs_error": 1.7861578101019404e-06,
+            "pass": true,
+            "rms_error": 4.6532367318387044e-07
+          },
+          "g2": {
+            "max_abs_error": 3.6297445125319655e-05,
+            "pass": true,
+            "rms_error": 8.160295153319653e-06
+          },
+          "h02": {
+            "max_abs_error": 1.7861578101019404e-06,
+            "pass": true,
+            "rms_error": 4.653236728825527e-07
+          },
+          "h12": {
+            "max_abs_error": 1.9226969243391068e-06,
+            "pass": true,
+            "rms_error": 4.6688996839035626e-07
+          },
+          "h22": {
+            "max_abs_error": 3.955786905862624e-05,
+            "pass": true,
+            "rms_error": 9.09967795546067e-06
+          }
+        },
+        "max_abs_error": 8.230381399698672e-05,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 1.929408908984292e-05,
+        "samples": 160,
+        "simulator": "verilator (two-state); RTL checked by GHDL (four-state)",
+        "violations": 0
+      },
+      "synthesis_requested": true,
+      "target": "xilinx-7series",
+      "test_vectors": 160,
+      "unique_inputs": 160,
+      "vhdl_sha256": "8654532ac52b3c5c08230b30a5a4b9bdc4bc42a09fadcc63c253f90b5f7012ec"
+    },
+    "development_vectors_sha256": "7cb58bbbb48009e50c2072bb9f69a3dac9d5b253fc6f5fc80f00202bc2416f17",
+    "model": "gpt-6-astra",
+    "provider": "codex-cli",
+    "rounds_used": 2,
+    "source_sha256": "94e35f54eac3cbf0aa7214321f909344d36b283d2dc16bc2fd88a1f95fa36735",
+    "status": "passed"
+  },
+  "synthetic_dev": {
+    "accepted": true,
+    "checks": {
+      "hardware_float_heading": true,
+      "hardware_float_position": true,
+      "hardware_numerics": true,
+      "improves_odometry": true,
+      "tracking": true,
+      "trajectory_accuracy": true
+    },
+    "dataset": {
+      "beams": 180,
+      "dropout_probability": 0.08,
+      "frames": 120,
+      "ground_truth_used_by_estimator": false,
+      "kind": "synthetic-raycast-2d-lidar",
+      "max_range_m": 12,
+      "odometry_heading_bias_rad_per_frame": 0.0025,
+      "odometry_translation_scale": 1.03,
+      "outlier_probability": 0.025,
+      "range_noise_sigma_m": 0.008,
+      "seed": 41
+    },
+    "dataset_sha256": "34751161d34ab7c01da228bf2c4650e7fe6bcfd297686f265741b07614043a68",
+    "hardware_map_points": 1063,
+    "kernel": {
+      "max_abs_error": {
+        "cost": 3.661023486867254e-07,
+        "count": 0.0,
+        "g0": 2.973725699462193e-06,
+        "g1": 2.696875085916872e-06,
+        "g2": 2.519674244151962e-05,
+        "h02": 2.696875085916872e-06,
+        "h12": 2.973725699462193e-06,
+        "h22": 5.8515532714409346e-05
+      },
+      "packets": 18477,
+      "pass": true,
+      "rms_error": {
+        "cost": 3.858734529060184e-08,
+        "count": 0.0,
+        "g0": 7.647004251708019e-07,
+        "g1": 7.611461820132621e-07,
+        "g2": 4.60964358656136e-06,
+        "h02": 7.611461820132621e-07,
+        "h12": 7.647004251708019e-07,
+        "h22": 9.340219148516161e-06
+      },
+      "scheduled_kernel_cycles": 1182528,
+      "software_fallbacks": 0
+    },
+    "limits": {
+      "hardware_float_max_heading_deg": 0.5,
+      "hardware_float_max_position_m": 0.05,
+      "max_rejected_fraction": 0.05,
+      "synthetic_position_rmse_m": 0.3
+    },
+    "metrics": {
+      "float_vs_truth": {
+        "endpoint_position_error_m": 0.0054199103343422275,
+        "heading_max_deg": 0.6593352803140407,
+        "position_max_m": 0.04278402537850042,
+        "position_rmse_m": 0.025440715269512484
+      },
+      "hardware_vs_float": {
+        "endpoint_position_error_m": 1.6563872916036516e-05,
+        "heading_max_deg": 0.018043033934148,
+        "position_max_m": 0.002229756953461377,
+        "position_rmse_m": 0.00021036756718040953
+      },
+      "hardware_vs_truth": {
+        "endpoint_position_error_m": 0.0054133146138341855,
+        "heading_max_deg": 0.6593363401773507,
+        "position_max_m": 0.04278399715111363,
+        "position_rmse_m": 0.025439211792533018
+      },
+      "odometry_vs_truth": {
+        "endpoint_position_error_m": 0.7070477571951564,
+        "heading_max_deg": 18.08341695556294,
+        "position_max_m": 0.919760879809918,
+        "position_rmse_m": 0.5585376689971343
+      }
+    },
+    "physical_fpga_executed": false,
+    "physical_timing_measured": false,
+    "pose_graph_optimization": false,
+    "rejected_frames": [],
+    "scope": "CPU scan-to-map SLAM with generated VHDL normal equations in mapped-netlist simulation",
+    "simulator": {
+      "candidate_vhdl_sha256": "8654532ac52b3c5c08230b30a5a4b9bdc4bc42a09fadcc63c253f90b5f7012ec",
+      "contract": {
+        "clock_mhz": 100.0,
+        "description": "Compute the supplied Python 2D ICP normal_equations function for 0..8 point pairs. Input is packed little-endian by fields: each point pair i occupies bits 128*i..128*i+127, with signed 32-bit px,py,qx,qy in that order, lowest field first, all scaled by 2^16. Bits 1024..1055 are signed tx / 2^16; 1056..1087 signed ty / 2^16; 1088..1119 signed cosine / 2^30; 1120..1151 signed sine / 2^30; 1152..1155 unsigned active count, legal range 0..8. Ignore inactive pairs, whose bits are arbitrary. All coordinates and translations are bounded to [-16,16] metres; cosine/sine are in [-1,1]. Every output is signed 64-bit scaled by 2^32. From LSB to MSB: h02,h12,h22,g0,g1,g2,cost,count. The output count is also scaled by 2^32, NOT an unscaled integer. Zero active points must produce a completely zero packet. Use a sequential datapath to reuse multipliers across the eight pairs; <=64 cycles latency and one input packet per 64 cycles. Widen before products, sums, shifts and subtraction. Intermediate fixed-point rounding is allowed within the per-field error bounds. The entire rotation, residual/Jacobian calculation, matrix reduction and cost must be in VHDL.",
+        "feedback_bits": 0,
+        "initiation_interval": 64,
+        "input_bits": 1156,
+        "max_abs_error": 0.0,
+        "max_brams": 8,
+        "max_dsps": 40,
+        "max_ffs": 6000,
+        "max_latency": 64,
+        "max_luts": 8000,
+        "max_rms_error": 0.0,
+        "name": "slam",
+        "output_bits": 512,
+        "output_fields": [
+          {
+            "bits": 64,
+            "lsb": 0,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "h02",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 64,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "h12",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 128,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "h22",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 192,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "g0",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 256,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "g1",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 320,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "g2",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 384,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "cost",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 448,
+            "max_abs_error": 0,
+            "max_rms_error": 0,
+            "name": "count",
+            "scale": 4294967296,
+            "signed": true
+          }
+        ],
+        "output_scale": 1.0,
+        "output_signed": false
+      },
+      "latency": 58,
+      "mapped_verilog_sha256": "581c1c8fe34947b09b433b9b0d68a0088fc0f20ff568bde2ce9920dfd9bddbc4",
+      "simulator": "Verilator Xilinx-mapped netlist, two-state"
+    },
+    "status": "passed",
+    "wall_seconds_tracking_and_checks": 31.67667974998767
+  },
+  "synthetic_audit": {
+    "accepted": true,
+    "checks": {
+      "hardware_float_heading": true,
+      "hardware_float_position": true,
+      "hardware_numerics": true,
+      "improves_odometry": true,
+      "tracking": true,
+      "trajectory_accuracy": true
+    },
+    "dataset": {
+      "beams": 180,
+      "dropout_probability": 0.08,
+      "frames": 160,
+      "ground_truth_used_by_estimator": false,
+      "kind": "synthetic-raycast-2d-lidar",
+      "max_range_m": 12,
+      "odometry_heading_bias_rad_per_frame": 0.0025,
+      "odometry_translation_scale": 1.03,
+      "outlier_probability": 0.025,
+      "range_noise_sigma_m": 0.008,
+      "seed": 9827
+    },
+    "dataset_sha256": "2be92229c2fd08e851dff039d21a240e2ed8cbc43f4294f90f35f9da2f4cfeab",
+    "hardware_map_points": 927,
+    "kernel": {
+      "max_abs_error": {
+        "cost": 4.2869248534360693e-07,
+        "count": 0.0,
+        "g0": 2.738451172490386e-06,
+        "g1": 3.027540415700969e-06,
+        "g2": 2.465393601222554e-05,
+        "h02": 3.027540415700969e-06,
+        "h12": 2.738451172490386e-06,
+        "h22": 5.985773316297127e-05
+      },
+      "packets": 26008,
+      "pass": true,
+      "rms_error": {
+        "cost": 3.6719150700264505e-08,
+        "count": 0.0,
+        "g0": 7.679325370497227e-07,
+        "g1": 7.699744513993516e-07,
+        "g2": 4.662359314273376e-06,
+        "h02": 7.699744513993516e-07,
+        "h12": 7.679325370497227e-07,
+        "h22": 9.267844216929532e-06
+      },
+      "scheduled_kernel_cycles": 1664512,
+      "software_fallbacks": 0
+    },
+    "limits": {
+      "hardware_float_max_heading_deg": 0.5,
+      "hardware_float_max_position_m": 0.05,
+      "max_rejected_fraction": 0.05,
+      "synthetic_position_rmse_m": 0.3
+    },
+    "metrics": {
+      "float_vs_truth": {
+        "endpoint_position_error_m": 0.01958373989667141,
+        "heading_max_deg": 0.3587660944611855,
+        "position_max_m": 0.035808640436552214,
+        "position_rmse_m": 0.02264359643998289
+      },
+      "hardware_vs_float": {
+        "endpoint_position_error_m": 3.8605596606857063e-07,
+        "heading_max_deg": 1.4001167700590706e-05,
+        "position_max_m": 1.8247472683644482e-06,
+        "position_rmse_m": 7.904925588117477e-07
+      },
+      "hardware_vs_truth": {
+        "endpoint_position_error_m": 0.019584043470093064,
+        "heading_max_deg": 0.35876970755669857,
+        "position_max_m": 0.03580867637197317,
+        "position_rmse_m": 0.02264347134370296
+      },
+      "odometry_vs_truth": {
+        "endpoint_position_error_m": 0.7638633221910197,
+        "heading_max_deg": 22.128729752289686,
+        "position_max_m": 1.0792803813650036,
+        "position_rmse_m": 0.6544896695103674
+      }
+    },
+    "physical_fpga_executed": false,
+    "physical_timing_measured": false,
+    "pose_graph_optimization": false,
+    "rejected_frames": [],
+    "scope": "CPU scan-to-map SLAM with generated VHDL normal equations in mapped-netlist simulation",
+    "simulator": {
+      "candidate_vhdl_sha256": "8654532ac52b3c5c08230b30a5a4b9bdc4bc42a09fadcc63c253f90b5f7012ec",
+      "contract": {
+        "clock_mhz": 100.0,
+        "description": "Compute the supplied Python 2D ICP normal_equations function for 0..8 point pairs. Input is packed little-endian by fields: each point pair i occupies bits 128*i..128*i+127, with signed 32-bit px,py,qx,qy in that order, lowest field first, all scaled by 2^16. Bits 1024..1055 are signed tx / 2^16; 1056..1087 signed ty / 2^16; 1088..1119 signed cosine / 2^30; 1120..1151 signed sine / 2^30; 1152..1155 unsigned active count, legal range 0..8. Ignore inactive pairs, whose bits are arbitrary. All coordinates and translations are bounded to [-16,16] metres; cosine/sine are in [-1,1]. Every output is signed 64-bit scaled by 2^32. From LSB to MSB: h02,h12,h22,g0,g1,g2,cost,count. The output count is also scaled by 2^32, NOT an unscaled integer. Zero active points must produce a completely zero packet. Use a sequential datapath to reuse multipliers across the eight pairs; <=64 cycles latency and one input packet per 64 cycles. Widen before products, sums, shifts and subtraction. Intermediate fixed-point rounding is allowed within the per-field error bounds. The entire rotation, residual/Jacobian calculation, matrix reduction and cost must be in VHDL.",
+        "feedback_bits": 0,
+        "initiation_interval": 64,
+        "input_bits": 1156,
+        "max_abs_error": 0.0,
+        "max_brams": 8,
+        "max_dsps": 40,
+        "max_ffs": 6000,
+        "max_latency": 64,
+        "max_luts": 8000,
+        "max_rms_error": 0.0,
+        "name": "slam",
+        "output_bits": 512,
+        "output_fields": [
+          {
+            "bits": 64,
+            "lsb": 0,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "h02",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 64,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "h12",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 128,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "h22",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 192,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "g0",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 256,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "g1",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 320,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "g2",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 384,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "cost",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 448,
+            "max_abs_error": 0,
+            "max_rms_error": 0,
+            "name": "count",
+            "scale": 4294967296,
+            "signed": true
+          }
+        ],
+        "output_scale": 1.0,
+        "output_signed": false
+      },
+      "latency": 58,
+      "mapped_verilog_sha256": "581c1c8fe34947b09b433b9b0d68a0088fc0f20ff568bde2ce9920dfd9bddbc4",
+      "simulator": "Verilator Xilinx-mapped netlist, two-state"
+    },
+    "status": "passed",
+    "wall_seconds_tracking_and_checks": 44.40445458400063
+  },
+  "intel": {
+    "accepted": false,
+    "checks": {
+      "hardware_float_heading": false,
+      "hardware_float_position": false,
+      "hardware_numerics": true,
+      "tracking": true
+    },
+    "dataset": {
+      "angular_step_deg": 1,
+      "duration_seconds": 472.6099829673767,
+      "file": "hawkfish-intel.clf.bz2",
+      "file_sha256": "d9ce4addefc9405d5e78fd883d2214766552537d262009f8e6f0137885f9f72a",
+      "first_angle_deg": -90,
+      "frames": 240,
+      "ground_truth_available": false,
+      "kind": "recorded-carmen-flaser",
+      "last_scan": 2390,
+      "max_range_m": 12.0,
+      "motion_prior": "FLASER odom_x/odom_y/odom_theta; corrected pose fields ignored",
+      "start_scan": 0,
+      "stride": 10
+    },
+    "dataset_sha256": "1e6fb1e9bf0379b7fcebebc4cca63bfdf555e4ba0a12cb056ee8c417e9ff21d2",
+    "hardware_map_points": 4463,
+    "kernel": {
+      "max_abs_error": {
+        "cost": 1.1949593224924726e-06,
+        "count": 0.0,
+        "g0": 3.125386015767617e-06,
+        "g1": 2.9756068897768273e-06,
+        "g2": 2.367284264866154e-05,
+        "h02": 2.9756068897768273e-06,
+        "h12": 3.125386015767617e-06,
+        "h22": 4.167650035924453e-05
+      },
+      "packets": 40366,
+      "pass": true,
+      "rms_error": {
+        "cost": 7.567628545695682e-08,
+        "count": 0.0,
+        "g0": 7.772280309645533e-07,
+        "g1": 7.665651143526214e-07,
+        "g2": 2.1904634608013762e-06,
+        "h02": 7.665651143526214e-07,
+        "h12": 7.772280309645533e-07,
+        "h22": 4.4778364682943154e-06
+      },
+      "scheduled_kernel_cycles": 2583424,
+      "software_fallbacks": 0
+    },
+    "limits": {
+      "hardware_float_max_heading_deg": 0.5,
+      "hardware_float_max_position_m": 0.05,
+      "max_rejected_fraction": 0.05,
+      "synthetic_position_rmse_m": 0.3
+    },
+    "metrics": {
+      "hardware_vs_float": {
+        "endpoint_position_error_m": 0.5048258186897566,
+        "heading_max_deg": 5.824380507766685,
+        "position_max_m": 0.5048258186897566,
+        "position_rmse_m": 0.13162835787950694
+      }
+    },
+    "physical_fpga_executed": false,
+    "physical_timing_measured": false,
+    "pose_graph_optimization": false,
+    "rejected_frames": [],
+    "scope": "CPU scan-to-map SLAM with generated VHDL normal equations in mapped-netlist simulation",
+    "simulator": {
+      "candidate_vhdl_sha256": "8654532ac52b3c5c08230b30a5a4b9bdc4bc42a09fadcc63c253f90b5f7012ec",
+      "contract": {
+        "clock_mhz": 100.0,
+        "description": "Compute the supplied Python 2D ICP normal_equations function for 0..8 point pairs. Input is packed little-endian by fields: each point pair i occupies bits 128*i..128*i+127, with signed 32-bit px,py,qx,qy in that order, lowest field first, all scaled by 2^16. Bits 1024..1055 are signed tx / 2^16; 1056..1087 signed ty / 2^16; 1088..1119 signed cosine / 2^30; 1120..1151 signed sine / 2^30; 1152..1155 unsigned active count, legal range 0..8. Ignore inactive pairs, whose bits are arbitrary. All coordinates and translations are bounded to [-16,16] metres; cosine/sine are in [-1,1]. Every output is signed 64-bit scaled by 2^32. From LSB to MSB: h02,h12,h22,g0,g1,g2,cost,count. The output count is also scaled by 2^32, NOT an unscaled integer. Zero active points must produce a completely zero packet. Use a sequential datapath to reuse multipliers across the eight pairs; <=64 cycles latency and one input packet per 64 cycles. Widen before products, sums, shifts and subtraction. Intermediate fixed-point rounding is allowed within the per-field error bounds. The entire rotation, residual/Jacobian calculation, matrix reduction and cost must be in VHDL.",
+        "feedback_bits": 0,
+        "initiation_interval": 64,
+        "input_bits": 1156,
+        "max_abs_error": 0.0,
+        "max_brams": 8,
+        "max_dsps": 40,
+        "max_ffs": 6000,
+        "max_latency": 64,
+        "max_luts": 8000,
+        "max_rms_error": 0.0,
+        "name": "slam",
+        "output_bits": 512,
+        "output_fields": [
+          {
+            "bits": 64,
+            "lsb": 0,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "h02",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 64,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "h12",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 128,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "h22",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 192,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "g0",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 256,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "g1",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 320,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "g2",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 384,
+            "max_abs_error": 0.02,
+            "max_rms_error": 0.005,
+            "name": "cost",
+            "scale": 4294967296,
+            "signed": true
+          },
+          {
+            "bits": 64,
+            "lsb": 448,
+            "max_abs_error": 0,
+            "max_rms_error": 0,
+            "name": "count",
+            "scale": 4294967296,
+            "signed": true
+          }
+        ],
+        "output_scale": 1.0,
+        "output_signed": false
+      },
+      "latency": 58,
+      "mapped_verilog_sha256": "581c1c8fe34947b09b433b9b0d68a0088fc0f20ff568bde2ce9920dfd9bddbc4",
+      "simulator": "Verilator Xilinx-mapped netlist, two-state"
+    },
+    "status": "failed",
+    "wall_seconds_tracking_and_checks": 67.29757083299046
+  },
+  "input_precision_isolation": {
+    "method": "Same floating reduction and tracker; only packed-input quantization changes. Compare with unquantized float baseline on the same 240 Intel scans.",
+    "q16_position_rmse_m": 0.15204463609577434,
+    "q16_position_max_m": 0.37691821173528023,
+    "q24_position_rmse_m": 3.7600850016185455e-08,
+    "q24_position_max_m": 8.175460034375017e-08,
+    "hardware_used_in_this_isolation": false
+  }
+}

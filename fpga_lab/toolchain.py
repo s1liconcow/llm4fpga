@@ -14,20 +14,26 @@ class Toolchain:
     image: str = 'xls-e2e-tools:local'
     platform: str | None = None
 
-    def run(self, command: list[str], folder: Path, *, timeout: int = 180,
-            log: str = 'tool.log') -> str:
-        folder = folder.resolve()
-        folder.mkdir(parents=True, exist_ok=True)
-        name = 'fpga-lab-' + uuid.uuid4().hex[:16]
+    def command(self, command: list[str], folder: Path, name: str, *, interactive: bool = False) -> list[str]:
+        """Shared isolation policy for batch tools and persistent simulator sessions."""
         args = [self.runtime, 'run', '--rm', '--pull=never', '--name', name, '--network=none',
                 '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges',
                 '--pids-limit=128', '--memory=1536m', '--cpus=4',
                 '--sysctl=net.ipv4.ping_group_range=0 0',
                 '--tmpfs=/tmp:rw,size=256m',
-                '-v', f'{folder}:/work:rw', '-w', '/work', '-e', 'HOME=/tmp']
+                '-v', f'{folder.resolve()}:/work:rw', '-w', '/work', '-e', 'HOME=/tmp']
+        if interactive:
+            args += ['-i']
         if self.platform:
             args += ['--platform', self.platform]
-        args += [self.image, *command]
+        return [*args, self.image, *command]
+
+    def run(self, command: list[str], folder: Path, *, timeout: int = 180,
+            log: str = 'tool.log') -> str:
+        folder = folder.resolve()
+        folder.mkdir(parents=True, exist_ok=True)
+        name = 'fpga-lab-' + uuid.uuid4().hex[:16]
+        args = self.command(command, folder, name)
         log_path = folder / log
         # Do not pass host environment variables into the container.
         try:

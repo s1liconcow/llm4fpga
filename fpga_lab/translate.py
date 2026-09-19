@@ -31,6 +31,9 @@ overflow, unintended truncation, and oversized multipliers. Bounded iterative st
 are preferable to fully unrolling complex loops when the allowed initiation interval permits.
 For floating source, select fixed-point ranges, widths and rounding that meet the explicit error
 contract; explain the approximation and bounds in notes. Never silently change the contract.
+If output_fields is supplied, pack each signed/unsigned result at its specified lsb offset
+and obey that field's scale and error limits independently. Resource budgets are enforced
+after Yosys Xilinx mapping. Reuse arithmetic over cycles when the initiation interval permits.
 Optimize measured area once correctness holds. Successful syntax alone is not success.
 '''
 

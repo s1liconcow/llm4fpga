@@ -13,6 +13,7 @@ from .emit_vhdl import normalizer_vhdl
 from .hash_demo import hash_message
 from .problem import Contract, Golden, ROOT, write_json
 from .structured import Design, search
+from .slam_kernel import prepare_slam
 from .toolchain import Toolchain
 from .translate import translate
 from .vhdl import Proposal, evaluate
@@ -55,7 +56,7 @@ def main(argv=None) -> int:
     hash_cmd.add_argument('--proposal',type=Path,default=ROOT/'examples/sha256/recorded_codex.json')
     hash_cmd.add_argument('--out',type=Path,default=Path('runs/hash'))
     prepare = sub.add_parser('prepare',help='Create source, contract and independent vectors')
-    prepare.add_argument('benchmark',choices=['sha256','normalizer'])
+    prepare.add_argument('benchmark',choices=['sha256','normalizer','slam'])
     prepare.add_argument('--out',type=Path,required=True)
     prepare.add_argument('--octave',action='store_true')
     for name in ('translate','demo'):
@@ -63,7 +64,7 @@ def main(argv=None) -> int:
         if name=='translate':
             cmd.add_argument('spec',type=Path)
         else:
-            cmd.add_argument('benchmark',choices=['sha256','normalizer'])
+            cmd.add_argument('benchmark',choices=['sha256','normalizer','slam'])
             cmd.add_argument('--octave',action='store_true')
         cmd.add_argument('--out',type=Path,required=True)
         cmd.add_argument('--rounds',type=int,default=3)
@@ -71,6 +72,15 @@ def main(argv=None) -> int:
         cmd.add_argument('--replay',type=Path,help='Verify a saved JSON proposal without calling Codex')
         cmd.add_argument('--simulation-only',action='store_true')
         cmd.add_argument('--resume',action='store_true',help='Recheck saved candidates and continue an interrupted run')
+    slam = sub.add_parser('slam',help='Run scan-to-map SLAM with generated, Xilinx-mapped RTL in the tracking loop')
+    slam.add_argument('--candidate',type=Path,required=True,help='Verified final directory from demo slam')
+    slam.add_argument('--out',type=Path,required=True)
+    slam.add_argument('--frames',type=int,default=120)
+    slam.add_argument('--seed',type=int,default=41)
+    slam.add_argument('--server',type=Path,help='Reuse an already compiled matching simulator directory')
+    slam.add_argument('--carmen',type=Path,help='Use recorded 180/181-beam CARMEN FLASER scans (.clf or .bz2)')
+    slam.add_argument('--stride',type=int,default=10,help='Recorded-data scan stride')
+    slam.add_argument('--start',type=int,default=0,help='First recorded scan index')
     structured = sub.add_parser('structured',help='Run the original numerical design search')
     structured.add_argument('--out',type=Path,default=Path('runs/structured'))
     structured.add_argument('--hardware',action='store_true')
@@ -86,6 +96,17 @@ def main(argv=None) -> int:
             message = args.text.encode('utf-8') if args.text is not None else args.file.read_bytes()
             print(json.dumps(hash_message(message,args.proposal,args.out),indent=2))
             return 0
+        if args.command=='slam':
+            from .slam import load_carmen, run_slam
+            try:
+                import scipy, matplotlib  # check optional dependencies before doing work
+            except ImportError as exc:
+                raise ValueError('Install the SLAM extras: uv pip install -e ".[slam]"') from exc
+            dataset = load_carmen(args.carmen,frames=args.frames,stride=args.stride,start=args.start) if args.carmen else None
+            result = run_slam(args.candidate,args.out,frames=args.frames,seed=args.seed,server=args.server,dataset=dataset)
+            print(json.dumps({'accepted':result['accepted'],'metrics':result['metrics'],
+                              'summary':str(args.out/'summary.json'),'plot':str(args.out/'trajectory.png')},indent=2))
+            return 0 if result['accepted'] else 2
         if args.command in {'prepare','demo'}:
             if args.command == 'demo' and not args.resume and (args.out / 'manifest.json').exists():
                 raise ValueError('Output already has results; choose a fresh --out directory')
@@ -96,6 +117,7 @@ def main(argv=None) -> int:
             else:
                 golden = octave_golden(args.out / 'oracle') if args.octave and args.benchmark=='normalizer' else None
                 spec_path = (prepare_sha256(args.out / 'input') if args.benchmark=='sha256'
+                             else prepare_slam(args.out / 'input') if args.benchmark=='slam'
                              else prepare_normalizer(args.out / 'input',golden))
             if args.command=='prepare':
                 print(spec_path)
@@ -131,6 +153,6 @@ def main(argv=None) -> int:
             tools=Toolchain('podman','xls-e2e-xls:local','linux/amd64')
             print(tools.run(['bash','xls_to_verilog.sh','candidate.x','.'],args.out,timeout=300,log='xls.log'))
             return 0
-    except (ValueError, RuntimeError, FileNotFoundError, subprocess.SubprocessError) as exc:
+    except (ValueError, RuntimeError, FileNotFoundError, TimeoutError, subprocess.SubprocessError) as exc:
         parser.exit(2,f'error: {exc}\n')
     return 0

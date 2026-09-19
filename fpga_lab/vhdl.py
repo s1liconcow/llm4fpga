@@ -142,6 +142,7 @@ def score_trace(text: str, spec: TranslationSpec, expected: dict[int, Vector], c
     mismatches = 0
     samples = 0
     exact = spec.max_abs_error == 0 and spec.max_rms_error == 0
+    field_errors = {field.name: [] for field in spec.output_fields}
     for cycle, row in enumerate(rows):
         fields = row.split()
         if len(fields) != 3 or fields[0] != str(cycle):
@@ -157,7 +158,22 @@ def score_trace(text: str, spec: TranslationSpec, expected: dict[int, Vector], c
         value = int(fields[2], 16)
         vector = expected[cycle]
         samples += 1
-        if exact:
+        bad_fields = []
+        if spec.output_fields:
+            for index, field in enumerate(spec.output_fields):
+                actual = field.decode(value)
+                if field.max_abs_error == field.max_rms_error == 0:
+                    mask = (1 << field.bits)-1
+                    err = float(((value >> field.lsb) & mask) != ((vector.output >> field.lsb) & mask))
+                else:
+                    err = abs(actual - vector.reference[index])
+                field_errors[field.name].append(err)
+                if err > field.max_abs_error:
+                    bad_fields.append({'field': field.name, 'actual': actual,
+                                       'reference': vector.reference[index], 'abs_error': err})
+            error = max(field_errors[f.name][-1] for f in spec.output_fields)
+            bad = bool(bad_fields)
+        elif exact:
             error = 0.0 if value == vector.output else 1.0
             bad = value != vector.output
         else:
@@ -169,12 +185,21 @@ def score_trace(text: str, spec: TranslationSpec, expected: dict[int, Vector], c
             mismatches += 1
             if len(failures) < 8:
                 failures.append({'cycle': cycle, 'input': hex(vector.input), 'expected': hex(vector.output),
-                                 'actual': hex(value), 'error': error, 'label': vector.label})
+                                 'actual': hex(value), 'error': error, 'label': vector.label,
+                                 **({'fields': bad_fields} if bad_fields else {})})
     maximum = max(errors)
     rms = math.sqrt(sum(e*e for e in errors) / len(errors))
-    return {'pass': mismatches == 0 and (exact or rms <= spec.max_rms_error),
+    field_stats = {}
+    for field in spec.output_fields:
+        errs = field_errors[field.name]
+        field_rms = math.sqrt(sum(e*e for e in errs)/len(errs))
+        field_stats[field.name] = {'max_abs_error': max(errs), 'rms_error': field_rms,
+                                  'pass': max(errs) <= field.max_abs_error and field_rms <= field.max_rms_error}
+    return {'pass': mismatches == 0 and (all(f['pass'] for f in field_stats.values()) if field_stats else (exact or rms <= spec.max_rms_error)),
             'samples': samples, 'cycles': count, 'violations': mismatches,
-            'max_abs_error': maximum, 'rms_error': rms, 'comparison': 'bit-exact' if exact else 'scaled-numerical',
+            'max_abs_error': maximum, 'rms_error': rms,
+            'comparison': 'fieldwise-scaled-numerical' if field_stats else ('bit-exact' if exact else 'scaled-numerical'),
+            **({'fields': field_stats} if field_stats else {}),
             'failures': failures, 'protocol_pass': True}
 
 
@@ -265,6 +290,10 @@ def evaluate(proposal: Proposal, spec: TranslationSpec, vectors: list[Vector], f
                                       'dsps': sum(v for k,v in counts.items() if k.startswith('DSP')),
                                       'brams': sum(v for k,v in counts.items() if k.startswith('RAMB')),
                                       'stage': 'yosys-xilinx-technology-mapping', 'vivado_executed': False}
+                for resource in ('luts', 'ffs', 'dsps', 'brams'):
+                    limit = getattr(spec, 'max_' + resource)
+                    if limit is not None and result['hardware'][resource] > limit:
+                        raise ValueError(f'{resource} budget exceeded: {result["hardware"][resource]} > {limit}')
                 (folder / 'gate_tb.v').write_text(gate_testbench(spec, len(cycles)))
                 (folder / 'gate_trace.txt').unlink(missing_ok=True)
                 # GHDL above checks four-state behavior. Verilator compiles the mapped circuit

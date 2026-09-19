@@ -10,6 +10,7 @@ dependencies = ["numpy>=1.26,<3"]
 [project.optional-dependencies]
 agent = ["openai>=2.0,<3"]
 test = ["pytest>=8,<10"]
+slam = ["scipy>=1.11,<2", "matplotlib>=3.8,<4"]
 [project.scripts]
 fpga-lab = "fpga_lab.cli:main"
 [tool.setuptools.packages.find]

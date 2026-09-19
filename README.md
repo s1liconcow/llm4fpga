@@ -10,7 +10,8 @@ This project runs on Apple Silicon using **Podman**, with Codex on the host and
 GHDL, Yosys, Verilator, Icarus and Octave in Linux containers. The original Google XLS
 path is also working in a separate x86 Linux container.
 
-**Verified demos:** Python SHA-256 and MATLAB nonlinear sensor normalization.
+**Verified demos:** Python SHA-256, MATLAB nonlinear sensor normalization, and
+[2D LiDAR SLAM with generated VHDL in its tracking loop](docs/demo-results.md#slam-hardware-in-a-feedback-loop).
 See [measured results](docs/demo-results.md) and [architecture and scope](docs/architecture.md).
 This is a research prototype with demonstrated kernels, not a proven SOTA compiler
 for unrestricted Python/MATLAB. Floating-point source currently becomes bounded-error
@@ -71,6 +72,21 @@ Each run saves source/vector hashes, the exact prompt and response, development
 feedback, a held-out audit, VHDL, simulation traces, synthesis logs, resource counts,
 and `final/vivado.tcl`. Errors or audit failures return a nonzero exit status.
 
+## Try SLAM
+
+```bash
+uv pip install --python .venv/bin/python -e '.[slam]'
+fpga-lab demo slam --out runs/slam-core --replay examples/slam/recorded_codex.json
+fpga-lab slam --candidate runs/slam-core/final --out runs/slam-loop
+```
+
+Omit `--replay` to have Codex generate a new kernel. The host estimates poses and
+builds a map from LiDAR scans; each refinement uses normal equations produced by
+the actual Xilinx-mapped circuit in simulation. The demo writes trajectory/map
+plots and scores drift against ground truth and a separate floating baseline.
+[The demo report](docs/demo-results.md) explains the results, the host and hardware
+roles, and how to replay public Intel laser data.
+
 ## Translate another algorithm
 
 Provide a `.py` or `.m` specification, a JSON contract, and separate independently
@@ -102,6 +118,12 @@ Hex values are unsigned **bit patterns**, including two's-complement signed valu
 `reference` is required for approximate arithmetic. For exact integer/bitwise output,
 set both error limits to zero; comparison preserves every bit, including 256-bit hashes.
 Paths are relative to the contract. Supply packed fixed-size inputs for arrays or structs.
+
+Packed numerical outputs can define `output_fields`, each with its own `name`,
+`bits`, `lsb`, `signed`, `scale`, `max_abs_error` and `max_rms_error`. Fields must
+cover the bus exactly once; references become arrays in field order. Optional
+`max_luts`, `max_ffs`, `max_dsps` and `max_brams` reject oversized mapped candidates.
+`fpga-lab prepare slam --out runs/slam-contract` produces a complete example.
 
 ```bash
 fpga-lab translate path/to/spec.json --out runs/my-kernel --rounds 4

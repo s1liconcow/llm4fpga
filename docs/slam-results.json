@@ -1,0 +1,387 @@
+{
+  "accepted": true,
+  "cases": {
+    "intel-development": {
+      "accepted": true,
+      "checks": {
+        "hardware_float_heading": true,
+        "hardware_float_position": true,
+        "hardware_numerics": true,
+        "tracking": true
+      },
+      "dataset": {
+        "angular_step_deg": 1,
+        "duration_seconds": 472.6099829673767,
+        "file": "intel.clf.bz2",
+        "file_sha256": "d9ce4addefc9405d5e78fd883d2214766552537d262009f8e6f0137885f9f72a",
+        "first_angle_deg": -90,
+        "frames": 240,
+        "ground_truth_available": false,
+        "kind": "recorded-carmen-flaser",
+        "last_scan": 2390,
+        "max_range_m": 12.0,
+        "motion_prior": "FLASER odom_x/odom_y/odom_theta; corrected pose fields ignored",
+        "start_scan": 0,
+        "stride": 10
+      },
+      "kernel": {
+        "max_abs_error": {
+          "cost": 4.4984218572352574e-09,
+          "count": 0.0,
+          "g0": 1.2319255837667242e-08,
+          "g1": 1.1920046061320022e-08,
+          "g2": 7.564970339046795e-08,
+          "h02": 1.1920047171543047e-08,
+          "h12": 1.231926205491618e-08,
+          "h22": 1.8177445326728048e-07
+        },
+        "packets": 41239,
+        "pass": true,
+        "rms_error": {
+          "cost": 4.0387427775471135e-10,
+          "count": 0.0,
+          "g0": 3.0037460538278143e-09,
+          "g1": 3.0043875865032602e-09,
+          "g2": 8.678191524721654e-09,
+          "h02": 3.0043875862979056e-09,
+          "h12": 3.003746055086762e-09,
+          "h22": 1.722042501142557e-08
+        },
+        "scheduled_kernel_cycles": 2639296,
+        "software_fallbacks": 0
+      },
+      "metrics": {
+        "hardware_vs_float": {
+          "endpoint_position_error_m": 2.9572896286492658e-08,
+          "heading_max_deg": 3.4667470983665923e-07,
+          "position_max_m": 5.4115353750879205e-08,
+          "position_rmse_m": 2.5164263752805297e-08
+        }
+      }
+    },
+    "intel-unseen-segment": {
+      "accepted": true,
+      "checks": {
+        "hardware_float_heading": true,
+        "hardware_float_position": true,
+        "hardware_numerics": true,
+        "tracking": true
+      },
+      "dataset": {
+        "angular_step_deg": 1,
+        "duration_seconds": 314.0072319507599,
+        "file": "intel.clf.bz2",
+        "file_sha256": "d9ce4addefc9405d5e78fd883d2214766552537d262009f8e6f0137885f9f72a",
+        "first_angle_deg": -90,
+        "frames": 160,
+        "ground_truth_available": false,
+        "kind": "recorded-carmen-flaser",
+        "last_scan": 5590,
+        "max_range_m": 12.0,
+        "motion_prior": "FLASER odom_x/odom_y/odom_theta; corrected pose fields ignored",
+        "start_scan": 4000,
+        "stride": 10
+      },
+      "kernel": {
+        "max_abs_error": {
+          "cost": 4.092697403201839e-09,
+          "count": 0.0,
+          "g0": 1.1350240525231925e-08,
+          "g1": 1.2290022777250442e-08,
+          "g2": 8.038005772093015e-08,
+          "h02": 1.2290023221339652e-08,
+          "h12": 1.135023985909811e-08,
+          "h22": 1.7788659079087665e-07
+        },
+        "packets": 29896,
+        "pass": true,
+        "rms_error": {
+          "cost": 4.1572897056376245e-10,
+          "count": 0.0,
+          "g0": 3.000666499860494e-09,
+          "g1": 3.0075293167993484e-09,
+          "g2": 1.0401438865302709e-08,
+          "h02": 3.0075293013294137e-09,
+          "h12": 3.000666502066182e-09,
+          "h22": 2.0896057959218013e-08
+        },
+        "scheduled_kernel_cycles": 1913344,
+        "software_fallbacks": 0
+      },
+      "metrics": {
+        "hardware_vs_float": {
+          "endpoint_position_error_m": 1.1698420464954781e-08,
+          "heading_max_deg": 3.940973399149042e-07,
+          "position_max_m": 1.7374064949604003e-08,
+          "position_rmse_m": 9.817719939751828e-09
+        }
+      }
+    },
+    "synthetic-41": {
+      "accepted": true,
+      "checks": {
+        "hardware_float_heading": true,
+        "hardware_float_position": true,
+        "hardware_numerics": true,
+        "improves_odometry": true,
+        "tracking": true,
+        "trajectory_accuracy": true
+      },
+      "dataset": {
+        "beams": 180,
+        "dropout_probability": 0.08,
+        "frames": 120,
+        "ground_truth_used_by_estimator": false,
+        "kind": "synthetic-raycast-2d-lidar",
+        "max_range_m": 12,
+        "odometry_heading_bias_rad_per_frame": 0.0025,
+        "odometry_translation_scale": 1.03,
+        "outlier_probability": 0.025,
+        "range_noise_sigma_m": 0.008,
+        "seed": 41
+      },
+      "kernel": {
+        "max_abs_error": {
+          "cost": 1.8854390965161727e-09,
+          "count": 0.0,
+          "g0": 1.1031375146686173e-08,
+          "g1": 1.1778603259404719e-08,
+          "g2": 9.030370987875985e-08,
+          "h02": 1.1778603425938172e-08,
+          "h12": 1.1031374924641568e-08,
+          "h22": 2.1129619653947884e-07
+        },
+        "packets": 18513,
+        "pass": true,
+        "rms_error": {
+          "cost": 3.077282672344137e-10,
+          "count": 0.0,
+          "g0": 2.993224902083047e-09,
+          "g1": 3.007438076641947e-09,
+          "g2": 1.8108329677837972e-08,
+          "h02": 3.0074380777733487e-09,
+          "h12": 2.9932249024104134e-09,
+          "h22": 3.635507526642596e-08
+        },
+        "scheduled_kernel_cycles": 1184832,
+        "software_fallbacks": 0
+      },
+      "metrics": {
+        "float_vs_truth": {
+          "endpoint_position_error_m": 0.0054199103343422275,
+          "heading_max_deg": 0.6593352803140407,
+          "position_max_m": 0.04278402537850042,
+          "position_rmse_m": 0.025440715269512484
+        },
+        "hardware_map_vs_truth": {
+          "nearest_wall_p95_m": 0.05166593791147255,
+          "nearest_wall_rmse_m": 0.03290279324912004,
+          "points": 1062
+        },
+        "hardware_vs_float": {
+          "endpoint_position_error_m": 3.3486722844008693e-09,
+          "heading_max_deg": 7.371271340866063e-08,
+          "position_max_m": 8.89641006209177e-09,
+          "position_rmse_m": 3.995255803267209e-09
+        },
+        "hardware_vs_truth": {
+          "endpoint_position_error_m": 0.005419912314902884,
+          "heading_max_deg": 0.6593352673201771,
+          "position_max_m": 0.042784029518003364,
+          "position_rmse_m": 0.025440715772410333
+        },
+        "odometry_vs_truth": {
+          "endpoint_position_error_m": 0.7070477571951564,
+          "heading_max_deg": 18.08341695556294,
+          "position_max_m": 0.919760879809918,
+          "position_rmse_m": 0.5585376689971343
+        }
+      }
+    },
+    "synthetic-9827": {
+      "accepted": true,
+      "checks": {
+        "hardware_float_heading": true,
+        "hardware_float_position": true,
+        "hardware_numerics": true,
+        "improves_odometry": true,
+        "tracking": true,
+        "trajectory_accuracy": true
+      },
+      "dataset": {
+        "beams": 180,
+        "dropout_probability": 0.08,
+        "frames": 160,
+        "ground_truth_used_by_estimator": false,
+        "kind": "synthetic-raycast-2d-lidar",
+        "max_range_m": 12,
+        "odometry_heading_bias_rad_per_frame": 0.0025,
+        "odometry_translation_scale": 1.03,
+        "outlier_probability": 0.025,
+        "range_noise_sigma_m": 0.008,
+        "seed": 9827
+      },
+      "kernel": {
+        "max_abs_error": {
+          "cost": 1.874684074643085e-09,
+          "count": 0.0,
+          "g0": 1.0864009358790838e-08,
+          "g1": 1.1361033003254306e-08,
+          "g2": 1.0003558320939576e-07,
+          "h02": 1.1361031226897467e-08,
+          "h12": 1.0864011912303795e-08,
+          "h22": 1.9712535959115485e-07
+        },
+        "packets": 25990,
+        "pass": true,
+        "rms_error": {
+          "cost": 3.001279877769881e-10,
+          "count": 0.0,
+          "g0": 3.0155251475922066e-09,
+          "g1": 3.0073996051674275e-09,
+          "g2": 1.8223905326401606e-08,
+          "h02": 3.0073995988616304e-09,
+          "h12": 3.0155251359081494e-09,
+          "h22": 3.673974157771284e-08
+        },
+        "scheduled_kernel_cycles": 1663360,
+        "software_fallbacks": 0
+      },
+      "metrics": {
+        "float_vs_truth": {
+          "endpoint_position_error_m": 0.01958373989667141,
+          "heading_max_deg": 0.3587660944611855,
+          "position_max_m": 0.035808640436552214,
+          "position_rmse_m": 0.02264359643998289
+        },
+        "hardware_map_vs_truth": {
+          "nearest_wall_p95_m": 0.044974289265016135,
+          "nearest_wall_rmse_m": 0.045623351385980955,
+          "points": 927
+        },
+        "hardware_vs_float": {
+          "endpoint_position_error_m": 3.746841283608481e-09,
+          "heading_max_deg": 8.290950354783072e-08,
+          "position_max_m": 7.272274313458877e-09,
+          "position_rmse_m": 3.30123301159701e-09
+        },
+        "hardware_vs_truth": {
+          "endpoint_position_error_m": 0.019583736286388466,
+          "heading_max_deg": 0.35876606071860456,
+          "position_max_m": 0.03580863837545643,
+          "position_rmse_m": 0.02264359559573977
+        },
+        "odometry_vs_truth": {
+          "endpoint_position_error_m": 0.7638633221910197,
+          "heading_max_deg": 22.128729752289686,
+          "position_max_m": 1.0792803813650036,
+          "position_rmse_m": 0.6544896695103674
+        }
+      }
+    }
+  },
+  "kernel_packets": 115638,
+  "status": "passed",
+  "simulator": {
+    "candidate_vhdl_sha256": "95ce9c2e6fc77aad90dd05f9eb16ae60d7657ff72ad684f2459b3c018201b20f",
+    "contract": {
+      "clock_mhz": 100.0,
+      "description": "Compute the supplied Python 2D ICP normal_equations function for 0..8 point pairs. Input is packed little-endian by fields: each point pair i occupies bits 128*i..128*i+127, with signed 32-bit px,py,qx,qy in that order, lowest field first, all scaled by 2^24. Bits 1024..1055 are signed tx / 2^24; 1056..1087 signed ty / 2^24; 1088..1119 signed cosine / 2^30; 1120..1151 signed sine / 2^30; 1152..1155 unsigned active count, legal range 0..8. Ignore inactive pairs, whose bits are arbitrary. All coordinates and translations are bounded to [-16,16] metres; cosine/sine are in [-1,1]. Every output is signed 64-bit scaled by 2^32. From LSB to MSB: h02,h12,h22,g0,g1,g2,cost,count. The output count is also scaled by 2^32, NOT an unscaled integer. Zero active points must produce a completely zero packet. Use a sequential datapath to reuse multipliers across the eight pairs; <=64 cycles latency and one input packet per 64 cycles. Widen before products, sums, shifts and subtraction. Intermediate fixed-point rounding is allowed within the per-field error bounds. Keep at least 24 fractional bits in rotated coordinates and residuals to meet the tight accuracy bounds. The entire rotation, residual/Jacobian calculation, matrix reduction and cost must be in VHDL.",
+      "feedback_bits": 0,
+      "initiation_interval": 64,
+      "input_bits": 1156,
+      "max_abs_error": 0.0,
+      "max_brams": 8,
+      "max_dsps": 40,
+      "max_ffs": 6000,
+      "max_latency": 64,
+      "max_luts": 8000,
+      "max_rms_error": 0.0,
+      "name": "slam",
+      "output_bits": 512,
+      "output_fields": [
+        {
+          "bits": 64,
+          "lsb": 0,
+          "max_abs_error": 5e-05,
+          "max_rms_error": 1e-05,
+          "name": "h02",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 64,
+          "max_abs_error": 5e-05,
+          "max_rms_error": 1e-05,
+          "name": "h12",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 128,
+          "max_abs_error": 5e-05,
+          "max_rms_error": 1e-05,
+          "name": "h22",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 192,
+          "max_abs_error": 5e-05,
+          "max_rms_error": 1e-05,
+          "name": "g0",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 256,
+          "max_abs_error": 5e-05,
+          "max_rms_error": 1e-05,
+          "name": "g1",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 320,
+          "max_abs_error": 5e-05,
+          "max_rms_error": 1e-05,
+          "name": "g2",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 384,
+          "max_abs_error": 5e-05,
+          "max_rms_error": 1e-05,
+          "name": "cost",
+          "scale": 4294967296,
+          "signed": true
+        },
+        {
+          "bits": 64,
+          "lsb": 448,
+          "max_abs_error": 0,
+          "max_rms_error": 0,
+          "name": "count",
+          "scale": 4294967296,
+          "signed": true
+        }
+      ],
+      "output_scale": 1.0,
+      "output_signed": false
+    },
+    "driver_sha256": "38e3451120d84fd9436d6d3205748e13113467b2c9232eadb43570253db331c2",
+    "executable_sha256": "5f2f704188504441aeee8c64fafce8d8776ba106ac0f06c990d21a0ae93171fc",
+    "latency": 58,
+    "mapped_verilog_sha256": "4300e6cd977c17cc3a1f8121c263410ec66b13357fd2f98bec31366b211ff618",
+    "simulator": "Verilator Xilinx-mapped netlist, two-state"
+  },
+  "frames": 680,
+  "physical_fpga_executed": false
+}

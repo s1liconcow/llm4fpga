@@ -1,0 +1,109 @@
+{
+  "model": "gpt-6-astra",
+  "provider": "codex-cli",
+  "rounds_used": 3,
+  "source_sha256": "94e35f54eac3cbf0aa7214321f909344d36b283d2dc16bc2fd88a1f95fa36735",
+  "development_vectors_sha256": "5ff4bf81641dbbcd0463ce9d96819ee4cb094d81c454ed809a364babe5b8801d",
+  "audit_vectors_sha256": "0e996bde8911d90f14c9ffb3f383b12b717ef608d3e85f35d03512d083a130c8",
+  "contract": {
+    "clock_mhz": 100.0,
+    "description": "Compute the supplied Python 2D ICP normal_equations function for 0..8 point pairs. Input is packed little-endian by fields: each point pair i occupies bits 128*i..128*i+127, with signed 32-bit px,py,qx,qy in that order, lowest field first, all scaled by 2^24. Bits 1024..1055 are signed tx / 2^24; 1056..1087 signed ty / 2^24; 1088..1119 signed cosine / 2^30; 1120..1151 signed sine / 2^30; 1152..1155 unsigned active count, legal range 0..8. Ignore inactive pairs, whose bits are arbitrary. All coordinates and translations are bounded to [-16,16] metres; cosine/sine are in [-1,1]. Every output is signed 64-bit scaled by 2^32. From LSB to MSB: h02,h12,h22,g0,g1,g2,cost,count. The output count is also scaled by 2^32, NOT an unscaled integer. Zero active points must produce a completely zero packet. Use a sequential datapath to reuse multipliers across the eight pairs; <=64 cycles latency and one input packet per 64 cycles. Widen before products, sums, shifts and subtraction. Intermediate fixed-point rounding is allowed within the per-field error bounds. Keep at least 24 fractional bits in rotated coordinates and residuals to meet the tight accuracy bounds. The entire rotation, residual/Jacobian calculation, matrix reduction and cost must be in VHDL.",
+    "feedback_bits": 0,
+    "initiation_interval": 64,
+    "input_bits": 1156,
+    "max_abs_error": 0.0,
+    "max_brams": 8,
+    "max_dsps": 40,
+    "max_ffs": 6000,
+    "max_latency": 64,
+    "max_luts": 8000,
+    "max_rms_error": 0.0,
+    "name": "slam",
+    "output_bits": 512,
+    "output_fields": [
+      {
+        "bits": 64,
+        "lsb": 0,
+        "max_abs_error": 5e-05,
+        "max_rms_error": 1e-05,
+        "name": "h02",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 64,
+        "max_abs_error": 5e-05,
+        "max_rms_error": 1e-05,
+        "name": "h12",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 128,
+        "max_abs_error": 5e-05,
+        "max_rms_error": 1e-05,
+        "name": "h22",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 192,
+        "max_abs_error": 5e-05,
+        "max_rms_error": 1e-05,
+        "name": "g0",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 256,
+        "max_abs_error": 5e-05,
+        "max_rms_error": 1e-05,
+        "name": "g1",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 320,
+        "max_abs_error": 5e-05,
+        "max_rms_error": 1e-05,
+        "name": "g2",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 384,
+        "max_abs_error": 5e-05,
+        "max_rms_error": 1e-05,
+        "name": "cost",
+        "scale": 4294967296,
+        "signed": true
+      },
+      {
+        "bits": 64,
+        "lsb": 448,
+        "max_abs_error": 0,
+        "max_rms_error": 0,
+        "name": "count",
+        "scale": 4294967296,
+        "signed": true
+      }
+    ],
+    "output_scale": 1.0,
+    "output_signed": false
+  },
+  "vhdl_sha256": "95ce9c2e6fc77aad90dd05f9eb16ae60d7657ff72ad684f2459b3c018201b20f",
+  "development_failures": "Rounds 1 and 2 passed RTL but failed Xilinx-mapped g2 arithmetic. Round 3 passed both stages and the independent kernel audit.",
+  "local_toolchain": {
+    "ghdl": "4.1.0",
+    "yosys": "0.33",
+    "verilator": "5.020",
+    "container_runtime": "podman",
+    "image_id": "a0fb075bafec36a06c28cdd3dde77cf954b6c576f3894c2b5a07d3e2ba2659d4"
+  }
+}
