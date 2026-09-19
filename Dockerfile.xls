@@ -1,0 +1,9 @@
+# XLS upstream publishes x86-64 binaries. Build/run with --platform linux/amd64.
+FROM ubuntu:24.04
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl ca-certificates libtinfo6 libstdc++6 zlib1g \
+    && rm -rf /var/lib/apt/lists/*
+COPY scripts/install_xls.sh /tmp/install_xls.sh
+RUN XLS_INSTALL_ROOT=/opt/xls bash /tmp/install_xls.sh
+ENV PATH=/opt/xls/bin:$PATH HOME=/tmp
+WORKDIR /work

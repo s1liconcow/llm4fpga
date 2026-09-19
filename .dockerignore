@@ -1,2 +1,6 @@
 *
 !Dockerfile
+!Dockerfile.xls
+!scripts
+scripts/*
+!scripts/install_xls.sh

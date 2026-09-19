@@ -1,0 +1,22 @@
+{
+  "audit_vectors_sha256": "69e35d9334b8b6c1fb3fabb508d6fe8fe040c49ca43efdbaf917296c11a782b4",
+  "contract": {
+    "clock_mhz": 100.0,
+    "description": "Input signed 12-bit ADC, range -2048..2047. Interpret input_data as signed. Compute z=adc/2048; y=z/sqrt(0.25+z*z). Output signed integer round(y*16384). Approximation permitted within the stated max and RMS error, measured after output/16384. Throughput one input per clock with bubbles preserved. Piecewise linear interpolation or a symmetry-reduced LUT are good options.",
+    "feedback_bits": 0,
+    "initiation_interval": 1,
+    "input_bits": 12,
+    "max_abs_error": 0.0002,
+    "max_latency": 16,
+    "max_rms_error": 6e-05,
+    "name": "normalizer",
+    "output_bits": 16,
+    "output_scale": 16384.0,
+    "output_signed": true
+  },
+  "development_vectors_sha256": "e108c11b06c0486787eddee13b5b05dac347fc57d9df2fc83f881a98c78ed1a4",
+  "model": "gpt-6-astra",
+  "provider": "codex-cli",
+  "source_sha256": "6b19bda84651cff518bbd1a062ac2fa2fd3cd0cf5ee0611813430cb99942baec",
+  "description": "Unedited Codex response. Exhaustively verified using disjoint development/audit sets against GNU Octave."
+}

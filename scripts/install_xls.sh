@@ -3,7 +3,11 @@
 set -euo pipefail
 version=v0.0.0-10704-g0a7c502cc
 sha=62eaad69e9545371179485af8208004555c3a9eb6a037f935a0b154f08194f74
-root="$(cd "$(dirname "$0")/.." && pwd)/.tools/xls"
+if [[ "$(uname -s)" != Linux || "$(uname -m)" != x86_64 ]]; then
+  echo 'XLS binaries require Linux x86-64. Use: podman build --platform linux/amd64 -f Dockerfile.xls -t xls-e2e-xls:local .' >&2
+  exit 2
+fi
+root="${XLS_INSTALL_ROOT:-$(cd "$(dirname "$0")/.." && pwd)/.tools/xls}"
 archive="xls-${version}-linux-x64.tar.gz"
 mkdir -p "$root/bin" "$root/dist"
 curl --fail --location --retry 3 "https://github.com/google/xls/releases/download/${version}/${archive}" -o "$root/$archive"

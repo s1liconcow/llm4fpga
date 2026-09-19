@@ -12,14 +12,27 @@ jobs:
           python-version: '3.12'
       - run: pip install -e '.[test]'
       - run: pytest -q
-      - run: python -m py_compile agent_regression.py
-      - name: Numerical structured search smoke test
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          from fpga_lab.problem import Golden, Contract
-          from fpga_lab.structured import search
-          rows=search(Golden.load(), Contract(), Path("runs/structured"))
-          assert rows
-          print([r["name"] for r in rows])
-          PY
+      - run: python -m compileall -q fpga_lab agent_regression.py examples
+      - run: python -m fpga_lab structured --out runs/numerical
+  hardware:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -e '.[test]'
+      - run: sudo apt-get update && sudo apt-get install -y podman
+      - run: podman build -t xls-e2e-tools:local .
+      - run: FPGA_LAB_TEST_HARDWARE=1 pytest -q
+      - run: python -m fpga_lab demo sha256 --replay examples/sha256/recorded_codex.json --out runs/sha256
+      - run: python -m fpga_lab demo normalizer --octave --replay examples/normalizer/recorded_codex.json --out runs/normalizer
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hardware-reports
+          path: |
+            runs/**/summary.json
+            runs/**/result.json
+            runs/**/*.log

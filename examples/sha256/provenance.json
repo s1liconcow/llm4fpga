@@ -1,0 +1,22 @@
+{
+  "audit_vectors_sha256": "ca4966dacebaa05fe09685d8f5271bb49a5213ab6656e530bcad8b257b1376bd",
+  "contract": {
+    "clock_mhz": 100.0,
+    "description": "SHA-256 compression. Input high 256 bits: chaining state, h0 first; low 512 bits: message block, first byte most significant. Output updated state, h0 first. All arithmetic modulo 2^32. Use a 16-word rolling schedule and 64 iterative rounds. Accept arbitrary 256-bit chaining states and arbitrary 512-bit blocks. Host pads messages; every compression round and state addition must be hardware.",
+    "feedback_bits": 256,
+    "initiation_interval": 66,
+    "input_bits": 768,
+    "max_abs_error": 0.0,
+    "max_latency": 66,
+    "max_rms_error": 0.0,
+    "name": "sha256",
+    "output_bits": 256,
+    "output_scale": 1.0,
+    "output_signed": false
+  },
+  "development_vectors_sha256": "818d26c6738cc15efbd14889f873b70f4278eaf4a95c74ac146f69a5467a921d",
+  "model": "gpt-6-astra",
+  "provider": "codex-cli",
+  "source_sha256": "030fb7867cc62c2eb5e23bc79b39f565673192af94164aca47ca9ac8822dacbe",
+  "description": "Unedited Codex response, independently verified in runs/sha256-live. This file is a replay fixture, not a fresh model invocation."
+}

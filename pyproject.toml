@@ -4,14 +4,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "xls-e2e"
 version = "0.1.0"
-description = "Two auditable MATLAB-to-FPGA experiments: XLS design search and multi-worker Astra RTL regression"
+description = "Codex-powered Python/MATLAB to verified VHDL with Podman, GHDL, XLS and Xilinx synthesis"
 requires-python = ">=3.11"
 dependencies = ["numpy>=1.26,<3"]
 [project.optional-dependencies]
 agent = ["openai>=2.0,<3"]
 test = ["pytest>=8,<10"]
+[project.scripts]
+fpga-lab = "fpga_lab.cli:main"
 [tool.setuptools.packages.find]
 include = ["fpga_lab*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = ["hardware: requires Icarus/Yosys/nextpnr", "xls: requires the pinned XLS binaries"]
+markers = ["hardware: requires the Podman tools image", "xls: requires the pinned XLS image"]

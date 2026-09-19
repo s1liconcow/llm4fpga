@@ -1,7 +1,10 @@
-# Tool runner for untrusted RTL. The coordinator and its API credentials stay outside.
+# Native Linux verification tools; Codex and its credentials stay on the host.
 FROM ubuntu:24.04
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    iverilog yosys nextpnr-ice40 fpga-icestorm ca-certificates \
+    ghdl iverilog yosys nextpnr-ice40 fpga-icestorm octave ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /work
-USER 65534:65534
+ENV HOME=/tmp
+# Compiled simulation keeps large mapped datapaths practical on a laptop.
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    verilator g++ make && rm -rf /var/lib/apt/lists/*

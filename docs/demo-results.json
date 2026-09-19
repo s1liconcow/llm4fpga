@@ -1,0 +1,350 @@
+{
+  "date": "2026-09-19",
+  "host": {
+    "os": "Darwin",
+    "arch": "arm64"
+  },
+  "runtime": "podman version 5.8.2",
+  "codex": "codex-cli 0.154.0",
+  "tools": [
+    "GHDL 4.1.0 (Ubuntu 4.1.0+dfsg-0ubuntu2.1) [Dunoon edition]",
+    "Yosys 0.33 (git sha1 2584903a060)",
+    "Icarus Verilog version 12.0 (stable) ()",
+    "Verilator 5.020 2024-01-01 rev (Debian 5.020-1)",
+    "GNU Octave, version 8.4.0"
+  ],
+  "images": {
+    "xls-e2e-tools:local": "a0fb075bafec36a06c28cdd3dde77cf954b6c576f3894c2b5a07d3e2ba2659d4",
+    "xls-e2e-xls:local": "239fe1a10e4c9eb4ba6dc039cb863a46881966e2de1b73dbfc196a7913dc95b4"
+  },
+  "sha256": {
+    "model": "gpt-6-astra",
+    "provider": "codex-cli",
+    "model_candidates": 1,
+    "complete_messages": 149,
+    "development": {
+      "accepted": true,
+      "hardware": {
+        "brams": 0,
+        "cells": {
+          "BUFG": 1,
+          "CARRY4": 98,
+          "FDRE": 1290,
+          "INV": 1,
+          "LUT2": 315,
+          "LUT3": 66,
+          "LUT4": 14,
+          "LUT5": 63,
+          "LUT6": 1107,
+          "MUXF7": 94,
+          "MUXF8": 1
+        },
+        "dsps": 0,
+        "ffs": 1290,
+        "luts": 1565,
+        "stage": "yosys-xilinx-technology-mapping",
+        "vivado_executed": false
+      },
+      "latency": 66,
+      "numeric": {
+        "comparison": "bit-exact",
+        "cycles": 1699,
+        "failures": [],
+        "max_abs_error": 0.0,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 0.0,
+        "samples": 23,
+        "violations": 0
+      },
+      "physical_timing_measured": false,
+      "post_synthesis": {
+        "comparison": "bit-exact",
+        "cycles": 1699,
+        "failures": [],
+        "max_abs_error": 0.0,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 0.0,
+        "samples": 23,
+        "simulator": "verilator (two-state); RTL checked by GHDL (four-state)",
+        "violations": 0
+      },
+      "synthesis_requested": true,
+      "target": "xilinx-7series",
+      "test_vectors": 23,
+      "unique_inputs": 23,
+      "vhdl_sha256": "f64229476456ab6ca4d56c3773c8560cfb80b67f42a05cbe169f7448a98ebff7"
+    },
+    "audit": {
+      "accepted": true,
+      "hardware": {
+        "brams": 0,
+        "cells": {
+          "BUFG": 1,
+          "CARRY4": 98,
+          "FDRE": 1290,
+          "INV": 1,
+          "LUT2": 315,
+          "LUT3": 66,
+          "LUT4": 14,
+          "LUT5": 63,
+          "LUT6": 1107,
+          "MUXF7": 94,
+          "MUXF8": 1
+        },
+        "dsps": 0,
+        "ffs": 1290,
+        "luts": 1565,
+        "stage": "yosys-xilinx-technology-mapping",
+        "vivado_executed": false
+      },
+      "latency": 66,
+      "numeric": {
+        "comparison": "bit-exact",
+        "cycles": 51535,
+        "failures": [],
+        "max_abs_error": 0.0,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 0.0,
+        "samples": 775,
+        "violations": 0
+      },
+      "physical_timing_measured": false,
+      "post_synthesis": {
+        "comparison": "bit-exact",
+        "cycles": 51535,
+        "failures": [],
+        "max_abs_error": 0.0,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 0.0,
+        "samples": 775,
+        "simulator": "verilator (two-state); RTL checked by GHDL (four-state)",
+        "violations": 0
+      },
+      "synthesis_requested": true,
+      "target": "xilinx-7series",
+      "test_vectors": 775,
+      "unique_inputs": 752,
+      "vhdl_sha256": "f64229476456ab6ca4d56c3773c8560cfb80b67f42a05cbe169f7448a98ebff7"
+    },
+    "run": "runs/sha256-live"
+  },
+  "normalizer": {
+    "model": "gpt-6-astra",
+    "provider": "codex-cli",
+    "model_candidates": 1,
+    "oracle": {
+      "csv_sha256": "fc791eb071195110bbe66118de7ab755e2bd3f32664f63708d438b6bb3029131",
+      "engine": "gnu-octave",
+      "matlab_executed": false,
+      "octave_executed": true
+    },
+    "unique_inputs": 4096,
+    "combined_max_abs_error": 5.4334363508101724e-05,
+    "combined_rms_error": 2.1076537563911407e-05,
+    "development": {
+      "accepted": true,
+      "hardware": {
+        "brams": 0,
+        "cells": {
+          "BUFG": 1,
+          "CARRY4": 19,
+          "DSP48E1": 1,
+          "FDRE": 53,
+          "INV": 34,
+          "LUT2": 43,
+          "LUT3": 27,
+          "LUT5": 2,
+          "LUT6": 82,
+          "MUXF7": 53,
+          "MUXF8": 26
+        },
+        "dsps": 1,
+        "ffs": 53,
+        "luts": 154,
+        "stage": "yosys-xilinx-technology-mapping",
+        "vivado_executed": false
+      },
+      "latency": 4,
+      "numeric": {
+        "comparison": "scaled-numerical",
+        "cycles": 2626,
+        "failures": [],
+        "max_abs_error": 5.4334363508101724e-05,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 2.110182189028726e-05,
+        "samples": 2048,
+        "violations": 0
+      },
+      "physical_timing_measured": false,
+      "post_synthesis": {
+        "comparison": "scaled-numerical",
+        "cycles": 2626,
+        "failures": [],
+        "max_abs_error": 5.4334363508101724e-05,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 2.110182189028726e-05,
+        "samples": 2048,
+        "simulator": "verilator (two-state); RTL checked by GHDL (four-state)",
+        "violations": 0
+      },
+      "synthesis_requested": true,
+      "target": "xilinx-7series",
+      "test_vectors": 2048,
+      "unique_inputs": 2048,
+      "vhdl_sha256": "622d38f8e098165d4d5de5436916c59d43f1c71678d80c43f97f4e0598e96d85"
+    },
+    "audit": {
+      "accepted": true,
+      "hardware": {
+        "brams": 0,
+        "cells": {
+          "BUFG": 1,
+          "CARRY4": 19,
+          "DSP48E1": 1,
+          "FDRE": 53,
+          "INV": 34,
+          "LUT2": 43,
+          "LUT3": 27,
+          "LUT5": 2,
+          "LUT6": 82,
+          "MUXF7": 53,
+          "MUXF8": 26
+        },
+        "dsps": 1,
+        "ffs": 53,
+        "luts": 154,
+        "stage": "yosys-xilinx-technology-mapping",
+        "vivado_executed": false
+      },
+      "latency": 4,
+      "numeric": {
+        "comparison": "scaled-numerical",
+        "cycles": 2626,
+        "failures": [],
+        "max_abs_error": 5.3336119835489804e-05,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 2.105122286891027e-05,
+        "samples": 2048,
+        "violations": 0
+      },
+      "physical_timing_measured": false,
+      "post_synthesis": {
+        "comparison": "scaled-numerical",
+        "cycles": 2626,
+        "failures": [],
+        "max_abs_error": 5.3336119835489804e-05,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 2.105122286891027e-05,
+        "samples": 2048,
+        "simulator": "verilator (two-state); RTL checked by GHDL (four-state)",
+        "violations": 0
+      },
+      "synthesis_requested": true,
+      "target": "xilinx-7series",
+      "test_vectors": 2048,
+      "unique_inputs": 2048,
+      "vhdl_sha256": "622d38f8e098165d4d5de5436916c59d43f1c71678d80c43f97f4e0598e96d85"
+    },
+    "run": "runs/normalizer-live"
+  },
+  "structured_vhdl": {
+    "accepted": true,
+    "hardware": {
+      "brams": 0,
+      "cells": {
+        "BUFG": 1,
+        "CARRY4": 23,
+        "DSP48E1": 2,
+        "FDRE": 17,
+        "INV": 28,
+        "LUT2": 32,
+        "LUT3": 21,
+        "LUT4": 7,
+        "LUT6": 30,
+        "MUXF7": 24
+      },
+      "dsps": 2,
+      "ffs": 17,
+      "luts": 90,
+      "stage": "yosys-xilinx-technology-mapping",
+      "vivado_executed": false
+    },
+    "latency": 1,
+    "numeric": {
+      "comparison": "scaled-numerical",
+      "cycles": 5225,
+      "failures": [],
+      "max_abs_error": 0.00013533244337815553,
+      "pass": true,
+      "protocol_pass": true,
+      "rms_error": 4.8515281990345305e-05,
+      "samples": 4096,
+      "violations": 0
+    },
+    "physical_timing_measured": false,
+    "post_synthesis": {
+      "comparison": "scaled-numerical",
+      "cycles": 5225,
+      "failures": [],
+      "max_abs_error": 0.00013533244337815553,
+      "pass": true,
+      "protocol_pass": true,
+      "rms_error": 4.8515281990345305e-05,
+      "samples": 4096,
+      "simulator": "verilator (two-state); RTL checked by GHDL (four-state)",
+      "violations": 0
+    },
+    "synthesis_requested": true,
+    "target": "xilinx-7series",
+    "test_vectors": 4096,
+    "unique_inputs": 4096,
+    "vhdl_sha256": "e611a80e88f6a49b5aced79189cfadd5b1100caf879f2cd324232540315e6a78"
+  },
+  "xls_verilog": {
+    "accepted": true,
+    "hardware": {
+      "cells": {
+        "BUFG": 1,
+        "CARRY4": 18,
+        "DSP48E1": 1,
+        "FDRE": 75,
+        "INV": 30,
+        "LUT2": 7,
+        "LUT3": 27,
+        "LUT4": 6,
+        "LUT6": 52,
+        "MUXF7": 14
+      },
+      "ffs": 75,
+      "luts": 92,
+      "physical_timing_measured": false,
+      "target": "xilinx-7series"
+    },
+    "latency": 4,
+    "numeric": {
+      "comparison": "scaled-numerical",
+      "cycles": 5232,
+      "failures": [],
+      "max_abs_error": 0.00013533244337815553,
+      "pass": true,
+      "protocol_pass": true,
+      "rms_error": 4.8515281990345305e-05,
+      "samples": 4096,
+      "violations": 0
+    }
+  },
+  "limitations": [
+    "No physical board or Vivado execution",
+    "No routed timing or power measurement",
+    "No proof for unrestricted Python/MATLAB or general IEEE-754 arithmetic",
+    "No comparative benchmark establishing SOTA"
+  ]
+}
