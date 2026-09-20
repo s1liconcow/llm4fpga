@@ -31,12 +31,16 @@ class CodexProvider:
             raise RuntimeError('Install Codex CLI and run codex login first')
 
     def propose(self, prompt: str, folder: Path) -> Proposal:
+        return Proposal.parse(json.dumps(self.request(prompt, folder, SCHEMA)))
+
+    def request(self, prompt: str, folder: Path, schema_definition: dict) -> dict:
+        """Request a structured artifact; the model cannot execute or alter the evaluator."""
         folder.mkdir(parents=True, exist_ok=True)
         (folder / 'prompt.txt').write_text(prompt)
         with tempfile.TemporaryDirectory(prefix='fpga-lab-codex-') as tmp:
             work = Path(tmp)
             schema = work / 'schema.json'
-            schema.write_text(json.dumps(SCHEMA))
+            schema.write_text(json.dumps(schema_definition))
             output = work / 'response.json'
             command = ['codex', '-a', 'never', 'exec', '--ignore-user-config', '--ephemeral',
                        '--sandbox', 'read-only', '--skip-git-repo-check',
@@ -54,4 +58,4 @@ class CodexProvider:
                 raise RuntimeError(f'Codex failed ({run.returncode}): {tail}')
             response = output.read_text()
             (folder / 'response.json').write_text(response)
-            return Proposal.parse(response)
+            return json.loads(response)

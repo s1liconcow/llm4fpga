@@ -1,0 +1,10 @@
+The Wi-Fi reference uses training, pilot, and rate constants and the published
+algorithm description from OpenOFDM by Jinghao Shi and contributors.
+https://github.com/jhshi/openofdm
+Pinned reference: ea638eb2d3abd6c6d9c0c87a430f393fc3ffc859
+OpenOFDM is distributed under Apache License 2.0; see LICENSE.openofdm.
+
+The batch Python implementation in fpga_lab/wifi_reference.py is newly written.
+The external captures are downloaded unchanged using captures.json, which records
+their upstream paths and SHA-256 digests. Existing OpenOFDM HDL is not included
+in generation prompts. Each generated design records its source and prompt hashes.

@@ -2,9 +2,9 @@
 
 These demos show Codex turning Python and MATLAB algorithms into FPGA circuits,
 testing them, and repairing failures. They cover exact integer computation,
-floating-point approximation, and hardware used inside a robot mapping system.
+floating-point approximation, robot mapping, and a complete radio receiver.
 
-The three translations used the Codex CLI with `gpt-6-astra` on an Apple Silicon Mac, with Linux
+The translations used the Codex CLI with `gpt-6-astra` on an Apple Silicon Mac, with Linux
 tools in Podman. The generated VHDL was simulated with GHDL, mapped to AMD/Xilinx
 7-series logic with Yosys, then simulated again with Verilator. Results below were
 recorded on **19 September 2026**. Physical board testing is the next deployment step.
@@ -16,6 +16,7 @@ recorded on **19 September 2026**. Physical board testing is the next deployment
 | **SHA-256, from Python** | All 64 rounds of the hash compression algorithm | 149 complete messages matched Python `hashlib` exactly, including multi-block messages and padding boundaries. |
 | **Sensor normalization, from MATLAB** | A smooth limiting function for a 12-bit sensor reading | All 4,096 inputs checked against Octave. Maximum output error: **0.0000544**, within the **0.0002** limit. |
 | **2D LiDAR SLAM, from Python** | The arithmetic used to align laser scans with a growing map | **680 scans and 115,638 hardware transactions** passed across four complete tracking runs. |
+| **Wi-Fi receiver, from Python** | Raw radio samples to decoded packets across all eight legacy rates | **273 packet comparisons** passed in RTL and Xilinx-mapped simulation, including 137 packets from external recordings. |
 
 The SHA-256 host pads messages and chains hardware results between blocks. For the
 normalizer, Codex uses fixed-point arithmetic—a chosen number of fractional bits—and
@@ -72,7 +73,7 @@ CC BY 3.0. These maps are derived from the selected scan segments. Additional pl
 The harness checks numerical outputs, reset behavior, output order and clock-cycle
 timing. Development failures drive repairs; separate audit data checks the selected
 candidate. The SLAM core passed 160 development and 800 audit batches before the
-full tracking runs. The complete local suite passed **38 tests**, including real
+full tracking runs. The original demo suite passed **38 tests**, including real
 containerized simulation and synthesis.
 
 ## Circuit size and latency
@@ -94,6 +95,54 @@ separate DSLX-to-Verilog compilation path.
 
 Counts come from Yosys mapping to Xilinx 7-series resources. The VHDL implementations
 include Vivado scripts for board integration and timing measurement.
+
+## Wi-Fi: a complete streaming receiver
+
+The next experiment translates a Python 802.11a/g receiver into connected VHDL
+blocks. The host supplies raw radio samples. The circuit finds packets, corrects
+frequency and channel distortion, separates the OFDM carriers, recovers bits,
+corrects transmission errors, and checks each packet's checksum.
+
+| Transformation | What the receiver demonstrates |
+| --- | --- |
+| Horizontal decomposition | Separately generated frontend, FFT, packet decoder, and Viterbi error-correction blocks work through explicit interfaces. |
+| Vertical refinement | Floating-point complex arithmetic becomes fixed-width arithmetic, coefficient tables, and shared multipliers, then Xilinx logic primitives. Packet bytes provide an exact final check. |
+| Streaming adaptation | Batch arrays become bounded buffers, scheduled processing, and output that can pause when its consumer is busy. |
+
+The reference decodes **137 packets from 14 pinned external recordings**, including
+131 real radio packets. Synthetic tests exercise all eight legacy rates, noise,
+frequency offsets, malformed headers, reset, and maximum-length frames. Codex
+proposed the architecture; the coordinating agent supplied the Python reference,
+concrete interfaces, and tests. Separate Codex CLI calls generated and repaired
+the VHDL with their tools disabled.
+
+This took **16 generation calls** through one Codex worker: architecture planning,
+block candidates, integration, and repairs. The CLI reported **594,059 tokens**
+for those calls; the coordinating session and tool work are additional.
+
+Pressure testing found two throughput failures despite correct packet bytes.
+Faster acquisition removed backlog for short packets. Emitting one output byte
+per clock, together with an 800-cycle symbol schedule, removed backlog for
+4,095-byte packets. Both sustained bursts keep pace with the input stream.
+Unstalled development bursts show **zero growth in processing lag**. Audit bursts
+with output stalls show bounded **32-cycle timing variation**, within the
+200-cycle lag-growth limit.
+
+![Real packets recovered from radio samples, and backlog eliminated by scheduling repair](wifi-assets/receiver.png)
+
+The complete receiver passes **273 packet comparisons in both RTL and
+Xilinx-mapped simulation** across 15 development and 28 audit cases. Checks cover
+exact bytes, checksum status, output stalls, reset, and sustained processing rate.
+Packet output cycles agree between the two simulators in every case. The local
+suite also passes **54 tests**, including the existing demos and FPGA memory models.
+
+Complete receiver mapping uses **69,048 LUTs, 54,066 registers, 71 DSP blocks, and fourteen
+36 Kibit block RAMs**. That fits an Artix-7 200T's resource capacity and exceeds
+the initial 40,000-LUT/40,000-register goal. [Wi-Fi results](wifi-results.json)
+record both resource checks, source hashes, and individual test outcomes.
+The proposed 200 MHz clock requires physical timing verification.
+[Commands, source, and generation records](../examples/wifi/README.md)
+make the experiment reproducible.
 
 ## Reproduce
 

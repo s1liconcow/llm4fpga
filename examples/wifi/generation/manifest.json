@@ -1,0 +1,104 @@
+{
+  "model": "gpt-6-astra",
+  "provider": "Codex CLI",
+  "generation_calls": 16,
+  "reported_tokens_total": 594059,
+  "attempts": [
+    {
+      "attempt": "architecture",
+      "prompt_sha256": "13ef969805afee56e4b68e7436ba9a7c5761178a4433a5501105657af7b446fa",
+      "response_sha256": "9c89792af8bd1baf6b9a0dbce957e51204a39159f59e9d52e1caccac63738cf7",
+      "reported_tokens": 34516
+    },
+    {
+      "attempt": "backend/round-01",
+      "prompt_sha256": "a62edd07c2f7290ad236d3af18aea4fbb19fdf05165c61328548f86ad0aebbc1",
+      "response_sha256": "8c423c5234a5f13c2146001c2e55ddb634838d85fdf16f85e23565f7371cbb07",
+      "reported_tokens": 26895
+    },
+    {
+      "attempt": "backend/round-02",
+      "prompt_sha256": "91c6d91a72fe2f7c6eee0ea44da154b35a25059022d4df48c4957c368e1019bb",
+      "response_sha256": "037137c297db20f986eab2a1b08d629c0b3d53334615714eb86a308dd8737e7f",
+      "reported_tokens": 31333
+    },
+    {
+      "attempt": "compiler-repair",
+      "prompt_sha256": "e0a68f88292dfbb5d8cc6319b48279d9948459bf660b1e564233a793fd49434a",
+      "response_sha256": "f1ec501756c8b4542dd56e8a68a4c4a5a5dbf7395696900cced179e03604b024",
+      "reported_tokens": 38304
+    },
+    {
+      "attempt": "counter-repair",
+      "prompt_sha256": "87cb26cdc41c7315c77f8c4bfeddc3c49c0c4fb1a5dc45c39c109e346a8b1a56",
+      "response_sha256": "624e42358cb0c7a1a10221ae54d7e9229b4bd963160936a463fc07daaf13c5c3",
+      "reported_tokens": 38055
+    },
+    {
+      "attempt": "fft/round-01",
+      "prompt_sha256": "69fe8da4dadc5dab8701d9de6f4516d75b4df1ebf3b6de4a6aa12d1141124afc",
+      "response_sha256": "cd2803434dccd2a06e8fad144a0d4345ee87036862ec569c5e5d2b20c88e69cf",
+      "reported_tokens": 38763
+    },
+    {
+      "attempt": "fft/round-02",
+      "prompt_sha256": "30905167d93032e72bce5998e412ee65a32a0ad39c66d4a554b5479af99228a4",
+      "response_sha256": "42ee94ebf889a03475fe213fcf5e7db5aba0451ded0aa3dd1ad6e3f65b229d96",
+      "reported_tokens": 45228
+    },
+    {
+      "attempt": "fft/round-03",
+      "prompt_sha256": "45b1a1f5dd5490c22f6a1f5db3570bfb9f3284eac49b25c7248098ddb4ce3d35",
+      "response_sha256": "6a4ce4d7121179186b2b4ff8fa884d352f403895ffcc824f71267e4828f35553",
+      "reported_tokens": 46059
+    },
+    {
+      "attempt": "fft/round-04",
+      "prompt_sha256": "8309c7c10c5ec4f6e60b8941d7cb8454e6f1d33597e00dd67f9d5c2a46ec8fe7",
+      "response_sha256": "21f7060bbbefe33dac8d970bb0187c058be1eb2cadd1069361615c4c4ae95e67",
+      "reported_tokens": 46515
+    },
+    {
+      "attempt": "fft/round-05",
+      "prompt_sha256": "a4e2ef1add16b7dfb8d456ddbfcf460876cce2183019040d3c33a9a0745f3590",
+      "response_sha256": "5580e65dd63768be9d17c966b1e1a529c39ccbdc4f250c316735745548d0c437",
+      "reported_tokens": 48772
+    },
+    {
+      "attempt": "frontend/round-01",
+      "prompt_sha256": "089667d0ca29d84641c0523af330042c424a9da82441dd6bf48b9e6099af8383",
+      "response_sha256": "5cc7d977b200afa45438fd6511208671e87b7232c48a7ba0ba61b35856a6972d",
+      "reported_tokens": 34834
+    },
+    {
+      "attempt": "frontend/round-02",
+      "prompt_sha256": "6c4c9e76e6002e0edae4dca82d07b8f74919f5927284087366d2316b8fb39b7e",
+      "response_sha256": "e0a62105e1b85fd96c9998e989f40836386279eb3782378786f13742721042b9",
+      "reported_tokens": 30788
+    },
+    {
+      "attempt": "frontend/round-03",
+      "prompt_sha256": "f73f46964162190c5ad5465519cd4a48adf2b4078a25da2aff6273856906b6e1",
+      "response_sha256": "ca7a5d8fa73c0e9bda9d092902a381d72ef4361ff9b725375c8b76cdd1cd823c",
+      "reported_tokens": 44686
+    },
+    {
+      "attempt": "round-01",
+      "prompt_sha256": "2399d07ab495dfc1cf8cf7985550683b45ae615a0f7654e0e21e37df132878fb",
+      "response_sha256": "a43206ac45dc6803d4b110c48ace77457ffafb534f8aa4dc52143408f4a2121d",
+      "reported_tokens": 27796
+    },
+    {
+      "attempt": "viterbi/round-01",
+      "prompt_sha256": "ca22335cab3c249ad39e6da36124ba776008410521fa4aa231cf7950039df64f",
+      "response_sha256": "21cec0872bde58e73f1b500a89e74a3d9b39e544e8b7ce9895994bad6991ec1e",
+      "reported_tokens": 23404
+    },
+    {
+      "attempt": "output-repair",
+      "prompt_sha256": "4ed1d321dd3a3fc5d86e882782bf6a535981eefe1819d8a28ba018ec19c0db3d",
+      "response_sha256": "92a5720ea3d507b92eb5bfd7c91f23c4a812a17f6e25362d011f2e210e5818c4",
+      "reported_tokens": 38111
+    }
+  ]
+}

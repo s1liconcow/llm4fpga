@@ -1,0 +1,30 @@
+# Pinned Wi-Fi synthesis and simulation toolchain.
+# Build natively on both ARM64 (Podman on Apple Silicon) and x86-64.
+FROM xls-e2e-tools:local
+ARG GHDL_REV=e589c698c351369ac5bcfe7abe1f1152ac5d4727
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    gnat llvm-18-dev clang-18 libedit-dev zlib1g-dev curl \
+    && rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /tmp/ghdl-src && curl -fsSL "https://github.com/ghdl/ghdl/archive/${GHDL_REV}.tar.gz" \
+    | tar -xz --strip-components=1 -C /tmp/ghdl-src \
+    && cd /tmp/ghdl-src \
+    && ./configure --prefix=/opt/ghdl --with-llvm-config=llvm-config-18 \
+    && make -j4 CXX=clang++-18 && make install && rm -rf /tmp/ghdl-src
+ENV PATH=/opt/ghdl/bin:${PATH}
+RUN ghdl --version
+
+# Current synthesis tools, pinned by release and upstream asset digest.
+# Keep the stable GHDL above; use the suite's Yosys, ABC, and Verilator.
+RUN case "$(dpkg --print-architecture)" in \
+      arm64) suite_arch=linux-arm64; suite_sha=ab8c4ca6f26e34af451d7ee9fbac3eaf301e638146f5cfc2aa105d22c552e1a4 ;; \
+      amd64) suite_arch=linux-x64; suite_sha=c49c2528d0d8184b9afc3d983d8f322a2be8b9fe0069763a746c3065e42d360f ;; \
+      *) exit 1 ;; \
+    esac \
+    && curl -fsSL --retry 3 -o /tmp/oss-cad.tgz \
+      "https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2026-09-19/oss-cad-suite-${suite_arch}-20260919.tgz" \
+    && echo "${suite_sha}  /tmp/oss-cad.tgz" | sha256sum -c - \
+    && tar -xzf /tmp/oss-cad.tgz -C /opt && rm /tmp/oss-cad.tgz \
+    && mv /usr/share/yosys /usr/share/yosys-0.33 \
+    && ln -s /opt/oss-cad-suite/share/yosys /usr/share/yosys
+ENV PATH=/opt/ghdl/bin:/opt/oss-cad-suite/bin:${PATH}
+RUN yosys -V && verilator --version

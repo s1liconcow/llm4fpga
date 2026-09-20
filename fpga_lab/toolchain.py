@@ -18,7 +18,7 @@ class Toolchain:
         """Shared isolation policy for batch tools and persistent simulator sessions."""
         args = [self.runtime, 'run', '--rm', '--pull=never', '--name', name, '--network=none',
                 '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges',
-                '--pids-limit=128', '--memory=1536m', '--cpus=4',
+                '--pids-limit=128', f'--memory={os.getenv("FPGA_LAB_MEMORY", "1536m")}', '--cpus=4',
                 '--sysctl=net.ipv4.ping_group_range=0 0',
                 '--tmpfs=/tmp:rw,size=256m',
                 '-v', f'{folder.resolve()}:/work:rw', '-w', '/work', '-e', 'HOME=/tmp']

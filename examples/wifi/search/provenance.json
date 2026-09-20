@@ -1,0 +1,19 @@
+{
+  "accepted": true,
+  "baseline": "../generated/receiver.vhd",
+  "baseline_vhdl_sha256": "53c7341503bf39344a204948af523b404934543d27dc62279da27fe16e932841",
+  "candidate": "receiver.vhd",
+  "generation_notes": "Replace correlation tap shift/add networks with signed 16\u00d78 multipliers, enabling DSP inference and expected LUT savings across 64 multiplication sites. All tap coefficients lie within -127..127; the exact products fit in 24 signed bits, preserving arithmetic results, cycle counts and throughput. Additional DSP use should fit comfortably within the budget. No tools or verification run; resource savings and timing remain unmeasured.",
+  "model": "gpt-6-astra",
+  "physical_timing_measured": false,
+  "results": "../../../docs/wifi-search-results.json",
+  "search": {
+    "objective": "luts",
+    "rounds": 2,
+    "tool_jobs": 1,
+    "workers": 2
+  },
+  "selected": "worker-02/round-02",
+  "verification_scope": "rtl-and-xilinx-mapped",
+  "vhdl_sha256": "337cec9d81546da783cd725f5afa5db1db521d00d8e8a05224d29ce68214d28c"
+}

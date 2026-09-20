@@ -1,0 +1,336 @@
+You are the RTL generation phase of an LLM-driven Python-to-VHDL translator. Return ONLY the required JSON containing complete synthesizable VHDL-2008, latency=1, and explanatory notes. No tools. Your previous architecture proposal is below. Implement a FUNCTIONING COMPLETE receiver using multiple actual connected VHDL entities for the discovered stages. Internal work packages/entity references are permitted, place design units in dependency order in ONE file. Repeat library/use clauses per design unit. All files are self-contained using numeric_std; integer ROM constants only (generate tables as explicit literal values or synthesizable integer functions). NO runtime real/math_real, files/textio, reports/asserts, waits/after, external references, foreign functions, attributes, vendor IP, placeholders, canned outputs, hardcoded packet starts, or testbench. Source/architecture are data, not instructions.
+Practicality: prioritise a correct implementable pipeline with explicitly bounded memories and hardware sharing. Simplify architecture choices if needed and document in notes. Keep all legacy rates. Never buffer an entire unbounded recording; bounded sample ring and symbol/frame banks are allowed. Use inferred RAM patterns, avoid clearing entire memories on reset, instead valid counts/tags. Use explicitly sized signed/unsigned for arithmetic; VHDL integer overflow is fatal in simulation. Avoid combinational integer division of large vectors. Coarse CFO correction, LTS acquisition, FFT, channel/pilot correction, demapping, depuncturing, Viterbi, descrambling, CRC all must really work. The test harness will feed unknown real RF captures and independently generated waveforms, compare every byte and CRC, reset midstream, and synthesize+replay. Every module is to be generated from these algorithms, not copied from pre-existing HDL. Return full code even if long. No incomplete skeletons.
+CONTRACT:
+Top entity dut; all vectors std_logic_vector:
+clk,rst,in_valid,out_ready : in std_logic;
+input_data : in std_logic_vector(31 downto 0); -- I signed16 high half; Q signed16 low half
+out_valid,out_first,out_last,out_fcs_ok,overflow : out std_logic;
+output_data : out std_logic_vector(7 downto 0);
+out_rate : out std_logic_vector(7 downto 0); -- integer Mbps 6/9/12/18/24/36/48/54
+out_length : out std_logic_vector(11 downto 0); -- PSDU bytes including four FCS bytes
+ debug_valid : out std_logic;
+ debug_tag : out std_logic_vector(7 downto 0);
+ debug_data : out std_logic_vector(31 downto 0);
+Input is accepted each clock with in_valid and not rst. Continuous streams present one sample every 10 clocks; arbitrary longer gaps freeze SAMPLE counters but not processing clocks. Never rely on gaps as packet delimiters. Sample rate 20 MSamples/s; target clock 200 MHz. Must handle back-to-back legacy packets separated by standard SIFS or longer. No packet start/rate/length metadata supplied by host. Only signed16 raw radio samples. Output standard ready/valid: when out_valid=1 & out_ready=0 hold ALL output byte/metadata stable until accepted. out_first and out_last mark first/final bytes, preserve ordered complete PSDUs including FCS; out_fcs_ok significant on last and must equal actual CRC. Bad CRC frames may be output with false FCS but invalid SIGNAL must be dropped. out_rate,out_length correct and stable for all bytes. out_ready can stall up to32 consecutive clocks separated by >=128 clocks ready. overflow sticky indicates inability to retain input or pending output; must never assert for these tests. Reset active high synchronous clears state/pending output/overflow, dominates all inputs. latency JSON is 1 (unused for variable latency stream). Drain latency after last input <=50000 clocks. Never fabricate packet bytes or patch checksum. Packet length14..4095. Can initially omit HT classification if necessary, but must implement all legacy rates fully.
+Debug tags (pulses) 1=STF detected(sample index), 2=LTS lock(first LTS sample index), 3=SIGNAL decoded(rate<<16 | length), 4=packet assembly finished(length), 5=recovery(error code), 6=FFT completed(symbol index). Use these for diagnosis; do not output sample-by-sample debug. Debug outputs must reset too.
+Synthesis Xilinx7 open tools. Max40000 LUT40000 FF100DSP100RAMB18-equivalents. Numeric refinements must retain correct clean and moderate-noise packet reception. Source Python has hard Viterbi so hard metric sufficient initially, soft metrics optional. Every algorithm stage including FFT and Viterbi must be implemented in GENERATED VHDL without vendor IP dependencies.
+
+BATCH PYTHON:
+"""Batch, floating-point legacy OFDM reference and deterministic test transmitter.
+
+Rate, training, and pilot tables follow OpenOFDM (Apache-2.0), pinned by the
+capture fetcher. No existing HDL is used by this module. Integer bit processing
+and floating-point sample processing are deliberately separate.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from pathlib import Path
+
+import math
+
+import zlib
+
+import numpy as np
+
+RATES = {6: (1, 48, 24), 9: (1, 48, 36), 12: (2, 96, 48),
+         18: (2, 96, 72), 24: (4, 192, 96), 36: (4, 192, 144),
+         48: (6, 288, 192), 54: (6, 288, 216)}
+
+RATE_BITS = {6: '1101', 9: '1111', 12: '0101', 18: '0111',
+             24: '1001', 36: '1011', 48: '0001', 54: '0011'}
+
+ACTIVE = np.array(list(range(-26, 0)) + list(range(1, 27)))
+
+PILOTS = np.array([-21, -7, 7, 21])
+
+DATA = np.array([k for k in ACTIVE if k not in PILOTS])
+
+LTS_SIGNS = np.array([1,1,-1,-1,1,1,-1,1,-1,1,1,1,1,1,1,-1,-1,1,1,
+    -1,1,-1,1,1,1,1,1,-1,-1,1,1,-1,1,-1,1,-1,-1,-1,-1,-1,1,1,-1,-1,
+    1,-1,1,-1,1,1,1,1])
+
+POLARITY = np.array([1,1,1,1,-1,-1,-1,1,-1,-1,-1,-1,1,1,-1,1,-1,-1,1,
+    1,-1,1,1,-1,1,1,1,1,1,1,-1,1,1,1,-1,1,1,-1,-1,1,1,1,-1,1,-1,-1,
+    -1,1,-1,1,-1,-1,1,-1,-1,1,1,1,1,1,-1,-1,1,1,-1,-1,1,-1,1,-1,1,1,
+    -1,-1,-1,1,1,-1,-1,-1,-1,1,-1,-1,1,-1,1,1,1,1,-1,1,-1,1,-1,1,-1,
+    -1,-1,-1,-1,1,-1,1,1,-1,1,-1,1,1,1,-1,-1,1,-1,-1,-1,1,1,1,-1,-1,
+    -1,-1,-1,-1,-1])
+
+def long_training() -> np.ndarray:
+    bins = np.zeros(64, complex)
+    bins[ACTIVE % 64] = LTS_SIGNS
+    return np.fft.ifft(bins)
+
+def short_training() -> np.ndarray:
+    bins = np.zeros(64, complex)
+    bins[np.array([-24,-20,-16,-12,-8,-4,4,8,12,16,20,24]) % 64] = (
+        np.array([1,-1,1,-1,-1,1,-1,-1,1,1,1,1]) * (1+1j) * np.sqrt(13/6))
+    return np.fft.ifft(bins)[:16]
+
+def constellation(n: int) -> np.ndarray:
+    if n == 1:
+        return np.array([-1, 1], complex)
+    axis = {2: [-1,1], 4: [-3,-1,3,1], 6: [-7,-5,-1,-3,7,5,1,3]}[n]
+    size = 1 << (n//2)
+    return np.array([complex(axis[k//size], axis[k%size]) for k in range(1<<n)]) / math.sqrt({2:2,4:10,6:42}[n])
+
+def puncture_mask(rate: int) -> list[int]:
+    return [1,1,1,0,0,1] if rate in (9,18,36,54) else [1,1,1,0] if rate == 48 else [1,1]
+
+def convolutional_encode(bits: np.ndarray) -> np.ndarray:
+    state, out = 0, []
+    for bit in bits:
+        reg = (int(bit)<<6) | state
+        out.extend([(reg & 0o133).bit_count() & 1, (reg & 0o171).bit_count() & 1])
+        state = reg >> 1
+    return np.array(out, np.uint8)
+
+def viterbi(coded: np.ndarray, rate: int = 6) -> np.ndarray:
+    """64-state maximum-likelihood hard decoder; punctures carry no evidence."""
+    mask = puncture_mask(rate)
+    expanded = []
+    pos = 0
+    while pos < len(coded):
+        for keep in mask:
+            if keep:
+                if pos == len(coded):
+                    raise ValueError('Incomplete puncturing period')
+                expanded.append(int(coded[pos])); pos += 1
+            else:
+                expanded.append(2)
+    obs = np.array(expanded).reshape(-1, 2)
+    states = np.arange(64)
+    prev0, prev1 = (states & 31)*2, (states & 31)*2+1
+    reg0, reg1 = (states >> 5)*64+prev0, (states >> 5)*64+prev1
+    expected0 = np.array([[(int(r)&p).bit_count()&1 for p in (0o133,0o171)] for r in reg0])
+    expected1 = np.array([[(int(r)&p).bit_count()&1 for p in (0o133,0o171)] for r in reg1])
+    metrics = np.full(64, 100000, int); metrics[0] = 0
+    paths = np.empty((len(obs),64), np.uint8)
+    for t, pair in enumerate(obs):
+        a = metrics[prev0]+np.sum((expected0 != pair) & (pair != 2), axis=1)
+        b = metrics[prev1]+np.sum((expected1 != pair) & (pair != 2), axis=1)
+        choose = b < a
+        metrics = np.minimum(a,b)
+        paths[t] = np.where(choose, prev1, prev0)
+    state = int(metrics.argmin())
+    result = np.empty(len(obs),np.uint8)
+    for t in range(len(obs)-1,-1,-1):
+        result[t] = state >> 5
+        state = int(paths[t,state])
+    return result
+
+def interleave_indices(n: int) -> np.ndarray:
+    count = 48*n; k = np.arange(count); s = max(n//2,1)
+    i = (count//16)*(k%16)+k//16
+    return s*(i//s)+(i+count-(16*i)//count)%s
+
+def scramble(bits: np.ndarray, seed: int) -> np.ndarray:
+    state = [(seed>>i)&1 for i in range(7)]
+    result = []
+    for b in bits:
+        feedback = state[6]^state[3]
+        result.append(int(b)^feedback)
+        state = [feedback]+state[:-1]
+    return np.array(result,np.uint8)
+
+def descramble(bits: np.ndarray) -> np.ndarray:
+    x = [0]*7
+    x[0] = int(bits[2]^bits[6]); x[1] = int(bits[1]^bits[5]); x[2] = int(bits[0]^bits[4])
+    x[3] = x[0]^int(bits[3]); x[4] = x[1]^int(bits[2]); x[5] = x[2]^int(bits[1]); x[6] = x[3]^int(bits[0])
+    return scramble(bits, sum(b<<i for i,b in enumerate(x)))
+
+class Packet:
+    start: int
+    end: int
+    rate: int
+    data: bytes
+    fcs_ok: bool
+    cfo: float
+
+    def as_dict(self):
+        return {'start':self.start,'end':self.end,'rate':self.rate,'length':len(self.data),
+                'data_hex':self.data.hex(),'fcs_ok':self.fcs_ok,'cfo':self.cfo}
+
+def decode_at(samples: np.ndarray, start: int) -> Packet:
+    x = np.asarray(samples[start:],complex)
+    if len(x)<400:
+        raise ValueError('Truncated preamble')
+    cfo = float(np.angle(np.vdot(x[80:144],x[96:160]))/16)
+    x = x*np.exp(-1j*cfo*np.arange(len(x)))
+    # Channel estimates absorb the common phase; pilots track its later drift.
+    gain = (np.fft.fft(x[192:256])+np.fft.fft(x[256:320]))/2
+    gain[ACTIVE%64] *= LTS_SIGNS
+    if np.any(abs(gain[ACTIVE%64])<1e-9):
+        raise ValueError('Degenerate channel')
+    def demod(index,n):
+        offset = 320+index*80
+        if offset+80>len(x):
+            raise ValueError('Truncated symbol')
+        bins = np.fft.fft(x[offset+16:offset+80])
+        polarity = POLARITY[index%127]*np.array([1,1,1,-1])
+        phase = np.angle(np.sum(np.conj(bins[PILOTS%64])*gain[PILOTS%64]*polarity))
+        equal = bins[DATA%64]*np.exp(1j*phase)/gain[DATA%64]
+        idx = np.argmin(abs(equal[:,None]-constellation(n)[None,:]),axis=1)
+        bits = ((idx[:,None]>>np.arange(n-1,-1,-1))&1).flatten().astype(np.uint8)
+        return bits[interleave_indices(n)]
+    header = viterbi(demod(0,1))
+    rate_bits = ''.join(str(int(b)) for b in header[:4])
+    inverse = {v:k for k,v in RATE_BITS.items()}
+    if rate_bits not in inverse or header[4] or sum(int(b) for b in header[:18])%2 or any(header[18:]):
+        raise ValueError('Invalid SIGNAL')
+    rate = inverse[rate_bits]
+    length = sum(int(header[5+i])<<i for i in range(12))
+    if not 14<=length<=4095:
+        raise ValueError('Invalid length')
+    n,_,dbps = RATES[rate]
+    count = math.ceil((16+8*length+6)/dbps)
+    coded = np.concatenate([demod(i+1,n) for i in range(count)])
+    decoded = descramble(viterbi(coded,rate))
+    if any(decoded[:16]):
+        raise ValueError('Invalid SERVICE')
+    data = np.packbits(decoded[16:16+length*8],bitorder='little').tobytes()
+    return Packet(start,start+400+80*count,rate,data,zlib.crc32(data[:-4])==int.from_bytes(data[-4:],'little'),cfo)
+
+def receive(samples: np.ndarray) -> list[Packet]:
+    """Acquire from raw samples without packet-start, length, or rate metadata."""
+    samples = np.asarray(samples,complex)
+    if len(samples)<400:
+        return []
+    # Short training has 16-sample periodicity; a 48-pair average rejects noise.
+    corr = np.convolve(np.conj(samples[:-16])*samples[16:],np.ones(48),mode='valid')
+    power = np.convolve(abs(samples[16:])**2,np.ones(48),mode='valid')
+    eligible = (abs(corr)>0.72*power)&(power>48*100**2)
+    candidates = np.flatnonzero(eligible & ~np.r_[False,eligible[:-1]])
+    packets = []; consumed = 0; lts = long_training()
+    for trigger in candidates:
+        if trigger < consumed:
+            continue
+        cfo = float(np.angle(corr[trigger])/16)
+        lo = max(0,int(trigger)-80); hi = min(len(samples),int(trigger)+400)
+        window = samples[lo:hi]*np.exp(-1j*cfo*np.arange(lo,hi))
+        if len(window)<128:
+            continue
+        scores = abs(np.correlate(window,lts,mode='valid'))
+        # Two consecutive LTS peaks, with exact 64-sample separation.
+        pairs = np.minimum(scores[:-64],scores[64:])
+        for first in np.argsort(pairs)[-4:][::-1]:
+            start = lo+int(first)-192
+            if start<consumed or start<0:
+                continue
+            try:
+                pkt = decode_at(samples,start)
+            except (ValueError,IndexError):
+                continue
+            packets.append(pkt); consumed = pkt.end
+            break
+    return packets
+ARCHITECTURE PROPOSAL:
+{
+  "architecture": "Use a single 200 MHz clock with a sample-enable every 10 clocks. Build independent, bounded streaming engines for acquisition, sample replay/CFO correction, a shared 64-point FFT, channel estimation/equalization, pilot tracking, demapping/deinterleaving, depuncturing/Viterbi, and frame assembly. A packet controller owns all counters and buffer descriptors. Implement every engine in synthesizable VHDL-2008 using numeric_std, explicit integer ROM constants, inferred RAM and DSP-friendly multipliers. Generate ROM constants offline; no runtime real arithmetic, vendor IP, software decoder, or black boxes. The Python is an algorithm reference, not a bit-exact specification: replace its offline peak search, disabled fine CFO, constellation scaling, and artificial Viterbi padding with standards-consistent operations. Preserve only legacy 20 MHz operation.",
+  "stages": [
+    {
+      "name": "1. Interfaces, storage and packet control",
+      "purpose": "Accept uninterrupted samples, isolate output stalls, and give every packet a bounded lifetime.",
+      "inputs": "Signed16 I/Q with sample_valid every 10 clocks; synchronous reset; output_ready.",
+      "outputs": "Output valid, byte[7:0], first, last, rate, length[11:0], crc_ok valid on last. All fields remain stable while valid and not ready. Internal abort reasons and overflow counters are diagnostic registers.",
+      "streaming_transformation": "Input has no backpressure. Write samples into a 4096-entry, 32-bit circular RAM with absolute sample indices. Acquisition and replay use separately scheduled read access; acquisition also has its own short delay memories. Tag queued work with a packet epoch so aborts invalidate stale results. States are SEARCH, ACQUIRE, TRAIN, SIGNAL, CLASSIFY, DATA, FINALIZE and REARM. Use two 4096-byte frame banks: one being assembled, one available for output. Publish a complete frame only after decoding and CRC completion; this prevents truncated output frames after abort. Drain at one byte per accepted clock. An occupied output bank never blocks sample capture. Define the output contract as at most 32 consecutive stall clocks; even one acceptance per 33 clocks exceeds 54 Mbps payload throughput at 200 MHz.",
+      "numerical_refinement": "Use 32-bit modulo absolute sample indices and wrap-safe comparisons over the bounded ring horizon. Length is 12 bits, symbol count 11 bits, DATA trellis count 16 bits. Compute N_SYM=(16+8*LENGTH+6+N_DBPS-1)/N_DBPS with integer constant-rate division.",
+      "verification": "Assert no unread sample overwrite, bank reuse before release, FIFO overflow, or stale-epoch consumption. Exercise reset in every state and output stalls at first/last bytes. Invalid SIGNAL, unsupported format, failed acquisition, SERVICE failure, lost timing or timeout discards the unpublished frame; a structurally complete frame with bad FCS is emitted with crc_ok=0."
+    },
+    {
+      "name": "2. Causal STF detection and coarse CFO",
+      "purpose": "Find candidate packets without packet boundaries or waiting for signal power to fall.",
+      "inputs": "Live I/Q samples and programmable minimum-power threshold.",
+      "outputs": "Candidate sample index, coarse CFO estimate, acquisition confidence and frozen input scaling.",
+      "streaming_transformation": "Maintain a 16-sample delay and rolling 64-term P=sum(conj(x[n-16])*x[n]), E0=sum(|x[n-16]|^2), E1=sum(|x[n]|^2). Require sufficient energy and |P|^2 >= (3/4)*E0*E1 for 32 consecutive sample enables. This only opens an LTF search; periodic interference cannot declare a packet by itself. Obtain coarse CFO from arg(P)/16. Continue acquisition from live samples while retaining original samples in the ring. Estimate a power-of-two digital gain during STF and freeze it for the candidate.",
+      "numerical_refinement": "Raw complex products use signed33 components; energy terms use unsigned32. Rolling P uses signed40 components and energies unsigned39, with explicit extra bits for add-before-subtract updates. Compare squared metrics using full-width approximately 82-bit integer arithmetic, scheduled across sample intervals. Use a 24-iteration integer CORDIC with a signed32 turn representation, where one turn is 2^32. Coarse increment is arithmetic-rounded phase/16; its unambiguous range is approximately +/-625 kHz. Digital gain maps into signed18 with 15 fractional bits and saturates with a counted flag.",
+      "verification": "Test noise, impulsive energy, constant tones, periodic interferers, amplitude steps and CFO of both signs. Confirm acquisition does not depend on silence after a packet. Sweep threshold and gain settings against a documented sensitivity and clipping envelope."
+    },
+    {
+      "name": "3. LTF correlation, timing and fine CFO",
+      "purpose": "Confirm the preamble and establish a reproducible FFT window and continuous carrier phase.",
+      "inputs": "Coarse-corrected live samples, candidate descriptor and retained raw samples.",
+      "outputs": "First LTF useful-start index, FFT window offset, total CFO increment and valid training descriptor.",
+      "streaming_transformation": "Use a 64-tap complex matched filter against an accurately generated legacy LTF, not the rounded decimal table. Eight complex MAC lanes process eight taps per clock, completing one correlation every 10 clocks. A local peak is accepted only after lookahead; require two normalized peaks spaced 64 samples apart, with a small fixed tolerance and a bounded multipath cluster search. Bound the candidate search to 512 samples after triggering. Choose the earliest significant path in the confirmed cluster, then place both training and DATA FFT windows five samples early relative to its useful-symbol boundary. Retain the complete windows in the raw ring. From corresponding coarse-corrected LTF windows calculate Q=sum(conj(LTF1[n])*LTF2[n]); fine increment is arg(Q)/64. Replay both LTFs and all following symbols with the combined CFO estimate. Never reset phase arbitrarily at symbol boundaries.",
+      "numerical_refinement": "Matched-filter samples are signed18/F15; reference coefficients signed16/F15; accumulate complex products into signed42/F30. Normalize peak tests by received window energy and the ROM reference energy. Fine correlation uses signed43 accumulators. Use the same integer CORDIC phase format as coarse CFO. Define correction as exp(-j*increment*(absolute_index-phase_origin)); this fixes conjugation and rotation signs explicitly. Use a 1024-entry quarter-wave sine ROM, signed18/F17, with quadrant reconstruction.",
+      "verification": "Check exact start indices, CFO signs, delayed echoes, two-path channels and false peak pairs. Test causal lookahead and acquisition timeout. Establish an initial supported channel envelope of at most six samples excess delay and +/-40 ppm relative sampling error; validate the five-sample early window over the longest packet. Do not claim arbitrary delay-spread or sampling-offset tolerance."
+    },
+    {
+      "name": "4. Replay, cyclic-prefix removal and shared FFT",
+      "purpose": "Convert sample windows into ordered frequency bins within the 800-clock OFDM symbol interval.",
+      "inputs": "Raw-ring read descriptors, fixed gain, CFO increment and window indices.",
+      "outputs": "64 complex frequency bins with packet epoch, symbol index and training/SIGNAL/DATA type.",
+      "streaming_transformation": "A pipelined complex rotator replays retained samples faster than the input rate. Select 64 samples from each 80-sample legacy symbol; retain the fixed five-sample early window. Implement one radix-2, decimation-in-frequency 64-point FFT with 192 butterflies. Use two parity-banked memories, where bank is XOR of the six logical address bits; every radix-2 butterfly accesses different banks. Each bank has one read and one write port. Drain the butterfly pipeline at stage boundaries and reorder output through explicit address mapping. Two 64-complex input buffers and two output buffers decouple replay and subsequent processing. Reserve at most 400 clocks per complete transform including loading, stage drains and output.",
+      "numerical_refinement": "FFT input, stage storage and output are signed18/F15. Twiddles are signed18/F17. Keep full multiplier products and a signed20 butterfly sum before rounding and dividing both butterfly outputs by two at every stage. The resulting transform is FFT/64. Use round-to-nearest, ties-to-even at narrowing boundaries and saturate on overflow. Channel estimation uses the same scaling, so division cancels the FFT normalization.",
+      "verification": "Compare bit-exact results for impulses, tones, random vectors, maximum-amplitude patterns and all twiddle quadrants. Prove every butterfly pair occupies different banks and check read/write hazards in inferred synchronous RAM. Measure the actual <=400-clock bound in simulation before integrating the receiver."
+    },
+    {
+      "name": "5. Channel estimation and bounded equalization",
+      "purpose": "Replace floating-point complex division with stored channel estimates and integer reciprocals.",
+      "inputs": "Two corrected LTF transforms and subsequent SIGNAL/DATA transforms.",
+      "outputs": "Equalized active carriers, per-carrier reliability and erasure flags.",
+      "streaming_transformation": "For each of the 52 active bins, form H=(Y1+Y2)*LTS_REF/2 and estimate noise from Y1-Y2. Store H and reciprocal metadata. A shared restoring divider builds one reciprocal at a time during training; allow up to 3000 clocks for all 52 bins. The raw ring absorbs this initial backlog. For each subsequent carrier compute N=Y*conj(H), then multiply by the stored reciprocal of D=|H|^2. Mark deep fades as erasures rather than allowing unbounded equalizer gain. Retain all 52 equalized carriers until pilot correction is known.",
+      "numerical_refinement": "H is signed18/F15. N components are signed37/F30 and D unsigned37/F30. Let p=floor(log2(D)), Dn=floor(D*2^(23-p)), and R=round(2^46/Dn). Store unsigned24 R and unsigned6 p. Compute equalized integer Z=round(N*R*2^(14-23-p)) with a signed62 product, then saturate to signed18/F14. Set the erasure threshold to max(max_active_D>>12, four times the estimated noise power, 1), with noise represented in D's units. Freeze the channel estimate for the packet; pilot loops handle subsequent phase changes.",
+      "verification": "Test identity, gain/phase changes, severe spectral nulls, small denominators and reciprocal rounding boundaries. Compare EVM and erasure behavior against an independent floating-point receiver. Assert that training latency and ring occupancy remain within their declared bounds."
+    },
+    {
+      "name": "6. Pilot phase tracking and legacy/HT classification",
+      "purpose": "Correct residual carrier and sampling phase while rejecting mixed-format HT packets before publishing bytes.",
+      "inputs": "Equalized carriers, symbol counter and the 127-entry legacy pilot-polarity ROM.",
+      "outputs": "Corrected 48 data carriers and a legacy/unsupported-format decision.",
+      "streaming_transformation": "Use pilot signs [p,p,p,-p], advancing polarity once for every post-LTF symbol, including SIGNAL and buffered classification symbols. Estimate common phase from the four de-polarized pilots. Also track a linear phase slope across subcarrier index: unwrap each pilot's phase relative to its prediction from the preceding symbol, fit intercept and slope, and filter the updates. Rotate each carrier by the negative fitted phase. Initialize the slope to zero because training used the same early FFT window. This corrects sampling-induced phase slope while the CP absorbs the bounded time drift. After a valid 6 Mbps L-SIG, retain the first two DATA symbols and evaluate both ordinary BPSK and 90-degree-rotated HT-SIG hypotheses. Decode the rotated hypothesis as a 48-bit, terminated rate-1/2 block and require rotation evidence, HT-SIG CRC and consistent fields to reject HT. If it is legacy, release the retained ordinary-BPSK symbols in order. Greenfield HT lacks the required legacy preamble and is rejected by acquisition.",
+      "numerical_refinement": "Use signed32 turn phases. For unwrapped pilot phases phi[k], intercept is sum(phi)/4 and slope is sum(k*phi)/980 for k=-21,-7,7,21; implement division by 980 using a constant integer reciprocal. Use signed40 intermediate sums, a 1/4 update coefficient, and magnitude gating for unreliable pilots. Carrier rotations use signed18/F17 sine/cosine values and retain signed18/F14 outputs. Bound allowed per-symbol phase changes; sustained loss of reliable pilots aborts the candidate.",
+      "verification": "Test polarity starting at SIGNAL index zero, phase wrapping, long packets with both signs of sampling error and weak pilots. Test ordinary 6 Mbps frames against HT mixed-format examples and intentionally CRC-colliding malformed candidates. HT classification is a signal decision with measurable false-positive/negative rates, not an absolute guarantee under arbitrary corruption."
+    },
+    {
+      "name": "7. L-SIG validation and rate configuration",
+      "purpose": "Recover all payload metadata from the waveform.",
+      "inputs": "48 SIGNAL BPSK soft bits after deinterleaving and terminated Viterbi decoding.",
+      "outputs": "Validated rate, length, modulation, puncture mode, symbol count and packet deadline.",
+      "streaming_transformation": "Decode exactly 24 SIGNAL information bits from a zero initial convolutional state and trace back from state zero after its six tail bits. Validate the four RATE bits, reserved zero, even parity over bits 0..17, six tail zeros and length 14..4095. Interpret LENGTH least-significant bit first. RATE strings in received bit order map as 1101:6, 1111:9, 0101:12, 0111:18, 1001:24, 1011:36, 0001:48, 0011:54. Configure tuples (N_BPSC,N_CBPS,N_DBPS) as 6:(1,48,24), 9:(1,48,36), 12:(2,96,48), 18:(2,96,72), 24:(4,192,96), 36:(4,192,144), 48:(6,288,192), 54:(6,288,216). Maximum DATA length is 1366 symbols. Invalid headers immediately release packet resources and rearm acquisition.",
+      "numerical_refinement": "All parsing is bit-indexed integer logic. Use a tiny 24-step survivor store for SIGNAL; do not append the Python's artificial leading or trailing bits. Tail-constrained decoding alone is not sufficient validation; parity, reserved, rate and length checks remain mandatory.",
+      "verification": "Exercise every valid rate, boundary lengths, each individual SIGNAL bit error, parity failures and unsupported rates. Check symbol counts and deadlines against independently generated vectors."
+    },
+    {
+      "name": "8. Soft demapper, deinterleaver and depuncturer",
+      "purpose": "Convert carriers into correctly ordered mother-code observations at every legacy rate.",
+      "inputs": "48 phase-corrected signed18/F14 complex carriers and reliability flags.",
+      "outputs": "Pairs of signed6 soft observations, with zero representing an erasure.",
+      "streaming_transformation": "Use standards-correct Gray labels and normalized constellations: BPSK +/-1, QPSK axis levels +/-1/sqrt(2), 16-QAM +/-1,+/-3 divided by sqrt(10), and 64-QAM +/-1,+/-3,+/-5,+/-7 divided by sqrt(42). Axis-separable piecewise-linear max-log metrics avoid a 64-point complex search. Generate mapping, metric and inverse-interleaver ROMs offline and verify them independently. Write incoming interleaved soft bit j to its original coded-bit address, then read sequentially from two 288x6 ping-pong memories. Reset interleaver addresses each symbol. Depuncture serialized A,B mother-code bits with masks 11 for rate 1/2, 1110 for rate 2/3, and 111001 for rate 3/4. Insert zero LLRs for omitted positions. Keep puncture phase continuous across DATA symbols.",
+      "numerical_refinement": "Constellation constants use signed18/F14. Metrics are proportional to squared-distance difference, computed using piecewise-linear formulas and bounded channel-reliability weighting. Round and saturate LLRs to [-31,31], with positive meaning bit zero is preferred. Deep-fade carriers output zero. Register the programmable power-of-two metric gain and freeze it per packet. Do not use the source's scale=3 or scale=7 as a substitute for standard QAM normalization.",
+      "verification": "Exhaustively verify labels and noiseless decisions for every constellation point. Prove each interleaver map is a bijection and the inverse of the transmitter permutation. Check puncture masks, A/B ordering and erasure insertion with independent convolutionally encoded vectors at all eight rates."
+    },
+    {
+      "name": "9. Streaming 64-state Viterbi",
+      "purpose": "Decode the longest packet with bounded survivor memory and sufficient throughput for 54 Mbps.",
+      "inputs": "Depunctured soft pairs, packet initialization and the known DATA tail endpoint.",
+      "outputs": "Ordered decoded SERVICE and PSDU bits plus tail diagnostics.",
+      "streaming_transformation": "Implement a K=7, 64-state trellis with generators 133 and 171 octal. Fix the shift-register convention explicitly in the ROM generator and compare it against an independent encoder. Use 64 parallel add-compare-select units, accepting one trellis step every three clocks. Store one 64-bit survivor word per step in a 1024-word circular RAM. Use 64-bit output blocks with 96 subsequent trellis steps of traceback lookahead: snapshot the best state, trace 160 steps backward, retain the oldest 64 decoded bits, and reverse their order in a small buffer. A separate traceback engine performs one synchronous-RAM step per clock. Continue ACS across all DATA symbols. Stop at step 16+8*LENGTH+6, before scrambled padding; force the final traceback endpoint to zero and recover all remaining uncommitted bits. Use a separate tiny decoder or idle-time scheduling for SIGNAL and the two-symbol HT probe.",
+      "numerical_refinement": "For LLR L, branch cost is max(0,-L) for bit zero and max(0,L) for bit one; an erased observation costs zero for either bit. Pair cost is at most 62. Use unsigned22 path metrics, infinity=2^22-1, saturating addition and deterministic tie-breaking. Initialize state zero to zero and all other states to infinity. The maximum processed DATA length is 32782 trellis steps, so finite path cost is at most 2032484; normalization is unnecessary. Maintain explicit valid-step tags to prevent survivor wrap errors.",
+      "verification": "Test noiseless and noisy terminated codewords, all puncture modes, initial-state conventions, ties, burst errors and circular-memory wrap. Compare streaming decisions with a full-block reference and quantify the finite traceback loss. Prove throughput: at most 216 steps times three clocks equals 648 clocks per symbol; 160 traceback reads plus best-state selection fit between successive 64-step block triggers."
+    },
+    {
+      "name": "10. Descrambling, frame assembly and CRC",
+      "purpose": "Recover exact PSDU bytes, including FCS, and finish the frame transaction.",
+      "inputs": "Decoded DATA bits with absolute information-bit index.",
+      "outputs": "A completed frame-bank descriptor containing length, rate and CRC result.",
+      "streaming_transformation": "Buffer the first 16 SERVICE bits. Infer the nonzero seven-bit scrambler state from the first seven known-zero SERVICE bits using a generated inverse GF(2) mapping. Run x^7+x^4+1 descrambling from DATA bit zero and verify the SERVICE zeros. Pack precisely LENGTH bytes least-significant bit first. Ignore padding. Check the six convolutional tail bits before descrambling because the transmitter overwrites these scrambled positions with zeros. Store every PSDU byte, including the four FCS bytes, while updating CRC. Commit the frame descriptor after final traceback and checks complete.",
+      "numerical_refinement": "Use a seven-bit XOR scrambler. CRC is reflected CRC-32 with polynomial 0xEDB88320, initial register 0xFFFFFFFF. Updating the uncomplemented register over payload plus transmitted FCS must yield residue 0xDEBB20E3. Length controls byte extraction; CRC never controls how many bytes are emitted.",
+      "verification": "Test all 127 scrambler seeds, byte bit order, the canonical CRC test vector, valid and invalid FCS, shortest and longest frames, and tail endpoints lying inside the final symbol. Confirm first/last and metadata remain correct during output stalls."
+    },
+    {
+      "name": "11. Recovery and verification checkpoints",
+      "purpose": "Make malformed traffic recoverable and expose integration failures before synthesis.",
+      "inputs": "Engine status, sample indices, deadlines, FIFO occupancy and test vectors.",
+      "outputs": "Rearm events, diagnostic counters, block conformance results and implementation reports.",
+      "streaming_transformation": "Run the acquisition monitor continuously, including while decoding. Retain at most two confirmed newer-preamble descriptors. A newly confirmed preamble may terminate a corrupted in-progress candidate without waiting for its claimed length; validate replacement acquisition before switching epochs. Bound each stage and whole-packet deadline by declared symbol count plus 1024 samples of processing allowance. On abort, clear logical validity, pilot/scrambler/trellis state and queue ownership; RAM contents need not be reset. Rearm immediately with a short duplicate-candidate exclusion window rather than waiting for energy to disappear.",
+      "numerical_refinement": "Use the same explicit rounding, saturation, phase and bit-order conventions in the integer reference model and RTL. Keep independent standards-based vectors so agreement with the provided Python does not conceal shared mistakes.",
+      "verification": "Checkpoint 1: freeze interfaces, trellis/constellation/interleaver ROMs and independent packet vectors. Checkpoint 2: GHDL unit tests for arithmetic, FFT, synchronization, deinterleaving, Viterbi and CRC. Checkpoint 3: complete noiseless packets at every rate and boundary length. Checkpoint 4: CFO, sampling error, multipath, noise, clipping, malformed headers, truncation, back-to-back packets, HT rejection and reset/stall injection. Checkpoint 5: synthesize through GHDL/Yosys, simulate translated RTL with Verilator, compare packet outputs and cycle traces, and check Xilinx-7 resource mapping. Checkpoint 6: place-and-route timing and sustained-load tests at the planned 200 MHz. Treat timing and resource limits as acceptance gates, not estimates presented as achieved results."
+    }
+  ],
+  "schedule": "Steady-state symbol period is 800 clocks. Independent engines overlap adjacent symbols: replay/FFT <=400 clocks, pilot tracking/equalization/demapping <=600 clocks with pipelined arithmetic, deinterleaver traversal <=288 clocks, and DATA ACS <=648 clocks. Allocate four 288x6 soft-symbol queue slots in addition to the deinterleaver ping-pong banks; retain two symbols during 6 Mbps classification. Training has an explicit approximately 5000-clock startup allowance for two FFTs, fine-CFO processing and sequential reciprocal generation; the 4096-sample ring provides 40960 clocks of history. Require measured input-to-processing lag below 1024 samples, leaving substantial ring margin. Schedule STF products within each 10-clock input slot; dedicate eight complex MAC lanes to LTF search, and share divider, CORDIC and reciprocal-building resources only between jobs whose deadlines cannot overlap. Suggested peak reservations are acquisition 12000 LUT/12000 FF/36 DSP/12 RAMB18, replay and FFT 6500 LUT/6000 FF/12 DSP/12 RAMB18, channel/pilots/demapper 6500 LUT/6000 FF/24 DSP/12 RAMB18, FEC 9500 LUT/10000 FF/0 DSP/10 RAMB18, and framing/control 3500 LUT/4000 FF/0 DSP/10 RAMB18: total ceiling 38000 LUT, 38000 FF, 72 DSP and 56 RAMB18 equivalents. These are design allocations requiring early synthesis. Explicit major stores are the 4096x32 sample ring, two 4096x8 frame banks, 1024x64 survivor RAM, four 64x36 FFT buffers, six 288x6 soft-symbol banks, channel/reciprocal tables and bounded traceback buffers. Count physical RAM width/depth fragmentation and all ROMs in the implementation report.",
+  "risks": "The main acceptance risks are 200 MHz timing in wide ACS/comparison logic, inferred RAM port behavior, LTF correlator area, pilot tracking under deep fades, and numerical loss at low input amplitude. The declared channel envelope must be verified with packet-error-rate and EVM sweeps; signed16 input alone does not specify RF sensitivity or front-end AGC performance. The finite-depth Viterbi is a practical streaming approximation and needs performance validation. HT rejection can misclassify heavily corrupted signals; require combined rotation and header evidence. CRC status is meaningful only for fully assembled frames. No architecture can recover arbitrary lost samples or guarantee decoding under unrestricted interference; overflow, deadline and acquisition failure must produce bounded discard and recovery. The resource allocations and cycle bounds must be checked before generating the full RTL, especially the combined pilot/equalizer schedule and acquisition multiplier mapping."
+}

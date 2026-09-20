@@ -1,0 +1,2667 @@
+{
+  "accepted": true,
+  "audit": {
+    "bytes": 88934,
+    "cases": [
+      {
+        "cycles": 108575,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "audit-6Mbps",
+        "output_bytes": 183,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 92625,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "audit-9Mbps",
+        "output_bytes": 186,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 84495,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "audit-12Mbps",
+        "output_bytes": 189,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 76725,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "audit-18Mbps",
+        "output_bytes": 195,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 72695,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "audit-24Mbps",
+        "output_bytes": 201,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 69015,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "audit-36Mbps",
+        "output_bytes": 213,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 67255,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "audit-48Mbps",
+        "output_bytes": 225,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 66955,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "audit-54Mbps",
+        "output_bytes": 231,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 376005,
+        "expected_good_frames": 20,
+        "failures": [],
+        "matched_frames": 20,
+        "name": "dot11a_12mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+        "output_bytes": 1520,
+        "output_frames": 20,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 286405,
+        "expected_good_frames": 18,
+        "failures": [],
+        "matched_frames": 18,
+        "name": "dot11a_18mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+        "output_bytes": 1368,
+        "output_frames": 18,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 235305,
+        "expected_good_frames": 16,
+        "failures": [],
+        "matched_frames": 16,
+        "name": "dot11a_24mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42-tail",
+        "output_bytes": 1216,
+        "output_frames": 16,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 228805,
+        "expected_good_frames": 18,
+        "failures": [],
+        "matched_frames": 18,
+        "name": "dot11a_36mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+        "output_bytes": 1368,
+        "output_frames": 18,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 205605,
+        "expected_good_frames": 17,
+        "failures": [],
+        "matched_frames": 17,
+        "name": "dot11a_48mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+        "output_bytes": 1327,
+        "output_frames": 17,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 576005,
+        "expected_good_frames": 20,
+        "failures": [],
+        "matched_frames": 20,
+        "name": "dot11a_6mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+        "output_bytes": 1520,
+        "output_frames": 20,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 416005,
+        "expected_good_frames": 18,
+        "failures": [],
+        "matched_frames": 18,
+        "name": "dot11a_9mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+        "output_bytes": 1368,
+        "output_frames": 18,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 63805,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "ag_54M_len14_pre100_post200_openwifi",
+        "output_bytes": 14,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 109405,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "ag_54M_len1537_pre100_post200_openwifi",
+        "output_bytes": 1537,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 182205,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "ag_54M_len4000_pre100_post200_openwifi",
+        "output_bytes": 4000,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 67805,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "ag_6M_len14_pre100_post200_openwifi",
+        "output_bytes": 14,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 474205,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "ag_6M_len1537_pre100_post200_openwifi",
+        "output_bytes": 1537,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 1131005,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "ag_6M_len4000_pre100_post200_openwifi",
+        "output_bytes": 4000,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 72385,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "ack-ok-openwifi",
+        "output_bytes": 14,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 98605,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 2,
+        "name": "bad-fcs-then-good",
+        "output_bytes": 128,
+        "output_frames": 2,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 60005,
+        "expected_good_frames": 0,
+        "failures": [],
+        "matched_frames": 0,
+        "name": "silence",
+        "output_bytes": 0,
+        "output_frames": 0,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 94408,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "reset-reacquire",
+        "output_bytes": 94,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 98605,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "invalid-signal-recovery",
+        "output_bytes": 94,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 435005,
+        "expected_good_frames": 48,
+        "failures": [],
+        "matched_frames": 48,
+        "name": "sustained-short-packets",
+        "output_bytes": 672,
+        "output_frames": 48,
+        "pass": true,
+        "throughput": {
+          "input_cycles_per_packet": 8000.0,
+          "lag_growth_cycles": 7.5,
+          "output_cycles_per_packet": 8000.697674418605
+        }
+      },
+      {
+        "cycles": 2111805,
+        "expected_good_frames": 16,
+        "failures": [],
+        "matched_frames": 16,
+        "name": "sustained-maximum-54Mbps",
+        "output_bytes": 65520,
+        "output_frames": 16,
+        "pass": true,
+        "throughput": {
+          "input_cycles_per_packet": 128800.0,
+          "lag_growth_cycles": 3.5,
+          "output_cycles_per_packet": 128801.27272727272
+        }
+      }
+    ],
+    "cases_run": 28,
+    "cases_total": 28,
+    "frames": 210,
+    "pass": true,
+    "verification_scope": "rtl-only",
+    "vhdl_sha256": "53c7341503bf39344a204948af523b404934543d27dc62279da27fe16e932841"
+  },
+  "blocks": {
+    "backend": {
+      "audit_cases": 22,
+      "audit_frames": 128,
+      "stage": "before integrated compiler repair",
+      "verification_scope": "rtl-only",
+      "vhdl_sha256": "ac80f65180c741d365aba60942f00af3a7b3b1f92d3a11756bec5ee756381bb7"
+    },
+    "fft": {
+      "accepted": true,
+      "hardware": {
+        "brams": 0,
+        "cells": {
+          "BUFG": 1,
+          "CARRY4": 1015,
+          "DSP48E1": 16,
+          "FDRE": 6746,
+          "INV": 236,
+          "LUT1": 14,
+          "LUT2": 244,
+          "LUT3": 332,
+          "LUT4": 395,
+          "LUT5": 3088,
+          "LUT6": 5568,
+          "MUXF7": 14
+        },
+        "dsps": 16,
+        "ffs": 6746,
+        "luts": 9641,
+        "stage": "yosys-xilinx-technology-mapping",
+        "vivado_executed": false
+      },
+      "latency": 398,
+      "numeric": {
+        "comparison": "fieldwise-scaled-numerical",
+        "cycles": 43835,
+        "failures": [],
+        "fields": {
+          "imag0": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "imag1": {
+            "max_abs_error": 0.8042177620518487,
+            "pass": true,
+            "rms_error": 0.3112645993790947
+          },
+          "imag10": {
+            "max_abs_error": 0.6698224003775977,
+            "pass": true,
+            "rms_error": 0.30359132418184737
+          },
+          "imag11": {
+            "max_abs_error": 0.6879491806321312,
+            "pass": true,
+            "rms_error": 0.26360171158864815
+          },
+          "imag12": {
+            "max_abs_error": 0.5420133956358768,
+            "pass": true,
+            "rms_error": 0.2920875913827054
+          },
+          "imag13": {
+            "max_abs_error": 0.7450338550843298,
+            "pass": true,
+            "rms_error": 0.3236614538440882
+          },
+          "imag14": {
+            "max_abs_error": 0.6067516208568122,
+            "pass": true,
+            "rms_error": 0.30415510536979384
+          },
+          "imag15": {
+            "max_abs_error": 0.6063733383489307,
+            "pass": true,
+            "rms_error": 0.27528679530056593
+          },
+          "imag16": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "imag17": {
+            "max_abs_error": 0.7137651717093831,
+            "pass": true,
+            "rms_error": 0.3164337366964689
+          },
+          "imag18": {
+            "max_abs_error": 0.6422332726651803,
+            "pass": true,
+            "rms_error": 0.28131577417768
+          },
+          "imag19": {
+            "max_abs_error": 0.7961257571005262,
+            "pass": true,
+            "rms_error": 0.31630096788701495
+          },
+          "imag2": {
+            "max_abs_error": 0.7237823131144978,
+            "pass": true,
+            "rms_error": 0.2936223982502159
+          },
+          "imag20": {
+            "max_abs_error": 0.6199635007069446,
+            "pass": true,
+            "rms_error": 0.2914100529838243
+          },
+          "imag21": {
+            "max_abs_error": 0.7337667453903123,
+            "pass": true,
+            "rms_error": 0.301042345549421
+          },
+          "imag22": {
+            "max_abs_error": 0.7229925788706169,
+            "pass": true,
+            "rms_error": 0.33170291637962457
+          },
+          "imag23": {
+            "max_abs_error": 0.7929725538706407,
+            "pass": true,
+            "rms_error": 0.30823214952646133
+          },
+          "imag24": {
+            "max_abs_error": 0.5625861394655658,
+            "pass": true,
+            "rms_error": 0.26466427329957964
+          },
+          "imag25": {
+            "max_abs_error": 0.751838984360802,
+            "pass": true,
+            "rms_error": 0.3140520607146278
+          },
+          "imag26": {
+            "max_abs_error": 0.7343284195521846,
+            "pass": true,
+            "rms_error": 0.29135991350075197
+          },
+          "imag27": {
+            "max_abs_error": 0.8201858429601998,
+            "pass": true,
+            "rms_error": 0.31265835758365085
+          },
+          "imag28": {
+            "max_abs_error": 0.6370926585805137,
+            "pass": true,
+            "rms_error": 0.2896021322519639
+          },
+          "imag29": {
+            "max_abs_error": 0.715473279953585,
+            "pass": true,
+            "rms_error": 0.3084651166146238
+          },
+          "imag3": {
+            "max_abs_error": 0.7631833324558102,
+            "pass": true,
+            "rms_error": 0.3043672592434598
+          },
+          "imag30": {
+            "max_abs_error": 0.6737686453270726,
+            "pass": true,
+            "rms_error": 0.2749958948949767
+          },
+          "imag31": {
+            "max_abs_error": 0.6587864578177687,
+            "pass": true,
+            "rms_error": 0.306418821868298
+          },
+          "imag32": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "imag33": {
+            "max_abs_error": 0.6752726671693381,
+            "pass": true,
+            "rms_error": 0.3305541467726858
+          },
+          "imag34": {
+            "max_abs_error": 0.7245767333661206,
+            "pass": true,
+            "rms_error": 0.3091778556188668
+          },
+          "imag35": {
+            "max_abs_error": 0.6778205799928401,
+            "pass": true,
+            "rms_error": 0.29892667298416625
+          },
+          "imag36": {
+            "max_abs_error": 0.5355791740585119,
+            "pass": true,
+            "rms_error": 0.29721406937441625
+          },
+          "imag37": {
+            "max_abs_error": 0.6621698037488386,
+            "pass": true,
+            "rms_error": 0.3164570231441825
+          },
+          "imag38": {
+            "max_abs_error": 0.6094205168192275,
+            "pass": true,
+            "rms_error": 0.31239364205970765
+          },
+          "imag39": {
+            "max_abs_error": 0.7395728245028295,
+            "pass": true,
+            "rms_error": 0.311361956263937
+          },
+          "imag4": {
+            "max_abs_error": 0.5603494323440827,
+            "pass": true,
+            "rms_error": 0.2660154673408245
+          },
+          "imag40": {
+            "max_abs_error": 0.5539791108749341,
+            "pass": true,
+            "rms_error": 0.27557860461777595
+          },
+          "imag41": {
+            "max_abs_error": 0.6960657683666795,
+            "pass": true,
+            "rms_error": 0.3113490182810547
+          },
+          "imag42": {
+            "max_abs_error": 0.6325699607550632,
+            "pass": true,
+            "rms_error": 0.2916663774794203
+          },
+          "imag43": {
+            "max_abs_error": 0.7165767381666228,
+            "pass": true,
+            "rms_error": 0.294624086072817
+          },
+          "imag44": {
+            "max_abs_error": 0.5779854121501558,
+            "pass": true,
+            "rms_error": 0.2677105933334384
+          },
+          "imag45": {
+            "max_abs_error": 0.8102589874761179,
+            "pass": true,
+            "rms_error": 0.30646160315213317
+          },
+          "imag46": {
+            "max_abs_error": 0.7306598497380037,
+            "pass": true,
+            "rms_error": 0.27397815665135045
+          },
+          "imag47": {
+            "max_abs_error": 0.7347157661279198,
+            "pass": true,
+            "rms_error": 0.30116038543570933
+          },
+          "imag48": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "imag49": {
+            "max_abs_error": 0.6517652551992796,
+            "pass": true,
+            "rms_error": 0.2947007720836408
+          },
+          "imag5": {
+            "max_abs_error": 0.697053009935189,
+            "pass": true,
+            "rms_error": 0.3081587012877495
+          },
+          "imag50": {
+            "max_abs_error": 0.6556575919385068,
+            "pass": true,
+            "rms_error": 0.2972634860542322
+          },
+          "imag51": {
+            "max_abs_error": 0.8216245204675943,
+            "pass": true,
+            "rms_error": 0.3006447912120351
+          },
+          "imag52": {
+            "max_abs_error": 0.6510865786767681,
+            "pass": true,
+            "rms_error": 0.28515903756665684
+          },
+          "imag53": {
+            "max_abs_error": 0.8267448846236221,
+            "pass": true,
+            "rms_error": 0.3434022883801253
+          },
+          "imag54": {
+            "max_abs_error": 0.6864452055815491,
+            "pass": true,
+            "rms_error": 0.288171000887252
+          },
+          "imag55": {
+            "max_abs_error": 0.7960700555122457,
+            "pass": true,
+            "rms_error": 0.33728443206517766
+          },
+          "imag56": {
+            "max_abs_error": 0.56909803225426,
+            "pass": true,
+            "rms_error": 0.2650286376466174
+          },
+          "imag57": {
+            "max_abs_error": 0.6039202552783536,
+            "pass": true,
+            "rms_error": 0.30492487324484197
+          },
+          "imag58": {
+            "max_abs_error": 0.6469603206714964,
+            "pass": true,
+            "rms_error": 0.25297856501518007
+          },
+          "imag59": {
+            "max_abs_error": 0.7202151342862635,
+            "pass": true,
+            "rms_error": 0.26994882876376786
+          },
+          "imag6": {
+            "max_abs_error": 0.6434114946168847,
+            "pass": true,
+            "rms_error": 0.2968703027425432
+          },
+          "imag60": {
+            "max_abs_error": 0.6411718224699143,
+            "pass": true,
+            "rms_error": 0.28993771129909957
+          },
+          "imag61": {
+            "max_abs_error": 0.6437696946668439,
+            "pass": true,
+            "rms_error": 0.2849965331033726
+          },
+          "imag62": {
+            "max_abs_error": 0.579697341308929,
+            "pass": true,
+            "rms_error": 0.2942097178170478
+          },
+          "imag63": {
+            "max_abs_error": 0.6855883000098402,
+            "pass": true,
+            "rms_error": 0.2992447991067361
+          },
+          "imag7": {
+            "max_abs_error": 0.7427398859581444,
+            "pass": true,
+            "rms_error": 0.32703035805933217
+          },
+          "imag8": {
+            "max_abs_error": 0.5648387053515762,
+            "pass": true,
+            "rms_error": 0.2704410368783928
+          },
+          "imag9": {
+            "max_abs_error": 0.710103545934544,
+            "pass": true,
+            "rms_error": 0.2908259251979602
+          },
+          "real0": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "real1": {
+            "max_abs_error": 0.609809543202573,
+            "pass": true,
+            "rms_error": 0.3085218884842467
+          },
+          "real10": {
+            "max_abs_error": 0.6627310030162334,
+            "pass": true,
+            "rms_error": 0.2916385642311839
+          },
+          "real11": {
+            "max_abs_error": 0.7535951202735305,
+            "pass": true,
+            "rms_error": 0.3265626562445111
+          },
+          "real12": {
+            "max_abs_error": 0.6038458750699647,
+            "pass": true,
+            "rms_error": 0.2732155475956154
+          },
+          "real13": {
+            "max_abs_error": 0.6904648861527676,
+            "pass": true,
+            "rms_error": 0.3286071309941711
+          },
+          "real14": {
+            "max_abs_error": 0.7303878725506365,
+            "pass": true,
+            "rms_error": 0.31887313647320803
+          },
+          "real15": {
+            "max_abs_error": 0.6871168256329838,
+            "pass": true,
+            "rms_error": 0.3009922585686521
+          },
+          "real16": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "real17": {
+            "max_abs_error": 0.7457948316005059,
+            "pass": true,
+            "rms_error": 0.3053985104693601
+          },
+          "real18": {
+            "max_abs_error": 0.5564767233736347,
+            "pass": true,
+            "rms_error": 0.2798443575097472
+          },
+          "real19": {
+            "max_abs_error": 0.6975482381531037,
+            "pass": true,
+            "rms_error": 0.324829202066552
+          },
+          "real2": {
+            "max_abs_error": 0.6663985350169241,
+            "pass": true,
+            "rms_error": 0.3090562018293682
+          },
+          "real20": {
+            "max_abs_error": 0.5722985036263708,
+            "pass": true,
+            "rms_error": 0.297428861917067
+          },
+          "real21": {
+            "max_abs_error": 0.7897616527916398,
+            "pass": true,
+            "rms_error": 0.3199614478423575
+          },
+          "real22": {
+            "max_abs_error": 0.6748924127605278,
+            "pass": true,
+            "rms_error": 0.30650432024337515
+          },
+          "real23": {
+            "max_abs_error": 0.7504940889048157,
+            "pass": true,
+            "rms_error": 0.3089749860736714
+          },
+          "real24": {
+            "max_abs_error": 0.53633140239981,
+            "pass": true,
+            "rms_error": 0.27946665082213956
+          },
+          "real25": {
+            "max_abs_error": 0.7083215941966046,
+            "pass": true,
+            "rms_error": 0.29974938039827037
+          },
+          "real26": {
+            "max_abs_error": 0.7090090529090958,
+            "pass": true,
+            "rms_error": 0.3139780302626917
+          },
+          "real27": {
+            "max_abs_error": 0.7050500512414146,
+            "pass": true,
+            "rms_error": 0.3223847872847952
+          },
+          "real28": {
+            "max_abs_error": 0.6126869634026662,
+            "pass": true,
+            "rms_error": 0.2873177201715994
+          },
+          "real29": {
+            "max_abs_error": 0.6904229844076326,
+            "pass": true,
+            "rms_error": 0.2905899855012195
+          },
+          "real3": {
+            "max_abs_error": 0.7624858246999793,
+            "pass": true,
+            "rms_error": 0.32287305752958945
+          },
+          "real30": {
+            "max_abs_error": 0.6112757675582543,
+            "pass": true,
+            "rms_error": 0.3200127994117625
+          },
+          "real31": {
+            "max_abs_error": 0.788666071544867,
+            "pass": true,
+            "rms_error": 0.3420717419323255
+          },
+          "real32": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "real33": {
+            "max_abs_error": 0.7745820837153587,
+            "pass": true,
+            "rms_error": 0.3142511795657922
+          },
+          "real34": {
+            "max_abs_error": 0.5566922457655892,
+            "pass": true,
+            "rms_error": 0.2574646040674835
+          },
+          "real35": {
+            "max_abs_error": 0.838059255387634,
+            "pass": true,
+            "rms_error": 0.28978254231202766
+          },
+          "real36": {
+            "max_abs_error": 0.6500999243871775,
+            "pass": true,
+            "rms_error": 0.2975712239998094
+          },
+          "real37": {
+            "max_abs_error": 0.6952121371868998,
+            "pass": true,
+            "rms_error": 0.3030740348073222
+          },
+          "real38": {
+            "max_abs_error": 0.7616065875918139,
+            "pass": true,
+            "rms_error": 0.29574318417991036
+          },
+          "real39": {
+            "max_abs_error": 0.6813307306729257,
+            "pass": true,
+            "rms_error": 0.32380398113217546
+          },
+          "real4": {
+            "max_abs_error": 0.6412392069469206,
+            "pass": true,
+            "rms_error": 0.285223639754057
+          },
+          "real40": {
+            "max_abs_error": 0.568743471376365,
+            "pass": true,
+            "rms_error": 0.2822643496857338
+          },
+          "real41": {
+            "max_abs_error": 0.7261379138217308,
+            "pass": true,
+            "rms_error": 0.3306502371465345
+          },
+          "real42": {
+            "max_abs_error": 0.5980066215706756,
+            "pass": true,
+            "rms_error": 0.28801806252602874
+          },
+          "real43": {
+            "max_abs_error": 0.7079780254498473,
+            "pass": true,
+            "rms_error": 0.31789306619260227
+          },
+          "real44": {
+            "max_abs_error": 0.6409603918145876,
+            "pass": true,
+            "rms_error": 0.29056120471534
+          },
+          "real45": {
+            "max_abs_error": 0.7483808219112689,
+            "pass": true,
+            "rms_error": 0.32072755587492513
+          },
+          "real46": {
+            "max_abs_error": 0.6249166603665799,
+            "pass": true,
+            "rms_error": 0.30704532053744826
+          },
+          "real47": {
+            "max_abs_error": 0.7520794048323296,
+            "pass": true,
+            "rms_error": 0.32234740732546097
+          },
+          "real48": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "real49": {
+            "max_abs_error": 0.8536692408961244,
+            "pass": true,
+            "rms_error": 0.2893318979298973
+          },
+          "real5": {
+            "max_abs_error": 0.7003917799447663,
+            "pass": true,
+            "rms_error": 0.3254273988451919
+          },
+          "real50": {
+            "max_abs_error": 0.6254401064070407,
+            "pass": true,
+            "rms_error": 0.27172852402462405
+          },
+          "real51": {
+            "max_abs_error": 0.7693456186680123,
+            "pass": true,
+            "rms_error": 0.3099223532994506
+          },
+          "real52": {
+            "max_abs_error": 0.5923248019244056,
+            "pass": true,
+            "rms_error": 0.2775275736522926
+          },
+          "real53": {
+            "max_abs_error": 0.7615535235090647,
+            "pass": true,
+            "rms_error": 0.281245193299093
+          },
+          "real54": {
+            "max_abs_error": 0.678730601866846,
+            "pass": true,
+            "rms_error": 0.3137804676090166
+          },
+          "real55": {
+            "max_abs_error": 0.69139855481626,
+            "pass": true,
+            "rms_error": 0.3160065500804319
+          },
+          "real56": {
+            "max_abs_error": 0.5526546807668637,
+            "pass": true,
+            "rms_error": 0.28528638570368225
+          },
+          "real57": {
+            "max_abs_error": 0.7175427063484676,
+            "pass": true,
+            "rms_error": 0.32978152966935187
+          },
+          "real58": {
+            "max_abs_error": 0.6864813005086035,
+            "pass": true,
+            "rms_error": 0.3156739852653545
+          },
+          "real59": {
+            "max_abs_error": 0.6384879230172373,
+            "pass": true,
+            "rms_error": 0.29858569632011267
+          },
+          "real6": {
+            "max_abs_error": 0.6650996902462794,
+            "pass": true,
+            "rms_error": 0.2789744471203117
+          },
+          "real60": {
+            "max_abs_error": 0.6328894945036154,
+            "pass": true,
+            "rms_error": 0.2762908202720736
+          },
+          "real61": {
+            "max_abs_error": 0.8640676160284784,
+            "pass": true,
+            "rms_error": 0.3051864805908851
+          },
+          "real62": {
+            "max_abs_error": 0.5617342393961735,
+            "pass": true,
+            "rms_error": 0.258252395969162
+          },
+          "real63": {
+            "max_abs_error": 0.6324850618257187,
+            "pass": true,
+            "rms_error": 0.3006853842058158
+          },
+          "real7": {
+            "max_abs_error": 0.7185456805018475,
+            "pass": true,
+            "rms_error": 0.30250560003169474
+          },
+          "real8": {
+            "max_abs_error": 0.5610091840790119,
+            "pass": true,
+            "rms_error": 0.2849059193325736
+          },
+          "real9": {
+            "max_abs_error": 0.7471116371452808,
+            "pass": true,
+            "rms_error": 0.29875471025074185
+          }
+        },
+        "max_abs_error": 0.8640676160284784,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 0.6908023766262077,
+        "samples": 107,
+        "violations": 0
+      },
+      "physical_timing_measured": false,
+      "post_synthesis": {
+        "comparison": "fieldwise-scaled-numerical",
+        "cycles": 43835,
+        "failures": [],
+        "fields": {
+          "imag0": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "imag1": {
+            "max_abs_error": 0.8042177620518487,
+            "pass": true,
+            "rms_error": 0.3112645993790947
+          },
+          "imag10": {
+            "max_abs_error": 0.6698224003775977,
+            "pass": true,
+            "rms_error": 0.30359132418184737
+          },
+          "imag11": {
+            "max_abs_error": 0.6879491806321312,
+            "pass": true,
+            "rms_error": 0.26360171158864815
+          },
+          "imag12": {
+            "max_abs_error": 0.5420133956358768,
+            "pass": true,
+            "rms_error": 0.2920875913827054
+          },
+          "imag13": {
+            "max_abs_error": 0.7450338550843298,
+            "pass": true,
+            "rms_error": 0.3236614538440882
+          },
+          "imag14": {
+            "max_abs_error": 0.6067516208568122,
+            "pass": true,
+            "rms_error": 0.30415510536979384
+          },
+          "imag15": {
+            "max_abs_error": 0.6063733383489307,
+            "pass": true,
+            "rms_error": 0.27528679530056593
+          },
+          "imag16": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "imag17": {
+            "max_abs_error": 0.7137651717093831,
+            "pass": true,
+            "rms_error": 0.3164337366964689
+          },
+          "imag18": {
+            "max_abs_error": 0.6422332726651803,
+            "pass": true,
+            "rms_error": 0.28131577417768
+          },
+          "imag19": {
+            "max_abs_error": 0.7961257571005262,
+            "pass": true,
+            "rms_error": 0.31630096788701495
+          },
+          "imag2": {
+            "max_abs_error": 0.7237823131144978,
+            "pass": true,
+            "rms_error": 0.2936223982502159
+          },
+          "imag20": {
+            "max_abs_error": 0.6199635007069446,
+            "pass": true,
+            "rms_error": 0.2914100529838243
+          },
+          "imag21": {
+            "max_abs_error": 0.7337667453903123,
+            "pass": true,
+            "rms_error": 0.301042345549421
+          },
+          "imag22": {
+            "max_abs_error": 0.7229925788706169,
+            "pass": true,
+            "rms_error": 0.33170291637962457
+          },
+          "imag23": {
+            "max_abs_error": 0.7929725538706407,
+            "pass": true,
+            "rms_error": 0.30823214952646133
+          },
+          "imag24": {
+            "max_abs_error": 0.5625861394655658,
+            "pass": true,
+            "rms_error": 0.26466427329957964
+          },
+          "imag25": {
+            "max_abs_error": 0.751838984360802,
+            "pass": true,
+            "rms_error": 0.3140520607146278
+          },
+          "imag26": {
+            "max_abs_error": 0.7343284195521846,
+            "pass": true,
+            "rms_error": 0.29135991350075197
+          },
+          "imag27": {
+            "max_abs_error": 0.8201858429601998,
+            "pass": true,
+            "rms_error": 0.31265835758365085
+          },
+          "imag28": {
+            "max_abs_error": 0.6370926585805137,
+            "pass": true,
+            "rms_error": 0.2896021322519639
+          },
+          "imag29": {
+            "max_abs_error": 0.715473279953585,
+            "pass": true,
+            "rms_error": 0.3084651166146238
+          },
+          "imag3": {
+            "max_abs_error": 0.7631833324558102,
+            "pass": true,
+            "rms_error": 0.3043672592434598
+          },
+          "imag30": {
+            "max_abs_error": 0.6737686453270726,
+            "pass": true,
+            "rms_error": 0.2749958948949767
+          },
+          "imag31": {
+            "max_abs_error": 0.6587864578177687,
+            "pass": true,
+            "rms_error": 0.306418821868298
+          },
+          "imag32": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "imag33": {
+            "max_abs_error": 0.6752726671693381,
+            "pass": true,
+            "rms_error": 0.3305541467726858
+          },
+          "imag34": {
+            "max_abs_error": 0.7245767333661206,
+            "pass": true,
+            "rms_error": 0.3091778556188668
+          },
+          "imag35": {
+            "max_abs_error": 0.6778205799928401,
+            "pass": true,
+            "rms_error": 0.29892667298416625
+          },
+          "imag36": {
+            "max_abs_error": 0.5355791740585119,
+            "pass": true,
+            "rms_error": 0.29721406937441625
+          },
+          "imag37": {
+            "max_abs_error": 0.6621698037488386,
+            "pass": true,
+            "rms_error": 0.3164570231441825
+          },
+          "imag38": {
+            "max_abs_error": 0.6094205168192275,
+            "pass": true,
+            "rms_error": 0.31239364205970765
+          },
+          "imag39": {
+            "max_abs_error": 0.7395728245028295,
+            "pass": true,
+            "rms_error": 0.311361956263937
+          },
+          "imag4": {
+            "max_abs_error": 0.5603494323440827,
+            "pass": true,
+            "rms_error": 0.2660154673408245
+          },
+          "imag40": {
+            "max_abs_error": 0.5539791108749341,
+            "pass": true,
+            "rms_error": 0.27557860461777595
+          },
+          "imag41": {
+            "max_abs_error": 0.6960657683666795,
+            "pass": true,
+            "rms_error": 0.3113490182810547
+          },
+          "imag42": {
+            "max_abs_error": 0.6325699607550632,
+            "pass": true,
+            "rms_error": 0.2916663774794203
+          },
+          "imag43": {
+            "max_abs_error": 0.7165767381666228,
+            "pass": true,
+            "rms_error": 0.294624086072817
+          },
+          "imag44": {
+            "max_abs_error": 0.5779854121501558,
+            "pass": true,
+            "rms_error": 0.2677105933334384
+          },
+          "imag45": {
+            "max_abs_error": 0.8102589874761179,
+            "pass": true,
+            "rms_error": 0.30646160315213317
+          },
+          "imag46": {
+            "max_abs_error": 0.7306598497380037,
+            "pass": true,
+            "rms_error": 0.27397815665135045
+          },
+          "imag47": {
+            "max_abs_error": 0.7347157661279198,
+            "pass": true,
+            "rms_error": 0.30116038543570933
+          },
+          "imag48": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "imag49": {
+            "max_abs_error": 0.6517652551992796,
+            "pass": true,
+            "rms_error": 0.2947007720836408
+          },
+          "imag5": {
+            "max_abs_error": 0.697053009935189,
+            "pass": true,
+            "rms_error": 0.3081587012877495
+          },
+          "imag50": {
+            "max_abs_error": 0.6556575919385068,
+            "pass": true,
+            "rms_error": 0.2972634860542322
+          },
+          "imag51": {
+            "max_abs_error": 0.8216245204675943,
+            "pass": true,
+            "rms_error": 0.3006447912120351
+          },
+          "imag52": {
+            "max_abs_error": 0.6510865786767681,
+            "pass": true,
+            "rms_error": 0.28515903756665684
+          },
+          "imag53": {
+            "max_abs_error": 0.8267448846236221,
+            "pass": true,
+            "rms_error": 0.3434022883801253
+          },
+          "imag54": {
+            "max_abs_error": 0.6864452055815491,
+            "pass": true,
+            "rms_error": 0.288171000887252
+          },
+          "imag55": {
+            "max_abs_error": 0.7960700555122457,
+            "pass": true,
+            "rms_error": 0.33728443206517766
+          },
+          "imag56": {
+            "max_abs_error": 0.56909803225426,
+            "pass": true,
+            "rms_error": 0.2650286376466174
+          },
+          "imag57": {
+            "max_abs_error": 0.6039202552783536,
+            "pass": true,
+            "rms_error": 0.30492487324484197
+          },
+          "imag58": {
+            "max_abs_error": 0.6469603206714964,
+            "pass": true,
+            "rms_error": 0.25297856501518007
+          },
+          "imag59": {
+            "max_abs_error": 0.7202151342862635,
+            "pass": true,
+            "rms_error": 0.26994882876376786
+          },
+          "imag6": {
+            "max_abs_error": 0.6434114946168847,
+            "pass": true,
+            "rms_error": 0.2968703027425432
+          },
+          "imag60": {
+            "max_abs_error": 0.6411718224699143,
+            "pass": true,
+            "rms_error": 0.28993771129909957
+          },
+          "imag61": {
+            "max_abs_error": 0.6437696946668439,
+            "pass": true,
+            "rms_error": 0.2849965331033726
+          },
+          "imag62": {
+            "max_abs_error": 0.579697341308929,
+            "pass": true,
+            "rms_error": 0.2942097178170478
+          },
+          "imag63": {
+            "max_abs_error": 0.6855883000098402,
+            "pass": true,
+            "rms_error": 0.2992447991067361
+          },
+          "imag7": {
+            "max_abs_error": 0.7427398859581444,
+            "pass": true,
+            "rms_error": 0.32703035805933217
+          },
+          "imag8": {
+            "max_abs_error": 0.5648387053515762,
+            "pass": true,
+            "rms_error": 0.2704410368783928
+          },
+          "imag9": {
+            "max_abs_error": 0.710103545934544,
+            "pass": true,
+            "rms_error": 0.2908259251979602
+          },
+          "real0": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "real1": {
+            "max_abs_error": 0.609809543202573,
+            "pass": true,
+            "rms_error": 0.3085218884842467
+          },
+          "real10": {
+            "max_abs_error": 0.6627310030162334,
+            "pass": true,
+            "rms_error": 0.2916385642311839
+          },
+          "real11": {
+            "max_abs_error": 0.7535951202735305,
+            "pass": true,
+            "rms_error": 0.3265626562445111
+          },
+          "real12": {
+            "max_abs_error": 0.6038458750699647,
+            "pass": true,
+            "rms_error": 0.2732155475956154
+          },
+          "real13": {
+            "max_abs_error": 0.6904648861527676,
+            "pass": true,
+            "rms_error": 0.3286071309941711
+          },
+          "real14": {
+            "max_abs_error": 0.7303878725506365,
+            "pass": true,
+            "rms_error": 0.31887313647320803
+          },
+          "real15": {
+            "max_abs_error": 0.6871168256329838,
+            "pass": true,
+            "rms_error": 0.3009922585686521
+          },
+          "real16": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "real17": {
+            "max_abs_error": 0.7457948316005059,
+            "pass": true,
+            "rms_error": 0.3053985104693601
+          },
+          "real18": {
+            "max_abs_error": 0.5564767233736347,
+            "pass": true,
+            "rms_error": 0.2798443575097472
+          },
+          "real19": {
+            "max_abs_error": 0.6975482381531037,
+            "pass": true,
+            "rms_error": 0.324829202066552
+          },
+          "real2": {
+            "max_abs_error": 0.6663985350169241,
+            "pass": true,
+            "rms_error": 0.3090562018293682
+          },
+          "real20": {
+            "max_abs_error": 0.5722985036263708,
+            "pass": true,
+            "rms_error": 0.297428861917067
+          },
+          "real21": {
+            "max_abs_error": 0.7897616527916398,
+            "pass": true,
+            "rms_error": 0.3199614478423575
+          },
+          "real22": {
+            "max_abs_error": 0.6748924127605278,
+            "pass": true,
+            "rms_error": 0.30650432024337515
+          },
+          "real23": {
+            "max_abs_error": 0.7504940889048157,
+            "pass": true,
+            "rms_error": 0.3089749860736714
+          },
+          "real24": {
+            "max_abs_error": 0.53633140239981,
+            "pass": true,
+            "rms_error": 0.27946665082213956
+          },
+          "real25": {
+            "max_abs_error": 0.7083215941966046,
+            "pass": true,
+            "rms_error": 0.29974938039827037
+          },
+          "real26": {
+            "max_abs_error": 0.7090090529090958,
+            "pass": true,
+            "rms_error": 0.3139780302626917
+          },
+          "real27": {
+            "max_abs_error": 0.7050500512414146,
+            "pass": true,
+            "rms_error": 0.3223847872847952
+          },
+          "real28": {
+            "max_abs_error": 0.6126869634026662,
+            "pass": true,
+            "rms_error": 0.2873177201715994
+          },
+          "real29": {
+            "max_abs_error": 0.6904229844076326,
+            "pass": true,
+            "rms_error": 0.2905899855012195
+          },
+          "real3": {
+            "max_abs_error": 0.7624858246999793,
+            "pass": true,
+            "rms_error": 0.32287305752958945
+          },
+          "real30": {
+            "max_abs_error": 0.6112757675582543,
+            "pass": true,
+            "rms_error": 0.3200127994117625
+          },
+          "real31": {
+            "max_abs_error": 0.788666071544867,
+            "pass": true,
+            "rms_error": 0.3420717419323255
+          },
+          "real32": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "real33": {
+            "max_abs_error": 0.7745820837153587,
+            "pass": true,
+            "rms_error": 0.3142511795657922
+          },
+          "real34": {
+            "max_abs_error": 0.5566922457655892,
+            "pass": true,
+            "rms_error": 0.2574646040674835
+          },
+          "real35": {
+            "max_abs_error": 0.838059255387634,
+            "pass": true,
+            "rms_error": 0.28978254231202766
+          },
+          "real36": {
+            "max_abs_error": 0.6500999243871775,
+            "pass": true,
+            "rms_error": 0.2975712239998094
+          },
+          "real37": {
+            "max_abs_error": 0.6952121371868998,
+            "pass": true,
+            "rms_error": 0.3030740348073222
+          },
+          "real38": {
+            "max_abs_error": 0.7616065875918139,
+            "pass": true,
+            "rms_error": 0.29574318417991036
+          },
+          "real39": {
+            "max_abs_error": 0.6813307306729257,
+            "pass": true,
+            "rms_error": 0.32380398113217546
+          },
+          "real4": {
+            "max_abs_error": 0.6412392069469206,
+            "pass": true,
+            "rms_error": 0.285223639754057
+          },
+          "real40": {
+            "max_abs_error": 0.568743471376365,
+            "pass": true,
+            "rms_error": 0.2822643496857338
+          },
+          "real41": {
+            "max_abs_error": 0.7261379138217308,
+            "pass": true,
+            "rms_error": 0.3306502371465345
+          },
+          "real42": {
+            "max_abs_error": 0.5980066215706756,
+            "pass": true,
+            "rms_error": 0.28801806252602874
+          },
+          "real43": {
+            "max_abs_error": 0.7079780254498473,
+            "pass": true,
+            "rms_error": 0.31789306619260227
+          },
+          "real44": {
+            "max_abs_error": 0.6409603918145876,
+            "pass": true,
+            "rms_error": 0.29056120471534
+          },
+          "real45": {
+            "max_abs_error": 0.7483808219112689,
+            "pass": true,
+            "rms_error": 0.32072755587492513
+          },
+          "real46": {
+            "max_abs_error": 0.6249166603665799,
+            "pass": true,
+            "rms_error": 0.30704532053744826
+          },
+          "real47": {
+            "max_abs_error": 0.7520794048323296,
+            "pass": true,
+            "rms_error": 0.32234740732546097
+          },
+          "real48": {
+            "max_abs_error": 0.0,
+            "pass": true,
+            "rms_error": 0.0
+          },
+          "real49": {
+            "max_abs_error": 0.8536692408961244,
+            "pass": true,
+            "rms_error": 0.2893318979298973
+          },
+          "real5": {
+            "max_abs_error": 0.7003917799447663,
+            "pass": true,
+            "rms_error": 0.3254273988451919
+          },
+          "real50": {
+            "max_abs_error": 0.6254401064070407,
+            "pass": true,
+            "rms_error": 0.27172852402462405
+          },
+          "real51": {
+            "max_abs_error": 0.7693456186680123,
+            "pass": true,
+            "rms_error": 0.3099223532994506
+          },
+          "real52": {
+            "max_abs_error": 0.5923248019244056,
+            "pass": true,
+            "rms_error": 0.2775275736522926
+          },
+          "real53": {
+            "max_abs_error": 0.7615535235090647,
+            "pass": true,
+            "rms_error": 0.281245193299093
+          },
+          "real54": {
+            "max_abs_error": 0.678730601866846,
+            "pass": true,
+            "rms_error": 0.3137804676090166
+          },
+          "real55": {
+            "max_abs_error": 0.69139855481626,
+            "pass": true,
+            "rms_error": 0.3160065500804319
+          },
+          "real56": {
+            "max_abs_error": 0.5526546807668637,
+            "pass": true,
+            "rms_error": 0.28528638570368225
+          },
+          "real57": {
+            "max_abs_error": 0.7175427063484676,
+            "pass": true,
+            "rms_error": 0.32978152966935187
+          },
+          "real58": {
+            "max_abs_error": 0.6864813005086035,
+            "pass": true,
+            "rms_error": 0.3156739852653545
+          },
+          "real59": {
+            "max_abs_error": 0.6384879230172373,
+            "pass": true,
+            "rms_error": 0.29858569632011267
+          },
+          "real6": {
+            "max_abs_error": 0.6650996902462794,
+            "pass": true,
+            "rms_error": 0.2789744471203117
+          },
+          "real60": {
+            "max_abs_error": 0.6328894945036154,
+            "pass": true,
+            "rms_error": 0.2762908202720736
+          },
+          "real61": {
+            "max_abs_error": 0.8640676160284784,
+            "pass": true,
+            "rms_error": 0.3051864805908851
+          },
+          "real62": {
+            "max_abs_error": 0.5617342393961735,
+            "pass": true,
+            "rms_error": 0.258252395969162
+          },
+          "real63": {
+            "max_abs_error": 0.6324850618257187,
+            "pass": true,
+            "rms_error": 0.3006853842058158
+          },
+          "real7": {
+            "max_abs_error": 0.7185456805018475,
+            "pass": true,
+            "rms_error": 0.30250560003169474
+          },
+          "real8": {
+            "max_abs_error": 0.5610091840790119,
+            "pass": true,
+            "rms_error": 0.2849059193325736
+          },
+          "real9": {
+            "max_abs_error": 0.7471116371452808,
+            "pass": true,
+            "rms_error": 0.29875471025074185
+          }
+        },
+        "max_abs_error": 0.8640676160284784,
+        "pass": true,
+        "protocol_pass": true,
+        "rms_error": 0.6908023766262077,
+        "samples": 107,
+        "simulator": "verilator (two-state); RTL checked by GHDL (four-state)",
+        "violations": 0
+      },
+      "synthesis_requested": true,
+      "target": "xilinx-7series",
+      "test_vectors": 107,
+      "unique_inputs": 107,
+      "vhdl_sha256": "66fe442142b235510ead0f986176c0a9c1041271f859d7fd0ced7e0b13d44119"
+    },
+    "viterbi": {
+      "hardware": {
+        "cells": {
+          "BUFG": 1,
+          "CARRY4": 1024,
+          "FDRE": 4012,
+          "FDSE": 3247,
+          "INV": 7,
+          "LUT2": 1638,
+          "LUT3": 2030,
+          "LUT4": 3943,
+          "LUT5": 125,
+          "LUT6": 5319,
+          "MUXF7": 2
+        },
+        "dsps": 0,
+        "ffs": 7259,
+        "luts": 13055
+      },
+      "mapped": {
+        "bits": 114359,
+        "codewords": 42,
+        "mapped_sha256": "3f91d5dc704879dea8923f3055f91128ca944a35cf9da7c066fe6fd7647b4470",
+        "pass": true,
+        "simulator": "Verilator, Xilinx-mapped netlist"
+      },
+      "rtl": {
+        "accepted": true,
+        "audit": true,
+        "codewords": 42,
+        "decoded_bits": 114359,
+        "failures": [],
+        "vhdl_sha256": "838e57fe8fe6c828cd1b65cdf04db4576c3a9ef286dd8a5679e4841cd6ecf0fb"
+      }
+    }
+  },
+  "candidate": "examples/wifi/generated/receiver.vhd",
+  "capture_manifest": "examples/wifi/captures.json",
+  "development": {
+    "bytes": 67154,
+    "cases": [
+      {
+        "cycles": 75585,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "dev-6Mbps",
+        "output_bytes": 56,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 70795,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "dev-9Mbps",
+        "output_bytes": 59,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 68415,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "dev-12Mbps",
+        "output_bytes": 62,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 65675,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "dev-18Mbps",
+        "output_bytes": 68,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 65385,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "dev-24Mbps",
+        "output_bytes": 74,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 63035,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "dev-36Mbps",
+        "output_bytes": 86,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 63775,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "dev-48Mbps",
+        "output_bytes": 98,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 62995,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "dev-54Mbps",
+        "output_bytes": 104,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 92105,
+        "expected_good_frames": 3,
+        "failures": [],
+        "matched_frames": 3,
+        "name": "dot11a_24mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+        "output_bytes": 263,
+        "output_frames": 3,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 98605,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 2,
+        "name": "bad-fcs-then-good",
+        "output_bytes": 128,
+        "output_frames": 2,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 60005,
+        "expected_good_frames": 0,
+        "failures": [],
+        "matched_frames": 0,
+        "name": "silence",
+        "output_bytes": 0,
+        "output_frames": 0,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 94408,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "reset-reacquire",
+        "output_bytes": 94,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 98605,
+        "expected_good_frames": 1,
+        "failures": [],
+        "matched_frames": 1,
+        "name": "invalid-signal-recovery",
+        "output_bytes": 94,
+        "output_frames": 1,
+        "pass": true,
+        "throughput": {}
+      },
+      {
+        "cycles": 307005,
+        "expected_good_frames": 32,
+        "failures": [],
+        "matched_frames": 32,
+        "name": "sustained-short-packets",
+        "output_bytes": 448,
+        "output_frames": 32,
+        "pass": true,
+        "throughput": {
+          "input_cycles_per_packet": 8000.0,
+          "lag_growth_cycles": 0.0,
+          "output_cycles_per_packet": 8000.0
+        }
+      },
+      {
+        "cycles": 2111805,
+        "expected_good_frames": 16,
+        "failures": [],
+        "matched_frames": 16,
+        "name": "sustained-maximum-54Mbps",
+        "output_bytes": 65520,
+        "output_frames": 16,
+        "pass": true,
+        "throughput": {
+          "input_cycles_per_packet": 128800.0,
+          "lag_growth_cycles": 0.0,
+          "output_cycles_per_packet": 128800.0
+        }
+      }
+    ],
+    "cases_run": 15,
+    "cases_total": 15,
+    "frames": 63,
+    "pass": true,
+    "verification_scope": "rtl-only",
+    "vhdl_sha256": "53c7341503bf39344a204948af523b404934543d27dc62279da27fe16e932841"
+  },
+  "experiment": "Generated 20 MHz 802.11a/g receiver",
+  "external_packets": 137,
+  "external_recordings": 14,
+  "generation": {
+    "attempts": [
+      {
+        "attempt": "architecture",
+        "prompt_sha256": "13ef969805afee56e4b68e7436ba9a7c5761178a4433a5501105657af7b446fa",
+        "reported_tokens": 34516,
+        "response_sha256": "9c89792af8bd1baf6b9a0dbce957e51204a39159f59e9d52e1caccac63738cf7"
+      },
+      {
+        "attempt": "backend/round-01",
+        "prompt_sha256": "a62edd07c2f7290ad236d3af18aea4fbb19fdf05165c61328548f86ad0aebbc1",
+        "reported_tokens": 26895,
+        "response_sha256": "8c423c5234a5f13c2146001c2e55ddb634838d85fdf16f85e23565f7371cbb07"
+      },
+      {
+        "attempt": "backend/round-02",
+        "prompt_sha256": "91c6d91a72fe2f7c6eee0ea44da154b35a25059022d4df48c4957c368e1019bb",
+        "reported_tokens": 31333,
+        "response_sha256": "037137c297db20f986eab2a1b08d629c0b3d53334615714eb86a308dd8737e7f"
+      },
+      {
+        "attempt": "compiler-repair",
+        "prompt_sha256": "e0a68f88292dfbb5d8cc6319b48279d9948459bf660b1e564233a793fd49434a",
+        "reported_tokens": 38304,
+        "response_sha256": "f1ec501756c8b4542dd56e8a68a4c4a5a5dbf7395696900cced179e03604b024"
+      },
+      {
+        "attempt": "counter-repair",
+        "prompt_sha256": "87cb26cdc41c7315c77f8c4bfeddc3c49c0c4fb1a5dc45c39c109e346a8b1a56",
+        "reported_tokens": 38055,
+        "response_sha256": "624e42358cb0c7a1a10221ae54d7e9229b4bd963160936a463fc07daaf13c5c3"
+      },
+      {
+        "attempt": "fft/round-01",
+        "prompt_sha256": "69fe8da4dadc5dab8701d9de6f4516d75b4df1ebf3b6de4a6aa12d1141124afc",
+        "reported_tokens": 38763,
+        "response_sha256": "cd2803434dccd2a06e8fad144a0d4345ee87036862ec569c5e5d2b20c88e69cf"
+      },
+      {
+        "attempt": "fft/round-02",
+        "prompt_sha256": "30905167d93032e72bce5998e412ee65a32a0ad39c66d4a554b5479af99228a4",
+        "reported_tokens": 45228,
+        "response_sha256": "42ee94ebf889a03475fe213fcf5e7db5aba0451ded0aa3dd1ad6e3f65b229d96"
+      },
+      {
+        "attempt": "fft/round-03",
+        "prompt_sha256": "45b1a1f5dd5490c22f6a1f5db3570bfb9f3284eac49b25c7248098ddb4ce3d35",
+        "reported_tokens": 46059,
+        "response_sha256": "6a4ce4d7121179186b2b4ff8fa884d352f403895ffcc824f71267e4828f35553"
+      },
+      {
+        "attempt": "fft/round-04",
+        "prompt_sha256": "8309c7c10c5ec4f6e60b8941d7cb8454e6f1d33597e00dd67f9d5c2a46ec8fe7",
+        "reported_tokens": 46515,
+        "response_sha256": "21f7060bbbefe33dac8d970bb0187c058be1eb2cadd1069361615c4c4ae95e67"
+      },
+      {
+        "attempt": "fft/round-05",
+        "prompt_sha256": "a4e2ef1add16b7dfb8d456ddbfcf460876cce2183019040d3c33a9a0745f3590",
+        "reported_tokens": 48772,
+        "response_sha256": "5580e65dd63768be9d17c966b1e1a529c39ccbdc4f250c316735745548d0c437"
+      },
+      {
+        "attempt": "frontend/round-01",
+        "prompt_sha256": "089667d0ca29d84641c0523af330042c424a9da82441dd6bf48b9e6099af8383",
+        "reported_tokens": 34834,
+        "response_sha256": "5cc7d977b200afa45438fd6511208671e87b7232c48a7ba0ba61b35856a6972d"
+      },
+      {
+        "attempt": "frontend/round-02",
+        "prompt_sha256": "6c4c9e76e6002e0edae4dca82d07b8f74919f5927284087366d2316b8fb39b7e",
+        "reported_tokens": 30788,
+        "response_sha256": "e0a62105e1b85fd96c9998e989f40836386279eb3782378786f13742721042b9"
+      },
+      {
+        "attempt": "frontend/round-03",
+        "prompt_sha256": "f73f46964162190c5ad5465519cd4a48adf2b4078a25da2aff6273856906b6e1",
+        "reported_tokens": 44686,
+        "response_sha256": "ca7a5d8fa73c0e9bda9d092902a381d72ef4361ff9b725375c8b76cdd1cd823c"
+      },
+      {
+        "attempt": "round-01",
+        "prompt_sha256": "2399d07ab495dfc1cf8cf7985550683b45ae615a0f7654e0e21e37df132878fb",
+        "reported_tokens": 27796,
+        "response_sha256": "a43206ac45dc6803d4b110c48ace77457ffafb534f8aa4dc52143408f4a2121d"
+      },
+      {
+        "attempt": "viterbi/round-01",
+        "prompt_sha256": "ca22335cab3c249ad39e6da36124ba776008410521fa4aa231cf7950039df64f",
+        "reported_tokens": 23404,
+        "response_sha256": "21cec0872bde58e73f1b500a89e74a3d9b39e544e8b7ce9895994bad6991ec1e"
+      },
+      {
+        "attempt": "output-repair",
+        "prompt_sha256": "4ed1d321dd3a3fc5d86e882782bf6a535981eefe1819d8a28ba018ec19c0db3d",
+        "reported_tokens": 38111,
+        "response_sha256": "92a5720ea3d507b92eb5bfd7c91f23c4a812a17f6e25362d011f2e210e5818c4"
+      }
+    ],
+    "generation_calls": 16,
+    "model": "gpt-6-astra",
+    "provider": "Codex CLI",
+    "reported_tokens_total": 594059
+  },
+  "input_samples_per_clock": 0.1,
+  "mapped_verification": {
+    "audit": {
+      "cases": [
+        {
+          "cycles": 108575,
+          "elapsed_seconds": 62.546550458995625,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "audit-6Mbps",
+          "output_bytes": 183,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 92625,
+          "elapsed_seconds": 54.20155795800383,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "audit-9Mbps",
+          "output_bytes": 186,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 84495,
+          "elapsed_seconds": 47.7959078749991,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "audit-12Mbps",
+          "output_bytes": 189,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 76725,
+          "elapsed_seconds": 43.4410321250034,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "audit-18Mbps",
+          "output_bytes": 195,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 72695,
+          "elapsed_seconds": 40.257404375006445,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "audit-24Mbps",
+          "output_bytes": 201,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 69015,
+          "elapsed_seconds": 38.424829416995635,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "audit-36Mbps",
+          "output_bytes": 213,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 67255,
+          "elapsed_seconds": 37.63939137500711,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "audit-48Mbps",
+          "output_bytes": 225,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 66955,
+          "elapsed_seconds": 37.433720291010104,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "audit-54Mbps",
+          "output_bytes": 231,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 376005,
+          "elapsed_seconds": 215.40441325001302,
+          "expected_good_frames": 20,
+          "failures": [],
+          "matched_frames": 20,
+          "name": "dot11a_12mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "output_bytes": 1520,
+          "output_frames": 20,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 286405,
+          "elapsed_seconds": 165.67515483300667,
+          "expected_good_frames": 18,
+          "failures": [],
+          "matched_frames": 18,
+          "name": "dot11a_18mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "output_bytes": 1368,
+          "output_frames": 18,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 235305,
+          "elapsed_seconds": 135.54266620901763,
+          "expected_good_frames": 16,
+          "failures": [],
+          "matched_frames": 16,
+          "name": "dot11a_24mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42-tail",
+          "output_bytes": 1216,
+          "output_frames": 16,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 228805,
+          "elapsed_seconds": 136.18099766600062,
+          "expected_good_frames": 18,
+          "failures": [],
+          "matched_frames": 18,
+          "name": "dot11a_36mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "output_bytes": 1368,
+          "output_frames": 18,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 205605,
+          "elapsed_seconds": 122.4028859170212,
+          "expected_good_frames": 17,
+          "failures": [],
+          "matched_frames": 17,
+          "name": "dot11a_48mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "output_bytes": 1327,
+          "output_frames": 17,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 576005,
+          "elapsed_seconds": 322.94412324999576,
+          "expected_good_frames": 20,
+          "failures": [],
+          "matched_frames": 20,
+          "name": "dot11a_6mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "output_bytes": 1520,
+          "output_frames": 20,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 416005,
+          "elapsed_seconds": 235.67470608299482,
+          "expected_good_frames": 18,
+          "failures": [],
+          "matched_frames": 18,
+          "name": "dot11a_9mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "output_bytes": 1368,
+          "output_frames": 18,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 63805,
+          "elapsed_seconds": 34.674116249982035,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "ag_54M_len14_pre100_post200_openwifi",
+          "output_bytes": 14,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 109405,
+          "elapsed_seconds": 61.708586916996865,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "ag_54M_len1537_pre100_post200_openwifi",
+          "output_bytes": 1537,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 182205,
+          "elapsed_seconds": 108.1990282080078,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "ag_54M_len4000_pre100_post200_openwifi",
+          "output_bytes": 4000,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 67805,
+          "elapsed_seconds": 37.56794537499081,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "ag_6M_len14_pre100_post200_openwifi",
+          "output_bytes": 14,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 474205,
+          "elapsed_seconds": 257.73627354198834,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "ag_6M_len1537_pre100_post200_openwifi",
+          "output_bytes": 1537,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 1131005,
+          "elapsed_seconds": 621.6733267089876,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "ag_6M_len4000_pre100_post200_openwifi",
+          "output_bytes": 4000,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 72385,
+          "elapsed_seconds": 40.141987707989756,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "ack-ok-openwifi",
+          "output_bytes": 14,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 98605,
+          "elapsed_seconds": 56.110267458017915,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 2,
+          "name": "bad-fcs-then-good",
+          "output_bytes": 128,
+          "output_frames": 2,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 60005,
+          "elapsed_seconds": 28.18332549999468,
+          "expected_good_frames": 0,
+          "failures": [],
+          "matched_frames": 0,
+          "name": "silence",
+          "output_bytes": 0,
+          "output_frames": 0,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 94408,
+          "elapsed_seconds": 56.498206624994054,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "reset-reacquire",
+          "output_bytes": 94,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 98605,
+          "elapsed_seconds": 58.134883167018415,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "invalid-signal-recovery",
+          "output_bytes": 94,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 435005,
+          "elapsed_seconds": 249.27403274999233,
+          "expected_good_frames": 48,
+          "failures": [],
+          "matched_frames": 48,
+          "name": "sustained-short-packets",
+          "output_bytes": 672,
+          "output_frames": 48,
+          "pass": true,
+          "throughput": {
+            "input_cycles_per_packet": 8000.0,
+            "lag_growth_cycles": 7.5,
+            "output_cycles_per_packet": 8000.697674418605
+          }
+        },
+        {
+          "cycles": 2111805,
+          "elapsed_seconds": 1227.3553840840177,
+          "expected_good_frames": 16,
+          "failures": [],
+          "matched_frames": 16,
+          "name": "sustained-maximum-54Mbps",
+          "output_bytes": 65520,
+          "output_frames": 16,
+          "pass": true,
+          "throughput": {
+            "input_cycles_per_packet": 128800.0,
+            "lag_growth_cycles": 3.5,
+            "output_cycles_per_packet": 128801.27272727272
+          }
+        }
+      ],
+      "cases_run": 28,
+      "cases_total": 28,
+      "frames": 210,
+      "pass": true
+    },
+    "build_pass": true,
+    "build_reused": true,
+    "build_seconds": 1.6207981389015913e-05,
+    "development": {
+      "cases": [
+        {
+          "cycles": 75585,
+          "elapsed_seconds": 42.382296875002794,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "dev-6Mbps",
+          "output_bytes": 56,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 70795,
+          "elapsed_seconds": 39.102140083996346,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "dev-9Mbps",
+          "output_bytes": 59,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 68415,
+          "elapsed_seconds": 38.22713812501752,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "dev-12Mbps",
+          "output_bytes": 62,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 65675,
+          "elapsed_seconds": 36.083225416979985,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "dev-18Mbps",
+          "output_bytes": 68,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 65385,
+          "elapsed_seconds": 35.79858950001653,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "dev-24Mbps",
+          "output_bytes": 74,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 63035,
+          "elapsed_seconds": 35.12852608400863,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "dev-36Mbps",
+          "output_bytes": 86,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 63775,
+          "elapsed_seconds": 34.897547916014446,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "dev-48Mbps",
+          "output_bytes": 98,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 62995,
+          "elapsed_seconds": 33.222467916988535,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "dev-54Mbps",
+          "output_bytes": 104,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 92105,
+          "elapsed_seconds": 53.40757525002118,
+          "expected_good_frames": 3,
+          "failures": [],
+          "matched_frames": 3,
+          "name": "dot11a_24mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "output_bytes": 263,
+          "output_frames": 3,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 98605,
+          "elapsed_seconds": 54.0443068750028,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 2,
+          "name": "bad-fcs-then-good",
+          "output_bytes": 128,
+          "output_frames": 2,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 60005,
+          "elapsed_seconds": 31.62260674999561,
+          "expected_good_frames": 0,
+          "failures": [],
+          "matched_frames": 0,
+          "name": "silence",
+          "output_bytes": 0,
+          "output_frames": 0,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 94408,
+          "elapsed_seconds": 56.45600216599996,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "reset-reacquire",
+          "output_bytes": 94,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 98605,
+          "elapsed_seconds": 53.90054183299071,
+          "expected_good_frames": 1,
+          "failures": [],
+          "matched_frames": 1,
+          "name": "invalid-signal-recovery",
+          "output_bytes": 94,
+          "output_frames": 1,
+          "pass": true,
+          "throughput": {}
+        },
+        {
+          "cycles": 307005,
+          "elapsed_seconds": 176.1330625419796,
+          "expected_good_frames": 32,
+          "failures": [],
+          "matched_frames": 32,
+          "name": "sustained-short-packets",
+          "output_bytes": 448,
+          "output_frames": 32,
+          "pass": true,
+          "throughput": {
+            "input_cycles_per_packet": 8000.0,
+            "lag_growth_cycles": 0.0,
+            "output_cycles_per_packet": 8000.0
+          }
+        },
+        {
+          "cycles": 2111805,
+          "elapsed_seconds": 1227.0273489170067,
+          "expected_good_frames": 16,
+          "failures": [],
+          "matched_frames": 16,
+          "name": "sustained-maximum-54Mbps",
+          "output_bytes": 65520,
+          "output_frames": 16,
+          "pass": true,
+          "throughput": {
+            "input_cycles_per_packet": 128800.0,
+            "lag_growth_cycles": 0.0,
+            "output_cycles_per_packet": 128800.0
+          }
+        }
+      ],
+      "cases_run": 15,
+      "cases_total": 15,
+      "frames": 63,
+      "pass": true
+    },
+    "elapsed_seconds": 1635.843682457984,
+    "mapped_verilog_sha256": "2413179ab68ae4ac9dd1e115a24bbbf30be20903630dc3d5990f1abac1832e39",
+    "pass": true,
+    "simulation_jobs": 4,
+    "vhdl_sha256": "53c7341503bf39344a204948af523b404934543d27dc62279da27fe16e932841"
+  },
+  "mapping": {
+    "hardware": {
+      "abc9_formal_equivalence_requested": false,
+      "bram18_equivalents": 28,
+      "cells": {
+        "$buf": 2,
+        "BUFG": 1,
+        "CARRY4": 6104,
+        "DSP48E1": 71,
+        "FDRE": 50780,
+        "FDSE": 3286,
+        "INV": 795,
+        "LUT1": 2,
+        "LUT2": 11290,
+        "LUT3": 11352,
+        "LUT4": 11546,
+        "LUT5": 16103,
+        "LUT6": 17987,
+        "MUXF7": 27,
+        "MUXF8": 7,
+        "RAM64M": 192,
+        "RAMB36E1": 14
+      },
+      "distributed_ram_luts": 768,
+      "dsps": 71,
+      "ffs": 54066,
+      "logic_luts": 68280,
+      "luts": 69048,
+      "shift_register_luts": 0,
+      "stage": "yosys-xilinx-technology-mapping"
+    },
+    "image": "xls-e2e-wifi:current",
+    "mapped_verilog_sha256": "2413179ab68ae4ac9dd1e115a24bbbf30be20903630dc3d5990f1abac1832e39",
+    "memory_limit": "6 GiB",
+    "resource_profiles": {
+      "compact": {
+        "limits": {
+          "bram18_equivalents": 100,
+          "dsps": 100,
+          "ffs": 40000,
+          "luts": 40000
+        },
+        "pass": false
+      },
+      "xc7a200t": {
+        "limits": {
+          "bram18_equivalents": 730,
+          "dsps": 740,
+          "ffs": 269200,
+          "luts": 134600
+        },
+        "pass": true
+      }
+    },
+    "status": "complete",
+    "synthesis_pass": true,
+    "vhdl_sha256": "53c7341503bf39344a204948af523b404934543d27dc62279da27fe16e932841"
+  },
+  "physical_timing_measured": false,
+  "recorded_date": "2026-09-19",
+  "reference": "fpga_lab/wifi_reference.py",
+  "reference_sha256": "390faa5a2cc782a35695f4a789f95e37c3038924342c0b98f8c3c2425cb02331",
+  "resource_budgets": {
+    "bram18_equivalents": 100,
+    "dsps": 100,
+    "ffs": 40000,
+    "luts": 40000
+  },
+  "rtl_mapped_packet_cycle_agreement": {
+    "cases_compared": 43,
+    "differences": [],
+    "pass": true
+  },
+  "selected_resource_target": "xc7a200t",
+  "simulation_models": {
+    "RAMB36E1": {
+      "commit": "1c8e05fd1e9a79ceb8b996a0996674122eed086f",
+      "sha256": "b6153b595696f7eebe6840b2b8d518e32df698cb8e8b2730c8838648ceec72fb",
+      "source": "Xilinx/XilinxUnisimLibrary"
+    },
+    "global_configuration_reset": 0,
+    "primitive_delays_enabled": false
+  },
+  "target_clock_mhz": 200,
+  "tests": {
+    "current_image_hardware_suite": "4 passed",
+    "existing_hardware_suite": "4 passed",
+    "unique_tests_passed": 54,
+    "unit_suite": "49 passed, 5 hardware tests skipped",
+    "wifi_suite_including_vendor_memory": "16 passed (15 overlap with unit suite)"
+  },
+  "toolchain": {
+    "ghdl": "6.0.0, LLVM 18.1.3",
+    "host": "Apple Silicon macOS",
+    "image_sha256": "af9f37da5db78d9ee99c1195aa8074ebb28cb62eb3e37c04d55335f1e15cd924",
+    "oss_cad_suite_release": "2026-09-19",
+    "runtime": "Podman Linux ARM64",
+    "verilator": "5.053 v5.052-119-g014c9820d (mod)",
+    "yosys": "0.69+75 f0b945f63-dirty"
+  },
+  "verification_scope": "rtl-and-xilinx-mapped",
+  "vhdl_sha256": "53c7341503bf39344a204948af523b404934543d27dc62279da27fe16e932841"
+}

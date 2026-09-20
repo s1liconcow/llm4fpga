@@ -1,0 +1,77 @@
+{
+  "repository": "https://github.com/jhshi/openofdm",
+  "commit": "ea638eb2d3abd6c6d9c0c87a430f393fc3ffc859",
+  "license": "Apache-2.0",
+  "files": [
+    {
+      "path": "testing_inputs/conducted/dot11a_12mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42.dat",
+      "sha256": "9abc4fa46685668e0bc1cfc1d9ce594e4a7b709fb9288ce97d5739fa41e7ae66",
+      "bytes": 128000
+    },
+    {
+      "path": "testing_inputs/conducted/dot11a_18mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42.dat",
+      "sha256": "f0e25d5b474bfa1a40f05eda543b946633c5928f001581301f73ed4b6fe58a1d",
+      "bytes": 92160
+    },
+    {
+      "path": "testing_inputs/conducted/dot11a_24mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42.dat",
+      "sha256": "b7efde0af04cdbbe6e422d8c12483937753a0e56e3c4db68f2625ff2f7722fdc",
+      "bytes": 85760
+    },
+    {
+      "path": "testing_inputs/conducted/dot11a_36mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42.dat",
+      "sha256": "7e10e88cbb86c8a33cb3546861dca57b596d76196b357ffc0b191b5e5994bd95",
+      "bytes": 69120
+    },
+    {
+      "path": "testing_inputs/conducted/dot11a_48mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42.dat",
+      "sha256": "62670ed1369bd21723812f25679f630ee51bb946a324d843053a02a32042af32",
+      "bytes": 59840
+    },
+    {
+      "path": "testing_inputs/conducted/dot11a_6mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42.dat",
+      "sha256": "a1d87a9f7f95f5348fb743de247c41e8ef0cd57cbf30b75cc505fb5c3f0ad3e6",
+      "bytes": 208000
+    },
+    {
+      "path": "testing_inputs/conducted/dot11a_9mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42.dat",
+      "sha256": "4b780045afedaa7b9136ae3a95b1b926a789d57a1f517846ae8ff9945f74071d",
+      "bytes": 144000
+    },
+    {
+      "path": "testing_inputs/simulated/ag_54M_len14_pre100_post200_openwifi.txt",
+      "sha256": "ce6e2f4cd7866c307a2489959218f8bd13c4506ff89df96dc42fd877c8f1d11c",
+      "bytes": 6476
+    },
+    {
+      "path": "testing_inputs/simulated/ag_54M_len1537_pre100_post200_openwifi.txt",
+      "sha256": "986b64c0a7fa5ae63ab994c2e6b108ee914ba538087f8054527b73dbfc6e09c5",
+      "bytes": 54836
+    },
+    {
+      "path": "testing_inputs/simulated/ag_54M_len4000_pre100_post200_openwifi.txt",
+      "sha256": "c548a5d4eee1fa47e2f522a72c57328172cc8de7dc33d7b10b65fb64a1df5700",
+      "bytes": 131943
+    },
+    {
+      "path": "testing_inputs/simulated/ag_6M_len14_pre100_post200_openwifi.txt",
+      "sha256": "24a5a02941d99d0a15b1ff6a01612cc18058fae1cb0e82b17bb5c49956568b6d",
+      "bytes": 10558
+    },
+    {
+      "path": "testing_inputs/simulated/ag_6M_len1537_pre100_post200_openwifi.txt",
+      "sha256": "a5b93572ca5fe69e81b0ef1152526729b4ca1b7b4b60cd8e31dbd7c64cbf05b9",
+      "bytes": 434997
+    },
+    {
+      "path": "testing_inputs/simulated/ag_6M_len4000_pre100_post200_openwifi.txt",
+      "sha256": "1b62a92b9e9692c177075f97d32a966cc5e97b1708cf53485e809018b2e7df21",
+      "bytes": 1107239
+    },
+    {
+      "path": "testing_inputs/radiated/ack-ok-openwifi.txt",
+      "sha256": "0d2ef3797ba2c7f300d1e77ffc4e7d4f85fba087f93da0c8cee3addd431abcf8",
+      "bytes": 15456
+    }
+  ]
+}

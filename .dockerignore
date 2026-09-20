@@ -1,6 +1,7 @@
 *
 !Dockerfile
 !Dockerfile.xls
+!Dockerfile.wifi
 !scripts
 scripts/*
 !scripts/install_xls.sh

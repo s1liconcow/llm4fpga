@@ -10,12 +10,13 @@ This project runs on Apple Silicon using **Podman**, with Codex on the host and
 GHDL, Yosys, Verilator, Icarus and Octave in Linux containers. The original Google XLS
 path is also working in a separate x86 Linux container.
 
-**Verified demos:** Python SHA-256, MATLAB nonlinear sensor normalization, and
-[2D LiDAR SLAM with generated VHDL in its tracking loop](docs/demo-results.md#slam-hardware-in-a-feedback-loop).
+**Verified demos:** Python SHA-256, MATLAB nonlinear sensor normalization,
+[2D LiDAR SLAM](docs/demo-results.md#slam-hardware-in-a-feedback-loop), and a complete
+[802.11a/g Wi-Fi receiver](docs/demo-results.md#wi-fi-a-complete-streaming-receiver).
 See [measured results](docs/demo-results.md) and [architecture and scope](docs/architecture.md).
-This is a research prototype with demonstrated kernels, not a proven SOTA compiler
-for unrestricted Python/MATLAB. Floating-point source currently becomes bounded-error
-fixed-point hardware; SHA-256 is an integer/bitwise benchmark.
+This research prototype translates bounded algorithms with explicit numerical and
+streaming contracts. Floating-point source becomes bounded-error fixed-point
+hardware; SHA-256 exercises integer and bitwise computation.
 
 ## Setup
 
@@ -87,6 +88,26 @@ plots and scores drift against ground truth and a separate floating baseline.
 [The demo report](docs/demo-results.md) explains the results, the host and hardware
 roles, and how to replay public Intel laser data.
 
+## Try the Wi-Fi receiver
+
+The generated 802.11a/g receiver processes raw radio samples into packet bytes
+across all eight legacy rates. It combines separately generated acquisition,
+FFT, equalization, error-correction, and packet-decoding logic.
+
+Follow the [Wi-Fi setup](examples/wifi/README.md) to build its pinned tools image
+and configure an 8 GiB Podman VM, then replay the saved VHDL:
+
+```bash
+fpga-lab wifi fetch --data runs/wifi-data
+fpga-lab wifi verify --candidate examples/wifi/generated/receiver.vhd \
+  --data runs/wifi-data --out runs/wifi-audit --audit --target xc7a200t
+```
+
+Verification checks exact packet bytes, checksum status, output stalls, reset,
+and sustained input processing in RTL and Xilinx-mapped simulation. Add
+`--simulation-only` for an RTL check. [Results and plots](docs/demo-results.md#wi-fi-a-complete-streaming-receiver)
+show real radio captures and the scheduling repairs that eliminated backlog.
+
 ## Translate another algorithm
 
 Provide a `.py` or `.m` specification, a JSON contract, and separate independently
@@ -128,6 +149,55 @@ cover the bus exactly once; references become arrays in field order. Optional
 ```bash
 fpga-lab translate path/to/spec.json --out runs/my-kernel --rounds 4
 ```
+
+To keep searching after the first passing implementation, use `search`:
+
+```bash
+fpga-lab search path/to/spec.json --workers 4 --rounds 6 --tool-jobs 1 \
+  --objective luts --out runs/design-search
+```
+
+Each worker proposes up to `--rounds` candidates, including improvements to passing
+designs. `--workers 4 --rounds 6` permits 24 model proposals. `--tool-jobs` limits
+concurrent hardware evaluations independently of generation. Workers explore
+different implementation strategies and receive measured development feedback.
+The lowest-cost passing candidate remains available if later attempts fail or get
+larger. All candidates must satisfy the numerical, protocol, and resource contract.
+
+`--objective` selects `luts` (default), `ffs`, `dsps`, `brams`, or declared cycle
+`latency`. Other resource budgets remain hard constraints. Equal objective values
+are compared by the remaining resource counts, then a stable candidate identifier.
+The generic `brams` objective uses the evaluator's RAMB primitive count; Wi-Fi
+reports 18-Kibit equivalents. Generic LUT counts currently include LUT1–LUT6
+cells; the Wi-Fi evaluator also includes distributed RAM and shift-register LUTs.
+Timing and power are not measured search objectives. Search always includes
+synthesis and mapped simulation.
+
+Use `--seed path/to/proposal.json` to start from an existing implementation and
+measure its baseline. Seeded iterations return exact source replacements; the
+harness saves and evaluates a complete VHDL file for every attempt. Full candidate
+source stays in the prompt, while resource inventories and packet traces are
+summarized for feedback. The provider cannot run tools or edit the scorer.
+
+`leaderboard.json` records candidate resources and the current best. Each
+`worker-NN/round-NN/` retains its prompt, response, complete proposal, logs, and
+evaluation. After the proposal budget is exhausted, `selection.json` freezes the
+winner before opening the held-out audit. `final/` contains the audited VHDL and
+Vivado handoff; `summary.json` reports acceptance and improvement over the baseline.
+An unchanged baseline may win, and a run can pass with zero improvement. Audit
+failure fails the run and never triggers another candidate selection.
+
+Repeat the exact command with `--resume` to recover an interrupted search. Completed
+evaluations are reused only when their saved artifacts match their hashes and the
+source, contract, fixture identities, seed, model, search settings, harness, and
+container image identity still match. A generated proposal saved before an
+interrupted evaluation is rechecked without another model request. Once selection
+is frozen, resume only completes or reuses that candidate's audit. Use a fresh
+output directory to change the search budget or objective.
+
+The streaming receiver has its own adapter; see [Wi-Fi design search](examples/wifi/README.md#search-for-a-smaller-receiver).
+The [recorded four-proposal experiment](docs/wifi-search-results.md) reduced receiver
+LUTs by 11.61%, trading 64 additional DSPs, and passed the independent audit.
 
 The fixed interface is `dut(clk, rst, in_valid, input_data, out_valid, output_data)`.
 Reset is synchronous and active high. Latency counts the acceptance edge as edge 1;

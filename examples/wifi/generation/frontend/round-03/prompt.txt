@@ -1,0 +1,930 @@
+Implement the remaining time/frequency-domain frontend and top of a Wi-Fi receiver in synthesizable VHDL-2008. This is one stage of a decomposition: FFT, Viterbi and bitdecoder are already separately generated and tested. Return ONLY JSON {vhdl,latency:1,notes}. No tools available: produce a complete candidate; the external harness will compile, test, measure and return repairfeedback. Do not returnempty for inability to substantiate tests; we're asking to IMPLEMENT not claim alreadyverified.
+You may instantiate ONLY these generated units, with namedports:
+1. work.wifi_fft64: clk,rst,in_valid : in std_logic; input_data : in std_logic_vector(2047 downto0); out_valid:out std_logic; output_data:out std_logic_vector(3071 downto0). Onin_valid captures64complex samples signed16realat32*i+15:32*i, signed16imag32*i+31:32*i+16. ReturnsforwardFFT unnormalized in naturalbinorder, signed24realat48*k+23:48*k, signed24imag48*k+47:48*k+24. Latency <=400clocks; nextrequest>=400clocks. Pulseoutvalidandcapturepackedoutput. Typical392cycles. No metadata flags.
+2. work.wifi_backend: clk,rst,in_valid,in_header,in_last,out_ready : in std_logic; input_data : in std_logic_vector(1535 downto0); in_ready,header_valid,header_error : out std_logic; header_rate : out std_logic_vector(7 downto0); header_length:out std_logic_vector(11 downto0); out_valid,out_first,out_last,out_fcs_ok,overflow:out std_logic;output_data,out_rate:out std_logic_vector(7 downto0);out_length:out std_logic_vector(11 downto0). AcceptsoneequalizedOFDMsymbolwhenin_validANDin_ready, 48complexDATAcarriers ascending signedsubcarrierorder(-26..-1,1..26 excludingpilots -21,-7,7,21). Eachreal/imag signed16Q12. in_header1 forSIGNAL(alwaysBPSK), thenDATAevery800clocks orslower; setin_lastonlastDATA from ceil((16+8*length+6)/n_dbps), n_dbps24/36/48/72/96/144/192/216. HeaderoutputsrateMbps,lengthfromreceivedbits, pulsevalidorerrorwithin800clocks. Backendincludesdemap,deinterleave,puncturing,Viterbi,descramble,frameCRC/outputbuffer; handlesall8legacyrates. Returnsinreadywithin800clocks persymbol. Newheadercannot overwriteoutgoingframe; waitin_ready. Topoutputsfrombackend passthrough.
+Your implementation scope:rawsample buffering, causalpacketacquisition, CFOestimation/correction, LTScorrelation/timing, select64sampleFFTwindow foreach80symbol, twoLTSFFTchannelestimates, pilotphasecorrection, complexequalization, controller forheaders/symbolcount/nextpacket, interfaces/reset/overflow. Use genuinelyconnectedentities orarchitectureprocesses implementingthese stages. No host oracle suppliesstart,lengthorothercontrol. Inputs continuous arbitrarysigned16IQoneevery10clocks, 200MHzproposedclock,20MSamples/s. Bufferbounded preferably4096or8192rawsamples, allowlatencytoabsorbtrainingthenprocesssymbols>=inputrate. Reacquirefollowingpacketfromhistoricalring ifprocessingbehindliveinput; mustnotloseACKs. Realcapturefirstpacket maystartaftersmallzerooffset. DetectcoarseSTF16periodicity; CFO canbe +/-0.01rad/sample; estimatenumericallyandderotate. LTSfull64pattern fromPython knownconst; timingtwopeaks64apart establishesfirstLTSstart. Use efficientcorrelationarchitecturewithmultipleMACs orsignapproximationvalidatedbyfeedback. No reliance onwholepacketpowerfall, fixedtimeoffset orcapturedbytes. Isolatedinputzerosmustnottriggerpacket. ReuseFFT fortraining2windowsandSIGNAL/DATA. Sourceprovidespilotpolarity127values; makecorrectperiod. Normalizechannel division toQ12. Freezechannelperpacket; per-symbolpilotphasecorrection. Avoidslowpercarrierdivisionthatprevents800-cyclethroughput: precomputereciprocalsduringtraining thenmultiply. A sharedmultiiterationCORDIC orLUT forphase/rotation withsufficientprecision isexpected. RepresentconstantROMs withintegerliterals orintegerfunctions, no realmath. InputADC componentfullsigned16; includeclipsaturationwhereappropriate, no VHDLintegeroverflow. Complexproducts explicitwidthsvectors, resource-sharing. InferredRAM needsvalidcounters ratherthanresettingallwords. Samplecounters advanceonlywhenin_valid. Internalhardwarecyclescontinueinbubbles. Afterresetcanrestartliveinput andforgetabortedpacket.
+TARGETTOPPORTS (allstd_logicexceptvectors):
+Top entity dut; all vectors std_logic_vector:
+clk,rst,in_valid,out_ready : in std_logic;
+input_data : in std_logic_vector(31 downto 0); -- I signed16 high half; Q signed16 low half
+out_valid,out_first,out_last,out_fcs_ok,overflow : out std_logic;
+output_data : out std_logic_vector(7 downto 0);
+out_rate : out std_logic_vector(7 downto 0); -- integer Mbps 6/9/12/18/24/36/48/54
+out_length : out std_logic_vector(11 downto 0); -- PSDU bytes including four FCS bytes
+ debug_valid : out std_logic;
+ debug_tag : out std_logic_vector(7 downto 0);
+ debug_data : out std_logic_vector(31 downto 0);
+Input is accepted each clock with in_valid and not rst. Continuous streams present one sample every 10 clocks; arbitrary longer gaps freeze SAMPLE counters but not processing clocks. Never rely on gaps as packet delimiters. Sample rate 20 MSamples/s; target clock 200 MHz. Must handle back-to-back legacy packets separated by standard SIFS or longer. No packet start/rate/length metadata supplied by host. Only signed16 raw radio samples. Output standard ready/valid: when out_valid=1 & out_ready=0 hold ALL output byte/metadata stable until accepted. out_first and out_last mark first/final bytes, preserve ordered complete PSDUs including FCS; out_fcs_ok significant on last and must equal actual CRC. Bad CRC frames may be output with false FCS but invalid SIGNAL must be dropped. out_rate,out_length correct and stable for all bytes. out_ready can stall up to32 consecutive clocks separated by >=128 clocks ready. overflow sticky indicates inability to retain input or pending output; must never assert for these tests. Reset active high synchronous clears state/pending output/overflow, dominates all inputs. latency JSON is 1 (unused for variable latency stream). Drain latency after last input <=50000 clocks. Never fabricate packet bytes or patch checksum. Packet length14..4095. Can initially omit HT classification if necessary, but must implement all legacy rates fully.
+Debug tags (pulses) 1=STF detected(sample index), 2=LTS lock(first LTS sample index), 3=SIGNAL decoded(rate<<16 | length), 4=packet assembly finished(length), 5=recovery(error code), 6=FFT completed(symbol index). Use these for diagnosis; do not output sample-by-sample debug. Debug outputs must reset too.
+Synthesis Xilinx7 open tools. Max40000 LUT40000 FF100DSP100RAMB18-equivalents. Numeric refinements must retain correct clean and moderate-noise packet reception. Source Python has hard Viterbi so hard metric sufficient initially, soft metrics optional. Every algorithm stage including FFT and Viterbi must be implemented in GENERATED VHDL without vendor IP dependencies.
+
+Thefftandbackendareaarealreadybudgetedroughly20kLUT20kFF16DSP; frontendremainingbudget20kLUT20kFF84DSP80BRAM18. Ignoreperformanceclaims untilmeasuredbutimplementboundedstreaminghardware. No textio/report/assert/wait/after/files/foreign/attributes/runtime real/vendorIP. Use ieee.numeric_stdandwork forgeneratedunits. Includeallnewinternalentities/packages in onefiledependencyorder, topnamed dut. Do notincludefft/backendcode. Needdebugtag1STF,2LTS,3decodedheader,4finishedframe,5error,6FFTdone.
+FLOATINGREFERENCE usedbyourindependenttests:
+"""Batch, floating-point legacy OFDM reference and deterministic test transmitter.
+
+Rate, training, and pilot tables follow OpenOFDM (Apache-2.0), pinned by the
+capture fetcher. No existing HDL is used by this module. Integer bit processing
+and floating-point sample processing are deliberately separate.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+import math
+import zlib
+
+import numpy as np
+
+RATES = {6: (1, 48, 24), 9: (1, 48, 36), 12: (2, 96, 48),
+         18: (2, 96, 72), 24: (4, 192, 96), 36: (4, 192, 144),
+         48: (6, 288, 192), 54: (6, 288, 216)}
+RATE_BITS = {6: '1101', 9: '1111', 12: '0101', 18: '0111',
+             24: '1001', 36: '1011', 48: '0001', 54: '0011'}
+ACTIVE = np.array(list(range(-26, 0)) + list(range(1, 27)))
+PILOTS = np.array([-21, -7, 7, 21])
+DATA = np.array([k for k in ACTIVE if k not in PILOTS])
+LTS_SIGNS = np.array([1,1,-1,-1,1,1,-1,1,-1,1,1,1,1,1,1,-1,-1,1,1,
+    -1,1,-1,1,1,1,1,1,-1,-1,1,1,-1,1,-1,1,-1,-1,-1,-1,-1,1,1,-1,-1,
+    1,-1,1,-1,1,1,1,1])
+POLARITY = np.array([1,1,1,1,-1,-1,-1,1,-1,-1,-1,-1,1,1,-1,1,-1,-1,1,
+    1,-1,1,1,-1,1,1,1,1,1,1,-1,1,1,1,-1,1,1,-1,-1,1,1,1,-1,1,-1,-1,
+    -1,1,-1,1,-1,-1,1,-1,-1,1,1,1,1,1,-1,-1,1,1,-1,-1,1,-1,1,-1,1,1,
+    -1,-1,-1,1,1,-1,-1,-1,-1,1,-1,-1,1,-1,1,1,1,1,-1,1,-1,1,-1,1,-1,
+    -1,-1,-1,-1,1,-1,1,1,-1,1,-1,1,1,1,-1,-1,1,-1,-1,-1,1,1,1,-1,-1,
+    -1,-1,-1,-1,-1])
+
+
+def long_training() -> np.ndarray:
+    bins = np.zeros(64, complex)
+    bins[ACTIVE % 64] = LTS_SIGNS
+    return np.fft.ifft(bins)
+
+
+def short_training() -> np.ndarray:
+    bins = np.zeros(64, complex)
+    bins[np.array([-24,-20,-16,-12,-8,-4,4,8,12,16,20,24]) % 64] = (
+        np.array([1,-1,1,-1,-1,1,-1,-1,1,1,1,1]) * (1+1j) * np.sqrt(13/6))
+    return np.fft.ifft(bins)[:16]
+
+
+def constellation(n: int) -> np.ndarray:
+    if n == 1:
+        return np.array([-1, 1], complex)
+    axis = {2: [-1,1], 4: [-3,-1,3,1], 6: [-7,-5,-1,-3,7,5,1,3]}[n]
+    size = 1 << (n//2)
+    return np.array([complex(axis[k//size], axis[k%size]) for k in range(1<<n)]) / math.sqrt({2:2,4:10,6:42}[n])
+
+
+def puncture_mask(rate: int) -> list[int]:
+    return [1,1,1,0,0,1] if rate in (9,18,36,54) else [1,1,1,0] if rate == 48 else [1,1]
+
+
+def convolutional_encode(bits: np.ndarray) -> np.ndarray:
+    state, out = 0, []
+    for bit in bits:
+        reg = (int(bit)<<6) | state
+        out.extend([(reg & 0o133).bit_count() & 1, (reg & 0o171).bit_count() & 1])
+        state = reg >> 1
+    return np.array(out, np.uint8)
+
+
+def viterbi(coded: np.ndarray, rate: int = 6) -> np.ndarray:
+    """64-state maximum-likelihood hard decoder; punctures carry no evidence."""
+    mask = puncture_mask(rate)
+    expanded = []
+    pos = 0
+    while pos < len(coded):
+        for keep in mask:
+            if keep:
+                if pos == len(coded):
+                    raise ValueError('Incomplete puncturing period')
+                expanded.append(int(coded[pos])); pos += 1
+            else:
+                expanded.append(2)
+    obs = np.array(expanded).reshape(-1, 2)
+    states = np.arange(64)
+    prev0, prev1 = (states & 31)*2, (states & 31)*2+1
+    reg0, reg1 = (states >> 5)*64+prev0, (states >> 5)*64+prev1
+    expected0 = np.array([[(int(r)&p).bit_count()&1 for p in (0o133,0o171)] for r in reg0])
+    expected1 = np.array([[(int(r)&p).bit_count()&1 for p in (0o133,0o171)] for r in reg1])
+    metrics = np.full(64, 100000, int); metrics[0] = 0
+    paths = np.empty((len(obs),64), np.uint8)
+    for t, pair in enumerate(obs):
+        a = metrics[prev0]+np.sum((expected0 != pair) & (pair != 2), axis=1)
+        b = metrics[prev1]+np.sum((expected1 != pair) & (pair != 2), axis=1)
+        choose = b < a
+        metrics = np.minimum(a,b)
+        paths[t] = np.where(choose, prev1, prev0)
+    state = int(metrics.argmin())
+    result = np.empty(len(obs),np.uint8)
+    for t in range(len(obs)-1,-1,-1):
+        result[t] = state >> 5
+        state = int(paths[t,state])
+    return result
+
+
+def interleave_indices(n: int) -> np.ndarray:
+    count = 48*n; k = np.arange(count); s = max(n//2,1)
+    i = (count//16)*(k%16)+k//16
+    return s*(i//s)+(i+count-(16*i)//count)%s
+
+
+def scramble(bits: np.ndarray, seed: int) -> np.ndarray:
+    state = [(seed>>i)&1 for i in range(7)]
+    result = []
+    for b in bits:
+        feedback = state[6]^state[3]
+        result.append(int(b)^feedback)
+        state = [feedback]+state[:-1]
+    return np.array(result,np.uint8)
+
+
+def descramble(bits: np.ndarray) -> np.ndarray:
+    x = [0]*7
+    x[0] = int(bits[2]^bits[6]); x[1] = int(bits[1]^bits[5]); x[2] = int(bits[0]^bits[4])
+    x[3] = x[0]^int(bits[3]); x[4] = x[1]^int(bits[2]); x[5] = x[2]^int(bits[1]); x[6] = x[3]^int(bits[0])
+    return scramble(bits, sum(b<<i for i,b in enumerate(x)))
+
+
+@dataclass
+class Packet:
+    start: int
+    end: int
+    rate: int
+    data: bytes
+    fcs_ok: bool
+    cfo: float
+
+    def as_dict(self):
+        return {'start':self.start,'end':self.end,'rate':self.rate,'length':len(self.data),
+                'data_hex':self.data.hex(),'fcs_ok':self.fcs_ok,'cfo':self.cfo}
+
+
+def decode_at(samples: np.ndarray, start: int) -> Packet:
+    x = np.asarray(samples[start:],complex)
+    if len(x)<400:
+        raise ValueError('Truncated preamble')
+    cfo = float(np.angle(np.vdot(x[80:144],x[96:160]))/16)
+    x = x*np.exp(-1j*cfo*np.arange(len(x)))
+    # Channel estimates absorb the common phase; pilots track its later drift.
+    gain = (np.fft.fft(x[192:256])+np.fft.fft(x[256:320]))/2
+    gain[ACTIVE%64] *= LTS_SIGNS
+    if np.any(abs(gain[ACTIVE%64])<1e-9):
+        raise ValueError('Degenerate channel')
+    def demod(index,n):
+        offset = 320+index*80
+        if offset+80>len(x):
+            raise ValueError('Truncated symbol')
+        bins = np.fft.fft(x[offset+16:offset+80])
+        polarity = POLARITY[index%127]*np.array([1,1,1,-1])
+        phase = np.angle(np.sum(np.conj(bins[PILOTS%64])*gain[PILOTS%64]*polarity))
+        equal = bins[DATA%64]*np.exp(1j*phase)/gain[DATA%64]
+        idx = np.argmin(abs(equal[:,None]-constellation(n)[None,:]),axis=1)
+        bits = ((idx[:,None]>>np.arange(n-1,-1,-1))&1).flatten().astype(np.uint8)
+        return bits[interleave_indices(n)]
+    header = viterbi(demod(0,1))
+    rate_bits = ''.join(str(int(b)) for b in header[:4])
+    inverse = {v:k for k,v in RATE_BITS.items()}
+    if rate_bits not in inverse or header[4] or sum(int(b) for b in header[:18])%2 or any(header[18:]):
+        raise ValueError('Invalid SIGNAL')
+    rate = inverse[rate_bits]
+    length = sum(int(header[5+i])<<i for i in range(12))
+    if not 14<=length<=4095:
+        raise ValueError('Invalid length')
+    n,_,dbps = RATES[rate]
+    count = math.ceil((16+8*length+6)/dbps)
+    coded = np.concatenate([demod(i+1,n) for i in range(count)])
+    decoded = descramble(viterbi(coded,rate))
+    if any(decoded[:16]):
+        raise ValueError('Invalid SERVICE')
+    data = np.packbits(decoded[16:16+length*8],bitorder='little').tobytes()
+    return Packet(start,start+400+80*count,rate,data,zlib.crc32(data[:-4])==int.from_bytes(data[-4:],'little'),cfo)
+
+
+def receive(samples: np.ndarray) -> list[Packet]:
+    """Acquire from raw samples without packet-start, length, or rate metadata."""
+    samples = np.asarray(samples,complex)
+    if len(samples)<400:
+        return []
+    # Short training has 16-sample periodicity; a 48-pair average rejects noise.
+    corr = np.convolve(np.conj(samples[:-16])*samples[16:],np.ones(48),mode='valid')
+    power = np.convolve(abs(samples[16:])**2,np.ones(48),mode='valid')
+    eligible = (abs(corr)>0.72*power)&(power>48*100**2)
+    candidates = np.flatnonzero(eligible & ~np.r_[False,eligible[:-1]])
+    packets = []; consumed = 0; lts = long_training()
+    for trigger in candidates:
+        if trigger < consumed:
+            continue
+        cfo = float(np.angle(corr[trigger])/16)
+        lo = max(0,int(trigger)-80); hi = min(len(samples),int(trigger)+400)
+        window = samples[lo:hi]*np.exp(-1j*cfo*np.arange(lo,hi))
+        if len(window)<128:
+            continue
+        scores = abs(np.correlate(window,lts,mode='valid'))
+        # Two consecutive LTS peaks, with exact 64-sample separation.
+        pairs = np.minimum(scores[:-64],scores[64:])
+        for first in np.argsort(pairs)[-4:][::-1]:
+            start = lo+int(first)-192
+            if start<consumed or start<0:
+                continue
+            try:
+                pkt = decode_at(samples,start)
+            except (ValueError,IndexError):
+                continue
+            packets.append(pkt); consumed = pkt.end
+            break
+    return packets
+
+
+def load_iq(path: Path) -> np.ndarray:
+    if path.suffix == '.dat':
+        values = np.fromfile(path,dtype='<i2').reshape(-1,2)
+        return values[:,0].astype(float)+1j*values[:,1]
+    lines = path.read_text().splitlines()
+    if len(lines[0].split()) == 2:
+        values = np.loadtxt(path,dtype=np.int64)
+        if np.any(values < -32768) or np.any(values > 32767):
+            raise ValueError('IQ values exceed signed16 range')
+        return values[:,0].astype(float)+1j*values[:,1]
+    # Original OpenOFDM .txt files pack signed I in the high half, Q in the low half.
+    values = np.array([int(s,16) for s in lines],np.uint32)
+    return (values>>16).astype(np.uint16).view(np.int16).astype(float)+1j*(values&65535).astype(np.uint16).view(np.int16)
+
+PREVIOUS FRONTEND:
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+package wifi_front_pkg is
+  type int_table is array(natural range <>) of integer;
+  constant sine_q : int_table(0 to 64) := (
+    0,402,804,1205,1606,2006,2404,2801,3196,3590,3981,4370,
+    4756,5139,5520,5897,6270,6639,7005,7366,7723,8076,8423,
+    8765,9102,9434,9760,10080,10394,10702,11003,11297,11585,
+    11866,12140,12406,12665,12916,13160,13395,13623,13842,
+    14053,14256,14449,14635,14811,14978,15137,15286,15426,
+    15557,15679,15791,15893,15986,16069,16143,16207,16261,
+    16305,16340,16364,16379,16384);
+  constant polarity : int_table(0 to 126) := (
+    1,1,1,1,-1,-1,-1,1,-1,-1,-1,-1,1,1,-1,1,-1,-1,1,
+    1,-1,1,1,-1,1,1,1,1,1,1,-1,1,1,1,-1,1,1,-1,-1,
+    1,1,1,-1,1,-1,-1,-1,1,-1,1,-1,-1,1,-1,-1,1,1,
+    1,1,1,-1,-1,1,1,-1,-1,1,-1,1,-1,1,1,-1,-1,-1,1,
+    1,-1,-1,-1,-1,1,-1,-1,1,-1,1,1,1,1,-1,1,-1,1,
+    -1,1,-1,-1,-1,-1,-1,1,-1,1,1,-1,1,-1,1,1,1,-1,
+    -1,1,-1,-1,-1,1,1,1,-1,-1,-1,-1,-1,-1,-1);
+  function training_sign(a : natural) return integer;
+  function sin16(p : integer) return integer;
+  function angle16(x,y : signed) return integer;
+  function sat16(x : signed) return signed;
+  function sat24(x : signed) return signed;
+  function rotate_sample(w : std_logic_vector(31 downto 0); p : integer) return std_logic_vector;
+  function carrier(a : natural) return integer;
+  function bin_number(a : natural) return natural;
+  function is_pilot(a : natural) return boolean;
+  function lts_real(n : natural) return integer;
+  function lts_imag(n : natural) return integer;
+  function tapmul(x : signed(15 downto 0); y : integer) return signed;
+  function dbps(rate : std_logic_vector(7 downto 0)) return positive;
+end package;
+package body wifi_front_pkg is
+  function training_sign(a : natural) return integer is
+    constant s : int_table(0 to 51) := (
+      1,1,-1,-1,1,1,-1,1,-1,1,1,1,1,1,1,-1,-1,1,1,
+      -1,1,-1,1,1,1,1,1,-1,-1,1,1,-1,1,-1,1,-1,-1,-1,
+      -1,-1,1,1,-1,-1,1,-1,1,-1,1,1,1,1);
+  begin return s(a); end;
+  function sin16(p : integer) return integer is
+    variable t,q,j,f,v : integer;
+  begin
+    t:=p mod 65536; q:=t/16384; t:=t mod 16384;
+    if q=1 or q=3 then t:=16384-t; end if;
+    if t=16384 then v:=16384;
+    else j:=t/256; f:=t mod 256;
+      v:=sine_q(j)+((sine_q(j+1)-sine_q(j))*f)/256;
+    end if;
+    if q>=2 then v:=-v; end if;
+    return v;
+  end;
+  function angle16(x,y : signed) return integer is
+    constant ar : int_table(0 to 14) := (8192,4836,2555,1297,651,326,163,81,41,20,10,5,3,1,1);
+    variable xx,yy,tx : signed(35 downto 0);
+    variable z : integer;
+  begin
+    xx:=resize(x,36); yy:=resize(y,36); z:=0;
+    if xx=0 and yy=0 then return 0; end if;
+    if xx<0 then
+      if yy>=0 then z:=32768; else z:=-32768; end if;
+      xx:=-xx; yy:=-yy;
+    end if;
+    for j in 0 to 14 loop
+      tx:=xx;
+      if yy>0 then
+        xx:=xx+shift_right(yy,j); yy:=yy-shift_right(tx,j); z:=z+ar(j);
+      elsif yy<0 then
+        xx:=xx-shift_right(yy,j); yy:=yy+shift_right(tx,j); z:=z-ar(j);
+      end if;
+    end loop;
+    if z>=32768 then z:=z-65536; end if;
+    if z < -32768 then z:=z+65536; end if;
+    return z;
+  end;
+  function sat16(x : signed) return signed is
+  begin
+    if x>to_signed(32767,x'length) then return to_signed(32767,16);
+    elsif x<to_signed(-32768,x'length) then return to_signed(-32768,16);
+    else return resize(x,16); end if;
+  end;
+  function sat24(x : signed) return signed is
+  begin
+    if x>to_signed(8388607,x'length) then return to_signed(8388607,24);
+    elsif x<to_signed(-8388608,x'length) then return to_signed(-8388608,24);
+    else return resize(x,24); end if;
+  end;
+  function rotate_sample(w : std_logic_vector(31 downto 0); p : integer) return std_logic_vector is
+    variable r,i,c,s : signed(15 downto 0);
+    variable rr,ii : signed(32 downto 0);
+    variable answer : std_logic_vector(31 downto 0);
+  begin
+    r:=signed(w(31 downto 16)); i:=signed(w(15 downto 0));
+    c:=to_signed(sin16(p+16384),16); s:=to_signed(sin16(p),16);
+    rr:=resize(r*c,33)+resize(i*s,33); ii:=resize(i*c,33)-resize(r*s,33);
+    answer(31 downto 16):=std_logic_vector(sat16(shift_right(rr,14)));
+    answer(15 downto 0):=std_logic_vector(sat16(shift_right(ii,14)));
+    return answer;
+  end;
+  function carrier(a : natural) return integer is
+  begin
+    if a<26 then return integer(a)-26; else return integer(a)-25; end if;
+  end;
+  function bin_number(a : natural) return natural is
+  begin return carrier(a) mod 64; end;
+  function is_pilot(a : natural) return boolean is
+    variable k : integer;
+  begin k:=carrier(a); return k=-21 or k=-7 or k=7 or k=21; end;
+  function lts_real(n : natural) return integer is
+    variable v : integer:=0;
+  begin
+    for a in 0 to 51 loop v:=v+training_sign(a)*sin16(carrier(a)*integer(n)*1024+16384); end loop;
+    return v/64;
+  end;
+  function lts_imag(n : natural) return integer is
+    variable v : integer:=0;
+  begin
+    for a in 0 to 51 loop v:=v+training_sign(a)*sin16(carrier(a)*integer(n)*1024); end loop;
+    return v/64;
+  end;
+  -- Small signed coefficients implemented explicitly with shifts and adds.
+  -- Seven magnitude bits cover every rounded LTS tap without a multiplier.
+  function tapmul(x : signed(15 downto 0); y : integer) return signed is
+    variable r : signed(23 downto 0):=(others=>'0');
+    variable m : natural range 0 to 127;
+  begin
+    m:=abs(y);
+    for j in 0 to 6 loop
+      if ((m/(2**j)) mod 2)=1 then r:=r+shift_left(resize(x,24),j); end if;
+    end loop;
+    if y<0 then r:=-r; end if;
+    return r;
+  end;
+  function dbps(rate : std_logic_vector(7 downto 0)) return positive is
+  begin
+    case to_integer(unsigned(rate)) is
+      when 6 => return 24; when 9 => return 36;
+      when 12 => return 48; when 18 => return 72;
+      when 24 => return 96; when 36 => return 144;
+      when 48 => return 192; when 54 => return 216;
+      when others => return 24;
+    end case;
+  end;
+end package body;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.wifi_front_pkg.all;
+entity dut is
+  port(
+    clk,rst,in_valid,out_ready : in std_logic;
+    input_data : in std_logic_vector(31 downto 0);
+    out_valid,out_first,out_last,out_fcs_ok,overflow : out std_logic;
+    output_data : out std_logic_vector(7 downto 0);
+    out_rate : out std_logic_vector(7 downto 0);
+    out_length : out std_logic_vector(11 downto 0);
+    debug_valid : out std_logic;
+    debug_tag : out std_logic_vector(7 downto 0);
+    debug_data : out std_logic_vector(31 downto 0)
+  );
+end entity;
+architecture rtl of dut is
+  type raw_memory is array(0 to 8191) of std_logic_vector(31 downto 0);
+  signal raw : raw_memory;
+  signal wr_count : natural range 0 to 1073741823:=0;
+  signal raw_address_a,raw_address_b : natural range 0 to 8191:=0;
+  signal raw_a,raw_b : std_logic_vector(31 downto 0);
+  -- Interleaved banks: each correlation cycle reads sixteen consecutive
+  -- samples with exactly one read from each bank, then rotates their order.
+  type search_bank is array(0 to 27) of std_logic_vector(31 downto 0);
+  type search_memory is array(0 to 15) of search_bank;
+  signal search_ram : search_memory;
+  type bank_addresses is array(0 to 15) of natural range 0 to 27;
+  type sample_lanes is array(0 to 15) of std_logic_vector(31 downto 0);
+  signal search_addr : bank_addresses:=(others=>0);
+  signal search_q : sample_lanes;
+  signal search_we : std_logic:='0';
+  signal search_wa : natural range 0 to 447:=0;
+  signal search_wd : std_logic_vector(31 downto 0);
+  type lag_array is array(0 to 47) of integer range -8388608 to 8388608;
+  type pow_array is array(0 to 47) of integer range 0 to 8388608;
+  signal lag_r,lag_i : lag_array;
+  signal lag_p : pow_array;
+  signal lag_ptr : natural range 0 to 47:=0;
+  signal lag_count : natural range 0 to 48:=0;
+  signal sum_r,sum_i : integer range -402653184 to 402653184:=0;
+  signal sum_p : integer range 0 to 402653184:=0;
+  signal cursor,trigger,search_base,lts_start,window_start : natural range 0 to 1073741823:=0;
+  signal refine_index : natural range 0 to 47:=0;
+  signal refine_r,refine_i : integer range -402653184 to 402653184:=0;
+  signal refine_p,refine_old_p : integer range 0 to 402653184:=0;
+  signal cfo_step : integer range -2048 to 2048:=0;
+  signal fill_index : natural range 0 to 447:=0;
+  signal candidate : natural range 0 to 384:=0;
+  signal tap_group : natural range 0 to 3:=0;
+  signal corr_r,corr_i : signed(35 downto 0):=(others=>'0');
+  type score_array is array(0 to 63) of unsigned(36 downto 0);
+  signal scores : score_array;
+  signal best_score : unsigned(36 downto 0):=(others=>'0');
+  signal best_pos : natural range 0 to 320:=0;
+  type tap_array is array(0 to 63) of integer range -127 to 127;
+  function make_taps(im : boolean) return tap_array is
+    variable t : tap_array;
+    variable v : integer;
+  begin
+    for j in 0 to 63 loop
+      if im then v:=lts_imag(j); else v:=lts_real(j); end if;
+      if v>=0 then t(j):=(v+32)/64; else t(j):=(v-32)/64; end if;
+    end loop;
+    return t;
+  end;
+  constant taps_r : tap_array:=make_taps(false);
+  constant taps_i : tap_array:=make_taps(true);
+  type sum_lanes is array(0 to 15) of signed(35 downto 0);
+  signal fft_iv,fft_ov : std_logic:='0';
+  signal fft_input : std_logic_vector(2047 downto 0):=(others=>'0');
+  signal fft_output,fft_hold : std_logic_vector(3071 downto 0);
+  signal fft_mode : natural range 0 to 2:=0;
+  signal load_index : natural range 0 to 63:=0;
+  signal fft_cooldown : natural range 0 to 400:=0;
+  type chan_array is array(0 to 51) of signed(23 downto 0);
+  signal train_r,train_i : chan_array;
+  type coeff_array is array(0 to 51) of signed(41 downto 0);
+  signal coeff_r,coeff_i : coeff_array;
+  signal active_index : natural range 0 to 51:=0;
+  signal div_nr,div_ni,div_qr,div_qi : unsigned(63 downto 0):=(others=>'0');
+  signal div_rr,div_ri : unsigned(49 downto 0):=(others=>'0');
+  signal div_den : unsigned(48 downto 0):=(others=>'0');
+  signal div_neg_r,div_neg_i : std_logic:='0';
+  signal div_bit : natural range 0 to 63:=0;
+  type equal_array is array(0 to 51) of signed(23 downto 0);
+  signal eq_r,eq_i : equal_array;
+  signal pilot_r,pilot_i : signed(28 downto 0):=(others=>'0');
+  signal common_phase : integer range -32768 to 32767:=0;
+  signal data_index : natural range 0 to 47:=0;
+  signal symbol_index,symbol_count : natural range 0 to 1366:=0;
+  signal pilot_index : natural range 0 to 126:=0;
+  signal packet_length : std_logic_vector(11 downto 0):=(others=>'0');
+  signal backend_iv,backend_ready,backend_header,backend_last : std_logic:='0';
+  signal backend_data : std_logic_vector(1535 downto 0):=(others=>'0');
+  signal header_valid,header_error : std_logic;
+  signal header_rate : std_logic_vector(7 downto 0);
+  signal header_length : std_logic_vector(11 downto 0);
+  signal be_ov,be_first,be_last,be_fcs,be_overflow : std_logic;
+  signal be_data,be_rate : std_logic_vector(7 downto 0);
+  signal be_length : std_logic_vector(11 downto 0);
+  signal sticky_overflow : std_logic:='0';
+  signal header_timer : natural range 0 to 2047:=0;
+  signal send_cooldown : natural range 0 to 799:=0;
+  signal recovery_code : natural range 0 to 255:=1;
+  type state_type is (
+    SCAN_WAIT,SCAN_READ,SCAN_CALC,
+    REFINE_WAIT,REFINE_READ,REFINE_CALC,REFINE_FINISH,
+    FILL_WAIT,FILL_READ,FILL_WRITE,
+    CORR_PRIME,CORR_RUN,CORR_FINISH,LOCK_LTS,
+    LOAD_WAIT,LOAD_READ,LOAD_STORE,FFT_LAUNCH,FFT_WAIT,
+    TRAIN_FIRST,TRAIN_SETUP,DIVIDE_CHANNEL,DIVIDE_STORE,
+    EQUALIZE,PHASE_ESTIMATE,ROTATE_BINS,PREP_SEND,SEND_SYMBOL,HEADER_WAIT,RECOVER
+  );
+  signal state : state_type:=SCAN_WAIT;
+begin
+  fft_inst : entity work.wifi_fft64
+    port map(clk=>clk,rst=>rst,in_valid=>fft_iv,input_data=>fft_input,
+             out_valid=>fft_ov,output_data=>fft_output);
+  backend_inst : entity work.wifi_backend
+    port map(clk=>clk,rst=>rst,in_valid=>backend_iv,
+      in_header=>backend_header,in_last=>backend_last,out_ready=>out_ready,
+      input_data=>backend_data,in_ready=>backend_ready,
+      header_valid=>header_valid,header_error=>header_error,
+      header_rate=>header_rate,header_length=>header_length,
+      out_valid=>be_ov,out_first=>be_first,out_last=>be_last,
+      out_fcs_ok=>be_fcs,overflow=>be_overflow,output_data=>be_data,
+      out_rate=>be_rate,out_length=>be_length);
+  out_valid<=be_ov; out_first<=be_first; out_last<=be_last;
+  out_fcs_ok<=be_fcs; output_data<=be_data; out_rate<=be_rate;
+  out_length<=be_length; overflow<=sticky_overflow or be_overflow;
+
+  process(clk)
+  begin
+    if rising_edge(clk) then
+      raw_a<=raw(raw_address_a); raw_b<=raw(raw_address_b);
+      if rst='0' and in_valid='1' then raw(wr_count mod 8192)<=input_data; end if;
+    end if;
+  end process;
+  banks : for b in 0 to 15 generate
+    process(clk)
+    begin
+      if rising_edge(clk) then
+        search_q(b)<=search_ram(b)(search_addr(b));
+        if rst='0' and search_we='1' and search_wa mod 16=b then
+          search_ram(b)(search_wa/16)<=search_wd;
+        end if;
+      end if;
+    end process;
+  end generate;
+
+  process(clk)
+    variable ar,ai,br,bi : integer range -2048 to 2047;
+    variable pr,pi : integer range -8388608 to 8388608;
+    variable pp,op : integer range 0 to 8388608;
+    variable sr,si : integer range -402653184 to 402653184;
+    variable sp : integer range 0 to 402653184;
+    variable magnitude,smallpart : integer;
+    variable aphase : integer;
+    variable rotated : std_logic_vector(31 downto 0);
+    variable cr,ci : signed(35 downto 0);
+    variable vr,vi : sum_lanes;
+    variable score,pair_score : unsigned(36 downto 0);
+    variable xr,xi : signed(15 downto 0);
+    variable fr,fi,hr,hi : signed(23 downto 0);
+    variable hsum_r,hsum_i : signed(24 downto 0);
+    variable energy : unsigned(48 downto 0);
+    variable rr,ri : unsigned(49 downto 0);
+    variable qr,qi : unsigned(63 downto 0);
+    variable coefftmp : signed(41 downto 0);
+    variable er,ei : signed(66 downto 0);
+    variable evr,evi : signed(23 downto 0);
+    variable cc,ss : signed(15 downto 0);
+    variable rotr,roti : signed(40 downto 0);
+    variable bin,ps,nd,nsyms,ix,addr,t : integer;
+    variable need : natural;
+  begin
+    if rising_edge(clk) then
+      if rst='1' then
+        state<=SCAN_WAIT; wr_count<=0; cursor<=16;
+        trigger<=0; search_base<=0; lts_start<=0; window_start<=0;
+        raw_address_a<=0; raw_address_b<=0; search_addr<=(others=>0);
+        search_we<='0'; search_wa<=0; search_wd<=(others=>'0');
+        lag_ptr<=0; lag_count<=0; sum_r<=0; sum_i<=0; sum_p<=0;
+        refine_index<=0; refine_r<=0; refine_i<=0; refine_p<=0; refine_old_p<=0;
+        cfo_step<=0; fill_index<=0; candidate<=0; tap_group<=0;
+        corr_r<=(others=>'0'); corr_i<=(others=>'0');
+        best_score<=(others=>'0'); best_pos<=0;
+        fft_iv<='0'; fft_input<=(others=>'0'); fft_hold<=(others=>'0');
+        fft_mode<=0; load_index<=0; fft_cooldown<=0;
+        active_index<=0; div_bit<=0;
+        div_nr<=(others=>'0'); div_ni<=(others=>'0');
+        div_qr<=(others=>'0'); div_qi<=(others=>'0');
+        div_rr<=(others=>'0'); div_ri<=(others=>'0');
+        div_den<=(others=>'0'); div_neg_r<='0'; div_neg_i<='0';
+        pilot_r<=(others=>'0'); pilot_i<=(others=>'0'); common_phase<=0;
+        data_index<=0; symbol_index<=0; symbol_count<=0; pilot_index<=0;
+        packet_length<=(others=>'0'); backend_iv<='0';
+        backend_header<='0'; backend_last<='0'; backend_data<=(others=>'0');
+        sticky_overflow<='0'; header_timer<=0; send_cooldown<=0; recovery_code<=1;
+        debug_valid<='0'; debug_tag<=(others=>'0'); debug_data<=(others=>'0');
+      else
+        debug_valid<='0'; fft_iv<='0'; search_we<='0';
+        if in_valid='1' then wr_count<=wr_count+1; end if;
+        if fft_cooldown>0 then fft_cooldown<=fft_cooldown-1; end if;
+        if send_cooldown>0 then send_cooldown<=send_cooldown-1; end if;
+        if be_overflow='1' then sticky_overflow<='1'; end if;
+        if be_ov='1' and out_ready='1' and be_last='1' then
+          debug_valid<='1'; debug_tag<=x"04";
+          debug_data<=std_logic_vector(resize(unsigned(be_length),32));
+        end if;
+        case state is
+          when SCAN_WAIT =>
+            backend_iv<='0';
+            if wr_count>cursor then
+              if wr_count-cursor>8175 then
+                sticky_overflow<='1'; cursor<=wr_count-16;
+                lag_count<=0; lag_ptr<=0; sum_r<=0; sum_i<=0; sum_p<=0;
+              else
+                raw_address_a<=cursor mod 8192;
+                raw_address_b<=(cursor-16) mod 8192; state<=SCAN_READ;
+              end if;
+            end if;
+          when SCAN_READ => state<=SCAN_CALC;
+          when SCAN_CALC =>
+            ar:=to_integer(shift_right(signed(raw_a(31 downto 16)),4));
+            ai:=to_integer(shift_right(signed(raw_a(15 downto 0)),4));
+            br:=to_integer(shift_right(signed(raw_b(31 downto 16)),4));
+            bi:=to_integer(shift_right(signed(raw_b(15 downto 0)),4));
+            pr:=br*ar+bi*ai; pi:=br*ai-bi*ar; pp:=ar*ar+ai*ai;
+            if lag_count=48 then
+              sr:=sum_r-lag_r(lag_ptr)+pr; si:=sum_i-lag_i(lag_ptr)+pi;
+              sp:=sum_p-lag_p(lag_ptr)+pp;
+            else
+              sr:=sum_r+pr; si:=sum_i+pi; sp:=sum_p+pp; lag_count<=lag_count+1;
+            end if;
+            lag_r(lag_ptr)<=pr; lag_i(lag_ptr)<=pi; lag_p(lag_ptr)<=pp;
+            if lag_ptr=47 then lag_ptr<=0; else lag_ptr<=lag_ptr+1; end if;
+            sum_r<=sr; sum_i<=si; sum_p<=sp;
+            if abs(sr)>abs(si) then magnitude:=abs(sr); smallpart:=abs(si);
+            else magnitude:=abs(si); smallpart:=abs(sr); end if;
+            magnitude:=magnitude+smallpart/2;
+            cursor<=cursor+1; state<=SCAN_WAIT;
+            if lag_count>=47 and sp>1875 and magnitude>(sp/4)*3 then
+              trigger<=cursor;
+              if cursor>=96 then search_base<=cursor-96; else search_base<=0; end if;
+              refine_index<=0; refine_r<=0; refine_i<=0; refine_p<=0; refine_old_p<=0;
+              state<=REFINE_WAIT;
+              debug_valid<='1'; debug_tag<=x"01";
+              debug_data<=std_logic_vector(to_unsigned(cursor,32));
+            end if;
+          -- These pairs are later than the detection window. In particular,
+          -- the ACK case's falling-power trigger cannot contaminate this CFO.
+          when REFINE_WAIT =>
+            need:=trigger+48+refine_index;
+            if wr_count>need then
+              if wr_count-(need-16)>8191 then
+                sticky_overflow<='1'; recovery_code<=2; state<=RECOVER;
+              else
+                raw_address_a<=need mod 8192;
+                raw_address_b<=(need-16) mod 8192; state<=REFINE_READ;
+              end if;
+            end if;
+          when REFINE_READ => state<=REFINE_CALC;
+          when REFINE_CALC =>
+            ar:=to_integer(shift_right(signed(raw_a(31 downto 16)),4));
+            ai:=to_integer(shift_right(signed(raw_a(15 downto 0)),4));
+            br:=to_integer(shift_right(signed(raw_b(31 downto 16)),4));
+            bi:=to_integer(shift_right(signed(raw_b(15 downto 0)),4));
+            pr:=br*ar+bi*ai; pi:=br*ai-bi*ar;
+            pp:=ar*ar+ai*ai; op:=br*br+bi*bi;
+            refine_r<=refine_r+pr; refine_i<=refine_i+pi;
+            refine_p<=refine_p+pp; refine_old_p<=refine_old_p+op;
+            if refine_index=47 then state<=REFINE_FINISH;
+            else refine_index<=refine_index+1; state<=REFINE_WAIT; end if;
+          when REFINE_FINISH =>
+            if abs(refine_r)>abs(refine_i) then
+              magnitude:=abs(refine_r); smallpart:=abs(refine_i);
+            else magnitude:=abs(refine_i); smallpart:=abs(refine_r); end if;
+            magnitude:=magnitude+smallpart/2;
+            -- Test both lag endpoints; power collapse alone is insufficient.
+            if refine_p>1875 and refine_old_p>1875 and
+               magnitude>(refine_p/4)*3 and magnitude>(refine_old_p/4)*3 then
+              aphase:=angle16(to_signed(refine_r,32),to_signed(refine_i,32));
+              if aphase>=0 then t:=(aphase+8)/16; else t:=(aphase-8)/16; end if;
+              cfo_step<=t; fill_index<=0; state<=FILL_WAIT;
+              debug_valid<='1'; debug_tag<=x"07";
+              debug_data<=std_logic_vector(to_signed(t,32));
+            else recovery_code<=3; state<=RECOVER; end if;
+          when FILL_WAIT =>
+            need:=search_base+fill_index;
+            if wr_count>need then
+              if wr_count-need>8191 then
+                sticky_overflow<='1'; recovery_code<=2; state<=RECOVER;
+              else raw_address_a<=need mod 8192; state<=FILL_READ; end if;
+            end if;
+          when FILL_READ => state<=FILL_WRITE;
+          when FILL_WRITE =>
+            aphase:=(cfo_step*((search_base+fill_index) mod 65536)) mod 65536;
+            search_wd<=rotate_sample(raw_a,aphase);
+            search_wa<=fill_index; search_we<='1';
+            if fill_index=447 then
+              candidate<=0; tap_group<=0; search_addr<=(others=>0);
+              corr_r<=(others=>'0'); corr_i<=(others=>'0');
+              best_score<=(others=>'0'); best_pos<=0; state<=CORR_PRIME;
+            else fill_index<=fill_index+1; state<=FILL_WAIT; end if;
+          when CORR_PRIME =>
+            -- Group zero is being synchronously fetched on this edge.
+            -- Issue group one; thereafter keep one group in flight.
+            for b in 0 to 15 loop
+              addr:=candidate+16+((b-(candidate mod 16)+16) mod 16);
+              search_addr(b)<=addr/16;
+            end loop;
+            tap_group<=0; corr_r<=(others=>'0'); corr_i<=(others=>'0');
+            state<=CORR_RUN;
+          when CORR_RUN =>
+            for j in 0 to 15 loop
+              ix:=(candidate+j) mod 16;
+              xr:=signed(search_q(ix)(31 downto 16));
+              xi:=signed(search_q(ix)(15 downto 0));
+              t:=16*tap_group+j;
+              vr(j):=resize(tapmul(xr,taps_r(t)),36)+resize(tapmul(xi,taps_i(t)),36);
+              vi(j):=resize(tapmul(xi,taps_r(t)),36)-resize(tapmul(xr,taps_i(t)),36);
+            end loop;
+            -- Balanced sixteen-lane adder trees.
+            for j in 0 to 7 loop vr(j):=vr(2*j)+vr(2*j+1); vi(j):=vi(2*j)+vi(2*j+1); end loop;
+            for j in 0 to 3 loop vr(j):=vr(2*j)+vr(2*j+1); vi(j):=vi(2*j)+vi(2*j+1); end loop;
+            for j in 0 to 1 loop vr(j):=vr(2*j)+vr(2*j+1); vi(j):=vi(2*j)+vi(2*j+1); end loop;
+            cr:=corr_r+vr(0)+vr(1); ci:=corr_i+vi(0)+vi(1);
+            corr_r<=cr; corr_i<=ci;
+            if tap_group=3 then state<=CORR_FINISH;
+            else
+              tap_group<=tap_group+1;
+              if tap_group<2 then
+                for b in 0 to 15 loop
+                  addr:=candidate+16*(tap_group+2)+((b-(candidate mod 16)+16) mod 16);
+                  search_addr(b)<=addr/16;
+                end loop;
+              end if;
+            end if;
+          when CORR_FINISH =>
+            score:=resize(unsigned(abs(corr_r)),37)+resize(unsigned(abs(corr_i)),37);
+            if candidate>=64 then
+              if score<scores(candidate mod 64) then pair_score:=score;
+              else pair_score:=scores(candidate mod 64); end if;
+              if pair_score>best_score then best_score<=pair_score; best_pos<=candidate-64; end if;
+            end if;
+            scores(candidate mod 64)<=score;
+            if candidate=384 then state<=LOCK_LTS;
+            else
+              candidate<=candidate+1;
+              for b in 0 to 15 loop
+                addr:=candidate+1+((b-((candidate+1) mod 16)+16) mod 16);
+                search_addr(b)<=addr/16;
+              end loop;
+              state<=CORR_PRIME;
+            end if;
+          when LOCK_LTS =>
+            if best_score=0 then recovery_code<=4; state<=RECOVER;
+            else
+              lts_start<=search_base+best_pos; window_start<=search_base+best_pos;
+              fft_mode<=0; load_index<=0; state<=LOAD_WAIT;
+              debug_valid<='1'; debug_tag<=x"02";
+              debug_data<=std_logic_vector(to_unsigned(search_base+best_pos,32));
+            end if;
+          when LOAD_WAIT =>
+            need:=window_start+load_index;
+            if wr_count>need then
+              if wr_count-need>8191 then
+                sticky_overflow<='1'; recovery_code<=2; state<=RECOVER;
+              else raw_address_a<=need mod 8192; state<=LOAD_READ; end if;
+            end if;
+          when LOAD_READ => state<=LOAD_STORE;
+          when LOAD_STORE =>
+            aphase:=(cfo_step*((window_start+load_index) mod 65536)) mod 65536;
+            rotated:=rotate_sample(raw_a,aphase);
+            fft_input(32*load_index+15 downto 32*load_index)<=rotated(31 downto 16);
+            fft_input(32*load_index+31 downto 32*load_index+16)<=rotated(15 downto 0);
+            if load_index=63 then state<=FFT_LAUNCH;
+            else load_index<=load_index+1; state<=LOAD_WAIT; end if;
+          when FFT_LAUNCH =>
+            if fft_cooldown=0 then fft_iv<='1'; fft_cooldown<=400; state<=FFT_WAIT; end if;
+          when FFT_WAIT =>
+            if fft_ov='1' then
+              fft_hold<=fft_output; active_index<=0;
+              debug_valid<='1'; debug_tag<=x"06";
+              if fft_mode=0 then debug_data<=x"FFFFFFFE";
+              elsif fft_mode=1 then debug_data<=x"FFFFFFFF";
+              else debug_data<=std_logic_vector(to_unsigned(symbol_index,32)); end if;
+              if fft_mode=0 then state<=TRAIN_FIRST;
+              elsif fft_mode=1 then state<=TRAIN_SETUP;
+              else pilot_r<=(others=>'0'); pilot_i<=(others=>'0'); state<=EQUALIZE; end if;
+            end if;
+          when TRAIN_FIRST =>
+            bin:=bin_number(active_index);
+            train_r(active_index)<=signed(fft_hold(48*bin+23 downto 48*bin));
+            train_i(active_index)<=signed(fft_hold(48*bin+47 downto 48*bin+24));
+            if active_index=51 then
+              fft_mode<=1; window_start<=lts_start+64; load_index<=0; state<=LOAD_WAIT;
+            else active_index<=active_index+1; end if;
+          when TRAIN_SETUP =>
+            bin:=bin_number(active_index);
+            fr:=signed(fft_hold(48*bin+23 downto 48*bin));
+            fi:=signed(fft_hold(48*bin+47 downto 48*bin+24));
+            hsum_r:=resize(fr,25)+resize(train_r(active_index),25);
+            hsum_i:=resize(fi,25)+resize(train_i(active_index),25);
+            if training_sign(active_index)<0 then hsum_r:=-hsum_r; hsum_i:=-hsum_i; end if;
+            hr:=sat24(shift_right(hsum_r,1)); hi:=sat24(shift_right(hsum_i,1));
+            energy:=resize(unsigned(hr*hr),49)+resize(unsigned(hi*hi),49);
+            if energy=0 then recovery_code<=5; state<=RECOVER;
+            else
+              div_den<=energy;
+              div_nr<=shift_left(resize(unsigned(abs(resize(hr,25))),64),40);
+              div_ni<=shift_left(resize(unsigned(abs(resize(hi,25))),64),40);
+              div_neg_r<=hr(23); div_neg_i<=not hi(23);
+              div_rr<=(others=>'0'); div_ri<=(others=>'0');
+              div_qr<=(others=>'0'); div_qi<=(others=>'0');
+              div_bit<=63; state<=DIVIDE_CHANNEL;
+            end if;
+          when DIVIDE_CHANNEL =>
+            -- Four restoring steps per cycle, only during channel training.
+            rr:=div_rr; ri:=div_ri; qr:=div_qr; qi:=div_qi;
+            for j in 0 to 3 loop
+              rr:=shift_left(rr,1); rr(0):=div_nr(div_bit-j);
+              ri:=shift_left(ri,1); ri(0):=div_ni(div_bit-j);
+              if rr>=resize(div_den,50) then rr:=rr-resize(div_den,50); qr(div_bit-j):='1'; end if;
+              if ri>=resize(div_den,50) then ri:=ri-resize(div_den,50); qi(div_bit-j):='1'; end if;
+            end loop;
+            div_rr<=rr; div_ri<=ri; div_qr<=qr; div_qi<=qi;
+            if div_bit=3 then state<=DIVIDE_STORE; else div_bit<=div_bit-4; end if;
+          when DIVIDE_STORE =>
+            coefftmp:=signed(resize(div_qr,42));
+            if div_neg_r='1' then coefftmp:=-coefftmp; end if;
+            coeff_r(active_index)<=coefftmp;
+            coefftmp:=signed(resize(div_qi,42));
+            if div_neg_i='1' then coefftmp:=-coefftmp; end if;
+            coeff_i(active_index)<=coefftmp;
+            if active_index=51 then
+              fft_mode<=2; symbol_index<=0; pilot_index<=0;
+              window_start<=lts_start+144; load_index<=0; state<=LOAD_WAIT;
+            else active_index<=active_index+1; state<=TRAIN_SETUP; end if;
+          when EQUALIZE =>
+            bin:=bin_number(active_index);
+            fr:=signed(fft_hold(48*bin+23 downto 48*bin));
+            fi:=signed(fft_hold(48*bin+47 downto 48*bin+24));
+            er:=resize(fr*coeff_r(active_index),67)-resize(fi*coeff_i(active_index),67);
+            ei:=resize(fr*coeff_i(active_index),67)+resize(fi*coeff_r(active_index),67);
+            evr:=sat24(shift_right(er,28)); evi:=sat24(shift_right(ei,28));
+            eq_r(active_index)<=evr; eq_i(active_index)<=evi;
+            if is_pilot(active_index) then
+              ps:=polarity(pilot_index);
+              if carrier(active_index)=21 then ps:=-ps; end if;
+              if ps=1 then
+                pilot_r<=pilot_r+resize(evr,29); pilot_i<=pilot_i+resize(evi,29);
+              else pilot_r<=pilot_r-resize(evr,29); pilot_i<=pilot_i-resize(evi,29); end if;
+            end if;
+            if active_index=51 then state<=PHASE_ESTIMATE;
+            else active_index<=active_index+1; end if;
+          when PHASE_ESTIMATE =>
+            common_phase<=angle16(pilot_r,pilot_i);
+            active_index<=0; data_index<=0; state<=ROTATE_BINS;
+          when ROTATE_BINS =>
+            if not is_pilot(active_index) then
+              cc:=to_signed(sin16(common_phase+16384),16); ss:=to_signed(sin16(common_phase),16);
+              rotr:=resize(eq_r(active_index)*cc,41)+resize(eq_i(active_index)*ss,41);
+              roti:=resize(eq_i(active_index)*cc,41)-resize(eq_r(active_index)*ss,41);
+              backend_data(32*data_index+15 downto 32*data_index)<=std_logic_vector(sat16(shift_right(rotr,14)));
+              backend_data(32*data_index+31 downto 32*data_index+16)<=std_logic_vector(sat16(shift_right(roti,14)));
+              if data_index<47 then data_index<=data_index+1; end if;
+            end if;
+            if active_index=51 then
+              if symbol_index=0 then backend_header<='1'; else backend_header<='0'; end if;
+              if symbol_index/=0 and symbol_index=symbol_count then backend_last<='1'; else backend_last<='0'; end if;
+              state<=PREP_SEND;
+            else active_index<=active_index+1; end if;
+          when PREP_SEND =>
+            if send_cooldown=0 then backend_iv<='1'; state<=SEND_SYMBOL; end if;
+          when SEND_SYMBOL =>
+            if backend_ready='1' then
+              backend_iv<='0'; send_cooldown<=799;
+              if symbol_index=0 then header_timer<=0; state<=HEADER_WAIT;
+              elsif symbol_index=symbol_count then
+                cursor<=window_start+64;
+                lag_count<=0; lag_ptr<=0; sum_r<=0; sum_i<=0; sum_p<=0;
+                state<=SCAN_WAIT;
+              else
+                symbol_index<=symbol_index+1;
+                if pilot_index=126 then pilot_index<=0; else pilot_index<=pilot_index+1; end if;
+                window_start<=window_start+80; load_index<=0; state<=LOAD_WAIT;
+              end if;
+            end if;
+          when HEADER_WAIT =>
+            if header_error='1' then recovery_code<=6; state<=RECOVER;
+            elsif header_valid='1' then
+              if unsigned(header_length)<14 then recovery_code<=7; state<=RECOVER;
+              else
+                nd:=dbps(header_rate);
+                nsyms:=(22+8*to_integer(unsigned(header_length))+nd-1)/nd;
+                symbol_count<=nsyms; packet_length<=header_length;
+                symbol_index<=1; pilot_index<=1;
+                window_start<=lts_start+224; load_index<=0; state<=LOAD_WAIT;
+                debug_valid<='1'; debug_tag<=x"03";
+                debug_data<=x"00" & header_rate & "0000" & header_length;
+              end if;
+            elsif header_timer=2047 then recovery_code<=8; state<=RECOVER;
+            else header_timer<=header_timer+1; end if;
+          when RECOVER =>
+            backend_iv<='0';
+            -- Revisit history after a failed hypothesis. Do not jump over a
+            -- short following frame or discard samples merely because live
+            -- input has advanced during processing.
+            cursor<=trigger+32;
+            lag_count<=0; lag_ptr<=0; sum_r<=0; sum_i<=0; sum_p<=0;
+            debug_valid<='1'; debug_tag<=x"05";
+            debug_data<=std_logic_vector(to_unsigned(recovery_code,32));
+            state<=SCAN_WAIT;
+        end case;
+      end if;
+    end if;
+  end process;
+end architecture;
+
+TRUSTED FEEDBACK:
+{"functional": "All 8 rates, real 3-packet capture, bad FCS recovery, silence, mid-packet reset and malformed SIGNAL recovery now pass RTL. 32-short-packet burst outputs all correct bytes.", "throughput": {"input_cycles_per_packet": 8000.0, "lag_growth_cycles": 15312.0, "output_cycles_per_packet": 8638.0}, "synthesis_errors": "candidate.vhd:1403:16:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n            if abs(sr)>abs(si) then magnitude:=abs(sr); smallpart:=abs(si);\n               ^\ncandidate.vhd:1440:16:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n            if abs(refine_r)>abs(refine_i) then\n               ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandled dyn operation: IIR_PREDEFINED_INTEGER_ABSOLUTE\n    m:=abs(y);\n       ^\ncandidate.vhd:1144:8:error: unhandl"}
+REFINEMENT REQUEST:
+Two remaining development failures:
+1) A bounded FIFO hid a sustained-rate deficit: arrivals every8000clocks (14-byte54Mbpsframes with320samples interframegap), outputs every8638clocks; backloggrows638clocks/packet, total15312cyclesafterstartup. Mustachieve <=8000cycles/packetsteady, with boundedlatencyindependentofburstlength. Preservepacketcorrectness. Optimizescheduleby>=638cycles e.g. reducetrainingdividefrom4to8iterations/cycle, fastercorrelation, overlappingindependentoperations, orsafeearlierLTSlock. DoNOTmerelyincreaseFIFOorflush. Scoreboardnowcheckslaggrowthafterstartup<=200cyclesallowingboundedoutputstalljitter. Couldprofilestatecountercountsfromcode. Resourcebudgetstill40kLUT40kFF100DSP100BRAM18INCLUDINGdependencies. ExistingFFT9641LUT~4kFF16DSP,Viterbi13055LUT7259FF0DSP,backendunmapped. Preferstate/schedulechangesovermassivereplication.
+2) GHDL4.1 synthesisdoesnotsupportdynamic integer abs(); useexplicit if x<0 then return -x else return x scalarhelper, keepingrangeboundsavoidminintegeroverflow. numeric_std signedabs isfine. Errorsareinabs(y)at sin_q15/magnitude? seecodeandabs(sr),abs(si),abs(refine_r),abs(refine_i). Needcompilercompatibility; nofunctionalchangeintended. Synthesisthenpostmapwillbeverified.
+Generatecompleteupdatedfrontendonly; dependenciesunchanged. KeepdebugtagsforacquisitionCFOandstateprogress. EmptyVHDLnothelpful—actualcandidatewillbeevaluated. No tools.

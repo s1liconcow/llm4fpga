@@ -1,0 +1,13 @@
+{
+  "notes": "OUTPUT_LOAD still performs the initial synchronous RAM read. Each accepted nonfinal byte loads the next byte on that same edge, keeping OUTPUT_SEND active for one byte per clock. Stalls hold data, index, valid, first/last, rate, length and FCS status stable. The final handshake returns to IDLE without another read. RAM remains unreset with clocked reads; the mutually exclusive reads may infer two read ports. Synchronous reset and all decoding logic remain unchanged.\n\nWith acceptance at edge H, cooldown 798 reaches zero after H+798. PREP_SEND sees zero and registers backend_iv at H+799; the backend accepts at H+800. Thus minimum acceptance spacing is exactly 800 clocks; backpressure can only extend it. The FFT cooldown remains unchanged. No tools or simulation were run.",
+  "edits": [
+    {
+      "old": "                read_index <= read_index + 1;\n                state <= OUTPUT_LOAD;",
+      "new": "                output_byte <= ram(read_index + 1);\n                read_index <= read_index + 1;"
+    },
+    {
+      "old": "              backend_iv<='0'; send_cooldown<=799;",
+      "new": "              backend_iv<='0'; send_cooldown<=798;"
+    }
+  ]
+}

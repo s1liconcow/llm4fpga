@@ -49,6 +49,8 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description='Python/MATLAB -> Codex -> verified VHDL, using Podman')
     sub = parser.add_subparsers(dest='command',required=True)
     sub.add_parser('doctor',help='Check Codex and container hardware tools')
+    from .wifi import add_parser as add_wifi_parser
+    add_wifi_parser(sub)
     hash_cmd = sub.add_parser('hash',help='Hash text or a file through the generated VHDL core in simulation')
     data = hash_cmd.add_mutually_exclusive_group(required=True)
     data.add_argument('--text')
@@ -59,6 +61,17 @@ def main(argv=None) -> int:
     prepare.add_argument('benchmark',choices=['sha256','normalizer','slam'])
     prepare.add_argument('--out',type=Path,required=True)
     prepare.add_argument('--octave',action='store_true')
+    from .search import SearchConfig, read_seed, run_search, translation_problem
+    search_cmd = sub.add_parser('search',help='Search beyond the first passing VHDL design using measured resources')
+    search_cmd.add_argument('spec',type=Path)
+    search_cmd.add_argument('--out',type=Path,required=True)
+    search_cmd.add_argument('--workers',type=int,default=2,help='Concurrent design workers (default: 2)')
+    search_cmd.add_argument('--rounds',type=int,default=3,help='Proposals per worker, including improvements after passing')
+    search_cmd.add_argument('--tool-jobs',type=int,default=1,help='Maximum concurrent hardware evaluations')
+    search_cmd.add_argument('--objective',choices=['luts','ffs','dsps','brams','latency'],default='luts')
+    search_cmd.add_argument('--seed',type=Path,help='Starting JSON proposal, freshly evaluated as the baseline')
+    search_cmd.add_argument('--model')
+    search_cmd.add_argument('--resume',action='store_true',help='Resume the same search; reuse unchanged completed evaluations')
     for name in ('translate','demo'):
         cmd = sub.add_parser(name,help='Translate arbitrary contracted source' if name=='translate' else 'Run a verified end-to-end benchmark')
         if name=='translate':
@@ -90,8 +103,20 @@ def main(argv=None) -> int:
     xls.add_argument('--out',type=Path,required=True)
     args = parser.parse_args(argv)
     try:
+        if args.command=='wifi':
+            from .wifi import run as run_wifi
+            return run_wifi(args)
         if args.command=='doctor':
             return doctor()
+        if args.command=='search':
+            config=SearchConfig(args.workers,args.rounds,args.tool_jobs,args.objective)
+            if args.seed and args.seed.suffix.lower() in ('.vhd','.vhdl'):
+                raise ValueError('--seed requires a JSON proposal including its declared latency')
+            result=run_search(translation_problem(args.spec),args.out,config=config,
+                              seed=read_seed(args.seed),model=args.model,resume=args.resume)
+            print(json.dumps({'accepted':result['accepted'],'selected':result.get('selected'),
+                              'improvement':result.get('improvement'),'summary':str(args.out/'summary.json')},indent=2))
+            return 0 if result['accepted'] else 2
         if args.command=='hash':
             message = args.text.encode('utf-8') if args.text is not None else args.file.read_bytes()
             print(json.dumps(hash_message(message,args.proposal,args.out),indent=2))

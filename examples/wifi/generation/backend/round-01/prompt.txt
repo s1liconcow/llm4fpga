@@ -1,0 +1,137 @@
+Implement the Wi-Fi receiver bit-decoding backend as complete synthesizable VHDL-2008. Return JSON {vhdl,latency:1,notes}. Tools are unavailable: generate a testable candidate and let our trusted harness find failures; no empty response. All numeric_std integer logic, no real/file/textio/report/assert/after/wait/attributes. This bounded component is part of a larger generated pipeline. The ONLY external entity is work.wifi_viterbi with this exact interface: clk,rst,in_valid,in_start,in_last:in std_logic; pair:in std_logic_vector(3 downto0);out_valid,out_bit,out_last:out std_logic. It accepts one observation-pair each3clocks or slower, A atpair1:0,B atpair3:2 values0,1,2erasure. in_start resets trellis before first pair, in_last flushes remaining bits choosing bestfinalstate; emits exactlyonebit/inputpair in order, lastflagwithlastbit. Can output beforein_last after64steps, or drainup to64bits afterlast, <=256clocks. Its reset activehigh. You MUST instantiate and use wifi_viterbi; do not reproduce it.
+TOP entity dut ports:
+clk,rst,in_valid,in_header,in_last,out_ready : in std_logic;
+input_data:in std_logic_vector(1535 downto0);
+in_ready:out std_logic;
+header_valid,header_error:out std_logic;
+header_rate:out std_logic_vector(7 downto0); header_length:out std_logic_vector(11 downto0);
+out_valid,out_first,out_last,out_fcs_ok,overflow:out std_logic;
+output_data,out_rate:out std_logic_vector(7 downto0);out_length:out std_logic_vector(11 downto0).
+Input: one equalized/pilotcorrected OFDM symbol, 48 complexdatacarriers in ascending signedsubcarrier order -26..-1,1..26 excluding -21,-7,7,21. Each carrier has signed16 real Q12 atbits32*i+15:32*i, imaginary Q12 atbits32*i+31:32*i+16. Input accepted in_valid ANDin_ready. in_header=1 denotes SIGNAL (always BPSK), initializes a newpacket; then oneDATA per800clocks or slower. in_last identifies finalDATA symbol. Host waitsheader_valid to getrate,length beforeDATA. invalidSIGNAL pulseheader_error, dropframe. in_ready must return high within800clocks afteracceptedDATA and afterSIGNALheaderready. Buffereachsymbol and demapbitstohardobservations. Exactstandard Graymapping normalizedconstellations. Deinterleaving and depuncturing allrates6,9,12,18,24,36,48,54. SIGNAL coded48 yields24 decodedbits: ratebitsfirst4 in order1101=6,1111=9,0101=12,0111=18,1001=24,1011=36,0001=48,0011=54;bit4reserved0, bits5..16lengthLSBfirst, bit17evenparityover0..17;bits18..23zeros. Validate length14..4095. Report header_rate as numericMbps. Afterheaderdecode startnewViterbitrellis onfirstDATA, preserve acrosssymbols; consume ONLY 16+8*LENGTH+6 trellissteps then lastflush, ignorepadding afterward. Depuncture masks mothercode [1,1] ratehalf;[1,1,1,0]rate2/3(48Mbps);[1,1,1,0,0,1]rate3/4(9,18,36,54). Preservemaskphase and remainingobs acrosssymbols. Decodeddatafirst16SERVICE thenlength*8PSDU then6tail. Inferdescramblerseedfromfirst7scrambledSERVICEbits with equation inPython, then recoverremainingbits; use LSBfirstbytepack. AllPSDUbytes inclFCS inoutput. Accumulate CRC32 reflectedpolynomial0xedb88320 initial0xffffffff finalxor0xffffffff; checkingresidueoverfullframe alsoacceptable correctconstant0xdebb20e3. Buffercompleteframe beforeoutput, ready/valid hold ALLbyte/first/last/rate/length/fcs stablewhilestalled. InvalidSERVICE dropframe; checksuminvalidframe mayoutput withfalseFCS. OneframeRAM4096bytes isallowed, waituntiloutputdrainedbeforenewframeifneeded via in_ready (butlegacynormalgaps enough). maxstall32cycles onceper257cycles. Do not allow newheader to overwritependingoutput. State/counters nofullRAMreset. budget roughly6000LUT6000FF12BRAM excludingViterbi. CorrectsignedQ12 thresholds forQPSK,16QAM,64QAM; absoluteaxis Graydecision, ties deterministic. No approx incorrectlycopy sourceoldscale3/7. Inputprecision isexactcomponentround(real*4096). Example16QAMreal+3/sqrt10=>bits10, +1/sqrt10=>11,-1/sqrt10=>01,-3/sqrt10=>00. 64QAMaxislabels000=-7,001=-5,011=-3,010=-1,110=1,111=3,101=5,100=7 (divide sqrt42). BPSKnegative0positive1. n_dbps24,36,48,72,96,144,192,216. deinterleavecanfill288bitarrayusinginversepermutation fromsource. Provide fullcode includingrealentitiesifhelpful and instantiatedwifi_viterbi.
+PYTHONREFERENCE (hardmetrics, descrambler andconstellations):
+"""Batch, floating-point legacy OFDM reference and deterministic test transmitter.
+
+Rate, training, and pilot tables follow OpenOFDM (Apache-2.0), pinned by the
+capture fetcher. No existing HDL is used by this module. Integer bit processing
+and floating-point sample processing are deliberately separate.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+import math
+import zlib
+
+import numpy as np
+
+RATES = {6: (1, 48, 24), 9: (1, 48, 36), 12: (2, 96, 48),
+         18: (2, 96, 72), 24: (4, 192, 96), 36: (4, 192, 144),
+         48: (6, 288, 192), 54: (6, 288, 216)}
+RATE_BITS = {6: '1101', 9: '1111', 12: '0101', 18: '0111',
+             24: '1001', 36: '1011', 48: '0001', 54: '0011'}
+ACTIVE = np.array(list(range(-26, 0)) + list(range(1, 27)))
+PILOTS = np.array([-21, -7, 7, 21])
+DATA = np.array([k for k in ACTIVE if k not in PILOTS])
+LTS_SIGNS = np.array([1,1,-1,-1,1,1,-1,1,-1,1,1,1,1,1,1,-1,-1,1,1,
+    -1,1,-1,1,1,1,1,1,-1,-1,1,1,-1,1,-1,1,-1,-1,-1,-1,-1,1,1,-1,-1,
+    1,-1,1,-1,1,1,1,1])
+POLARITY = np.array([1,1,1,1,-1,-1,-1,1,-1,-1,-1,-1,1,1,-1,1,-1,-1,1,
+    1,-1,1,1,-1,1,1,1,1,1,1,-1,1,1,1,-1,1,1,-1,-1,1,1,1,-1,1,-1,-1,
+    -1,1,-1,1,-1,-1,1,-1,-1,1,1,1,1,1,-1,-1,1,1,-1,-1,1,-1,1,-1,1,1,
+    -1,-1,-1,1,1,-1,-1,-1,-1,1,-1,-1,1,-1,1,1,1,1,-1,1,-1,1,-1,1,-1,
+    -1,-1,-1,-1,1,-1,1,1,-1,1,-1,1,1,1,-1,-1,1,-1,-1,-1,1,1,1,-1,-1,
+    -1,-1,-1,-1,-1])
+
+
+def long_training() -> np.ndarray:
+    bins = np.zeros(64, complex)
+    bins[ACTIVE % 64] = LTS_SIGNS
+    return np.fft.ifft(bins)
+
+
+def short_training() -> np.ndarray:
+    bins = np.zeros(64, complex)
+    bins[np.array([-24,-20,-16,-12,-8,-4,4,8,12,16,20,24]) % 64] = (
+        np.array([1,-1,1,-1,-1,1,-1,-1,1,1,1,1]) * (1+1j) * np.sqrt(13/6))
+    return np.fft.ifft(bins)[:16]
+
+
+def constellation(n: int) -> np.ndarray:
+    if n == 1:
+        return np.array([-1, 1], complex)
+    axis = {2: [-1,1], 4: [-3,-1,3,1], 6: [-7,-5,-1,-3,7,5,1,3]}[n]
+    size = 1 << (n//2)
+    return np.array([complex(axis[k//size], axis[k%size]) for k in range(1<<n)]) / math.sqrt({2:2,4:10,6:42}[n])
+
+
+def puncture_mask(rate: int) -> list[int]:
+    return [1,1,1,0,0,1] if rate in (9,18,36,54) else [1,1,1,0] if rate == 48 else [1,1]
+
+
+def convolutional_encode(bits: np.ndarray) -> np.ndarray:
+    state, out = 0, []
+    for bit in bits:
+        reg = (int(bit)<<6) | state
+        out.extend([(reg & 0o133).bit_count() & 1, (reg & 0o171).bit_count() & 1])
+        state = reg >> 1
+    return np.array(out, np.uint8)
+
+
+def viterbi(coded: np.ndarray, rate: int = 6) -> np.ndarray:
+    """64-state maximum-likelihood hard decoder; punctures carry no evidence."""
+    mask = puncture_mask(rate)
+    expanded = []
+    pos = 0
+    while pos < len(coded):
+        for keep in mask:
+            if keep:
+                if pos == len(coded):
+                    raise ValueError('Incomplete puncturing period')
+                expanded.append(int(coded[pos])); pos += 1
+            else:
+                expanded.append(2)
+    obs = np.array(expanded).reshape(-1, 2)
+    states = np.arange(64)
+    prev0, prev1 = (states & 31)*2, (states & 31)*2+1
+    reg0, reg1 = (states >> 5)*64+prev0, (states >> 5)*64+prev1
+    expected0 = np.array([[(int(r)&p).bit_count()&1 for p in (0o133,0o171)] for r in reg0])
+    expected1 = np.array([[(int(r)&p).bit_count()&1 for p in (0o133,0o171)] for r in reg1])
+    metrics = np.full(64, 100000, int); metrics[0] = 0
+    paths = np.empty((len(obs),64), np.uint8)
+    for t, pair in enumerate(obs):
+        a = metrics[prev0]+np.sum((expected0 != pair) & (pair != 2), axis=1)
+        b = metrics[prev1]+np.sum((expected1 != pair) & (pair != 2), axis=1)
+        choose = b < a
+        metrics = np.minimum(a,b)
+        paths[t] = np.where(choose, prev1, prev0)
+    state = int(metrics.argmin())
+    result = np.empty(len(obs),np.uint8)
+    for t in range(len(obs)-1,-1,-1):
+        result[t] = state >> 5
+        state = int(paths[t,state])
+    return result
+
+
+def interleave_indices(n: int) -> np.ndarray:
+    count = 48*n; k = np.arange(count); s = max(n//2,1)
+    i = (count//16)*(k%16)+k//16
+    return s*(i//s)+(i+count-(16*i)//count)%s
+
+
+def scramble(bits: np.ndarray, seed: int) -> np.ndarray:
+    state = [(seed>>i)&1 for i in range(7)]
+    result = []
+    for b in bits:
+        feedback = state[6]^state[3]
+        result.append(int(b)^feedback)
+        state = [feedback]+state[:-1]
+    return np.array(result,np.uint8)
+
+
+def descramble(bits: np.ndarray) -> np.ndarray:
+    x = [0]*7
+    x[0] = int(bits[2]^bits[6]); x[1] = int(bits[1]^bits[5]); x[2] = int(bits[0]^bits[4])
+    x[3] = x[0]^int(bits[3]); x[4] = x[1]^int(bits[2]); x[5] = x[2]^int(bits[1]); x[6] = x[3]^int(bits[0])
+    return scramble(bits, sum(b<<i for i,b in enumerate(x)))
+
+

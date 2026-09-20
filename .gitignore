@@ -8,3 +8,6 @@ runs/
 .env
 .env.*
 !.env.example
+
+# bv (beads viewer) local config and caches
+.bv/

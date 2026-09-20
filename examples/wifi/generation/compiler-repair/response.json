@@ -1,0 +1,33 @@
+{
+  "notes": "Inspected all four units. Constrained temporaries cover all eight runtime-bound slice casts: two 16-bit backend casts and six 24-bit frontend casts. Explicit integer sign handling replaces backend integer abs. FFT loop bounds are static; FFT, Viterbi, static-bound casts, and numeric_std signed abs remain unchanged. No algorithms, widths, thresholds, latency, interfaces, or scheduling changed. No tools or tests run.",
+  "edits": [
+    {
+      "old": "        magnitude := abs(value);",
+      "new": "        if value < 0 then\n          magnitude := -value;\n        else\n          magnitude := value;\n        end if;"
+    },
+    {
+      "old": "    variable re, im, effective_rate, phase_v, pos_v, r, len : integer;\n    variable db : std_logic_vector(5 downto 0);",
+      "new": "    variable re, im, effective_rate, phase_v, pos_v, r, len : integer;\n    variable carrier_re_word, carrier_im_word : std_logic_vector(15 downto 0);\n    variable db : std_logic_vector(5 downto 0);"
+    },
+    {
+      "old": "          when DEMAP =>\n            re := to_integer(signed(symbol_data(32 * carrier + 15 downto 32 * carrier)));\n            im := to_integer(signed(symbol_data(32 * carrier + 31 downto 32 * carrier + 16)));",
+      "new": "          when DEMAP =>\n            carrier_re_word := symbol_data(32 * carrier + 15 downto 32 * carrier);\n            carrier_im_word := symbol_data(32 * carrier + 31 downto 32 * carrier + 16);\n            re := to_integer(signed(carrier_re_word));\n            im := to_integer(signed(carrier_im_word));"
+    },
+    {
+      "old": "    variable fr,fi,hr,hi : signed(23 downto 0);\n    variable hsum_r,hsum_i : signed(24 downto 0);",
+      "new": "    variable fr,fi,hr,hi : signed(23 downto 0);\n    variable fft_re_word,fft_im_word : std_logic_vector(23 downto 0);\n    variable hsum_r,hsum_i : signed(24 downto 0);"
+    },
+    {
+      "old": "          when TRAIN_FIRST =>\n            bin:=bin_number(active_index);\n            train_r(active_index)<=signed(fft_hold(48*bin+23 downto 48*bin));\n            train_i(active_index)<=signed(fft_hold(48*bin+47 downto 48*bin+24));",
+      "new": "          when TRAIN_FIRST =>\n            bin:=bin_number(active_index);\n            fft_re_word:=fft_hold(48*bin+23 downto 48*bin);\n            fft_im_word:=fft_hold(48*bin+47 downto 48*bin+24);\n            train_r(active_index)<=signed(fft_re_word);\n            train_i(active_index)<=signed(fft_im_word);"
+    },
+    {
+      "old": "          when TRAIN_SETUP =>\n            bin:=bin_number(active_index);\n            fr:=signed(fft_hold(48*bin+23 downto 48*bin));\n            fi:=signed(fft_hold(48*bin+47 downto 48*bin+24));",
+      "new": "          when TRAIN_SETUP =>\n            bin:=bin_number(active_index);\n            fft_re_word:=fft_hold(48*bin+23 downto 48*bin);\n            fft_im_word:=fft_hold(48*bin+47 downto 48*bin+24);\n            fr:=signed(fft_re_word);\n            fi:=signed(fft_im_word);"
+    },
+    {
+      "old": "          when EQUALIZE =>\n            bin:=bin_number(active_index);\n            fr:=signed(fft_hold(48*bin+23 downto 48*bin));\n            fi:=signed(fft_hold(48*bin+47 downto 48*bin+24));",
+      "new": "          when EQUALIZE =>\n            bin:=bin_number(active_index);\n            fft_re_word:=fft_hold(48*bin+23 downto 48*bin);\n            fft_im_word:=fft_hold(48*bin+47 downto 48*bin+24);\n            fr:=signed(fft_re_word);\n            fi:=signed(fft_im_word);"
+    }
+  ]
+}

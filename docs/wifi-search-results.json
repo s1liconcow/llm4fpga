@@ -1,0 +1,300 @@
+{
+  "accepted": true,
+  "candidate": "examples/wifi/search/receiver.vhd",
+  "candidates": [
+    {
+      "accepted": true,
+      "error": null,
+      "generation_notes": "Starting receiver implementation",
+      "hardware": {
+        "bram18_equivalents": 28,
+        "dsps": 71,
+        "ffs": 54066,
+        "luts": 69048
+      },
+      "id": "baseline",
+      "parent": null,
+      "vhdl_sha256": "53c7341503bf39344a204948af523b404934543d27dc62279da27fe16e932841"
+    },
+    {
+      "accepted": true,
+      "error": null,
+      "generation_notes": "Replaces the general integer variable-divisor symbol-count calculation with shared 14-, 12-, and 10-bit constant divisions and shifts, expected to reduce divider LUTs and selection logic. Intermediate maxima are 8195, 2731, 910, and 303; all widths are sufficient. Algebraically exact for all eight rates and every supported length, retaining the default rate behavior and existing cycle schedule. No tools or verification changes; resource savings and timing remain unmeasured.",
+      "hardware": {
+        "bram18_equivalents": 28,
+        "dsps": 71,
+        "ffs": 54066,
+        "luts": 68912
+      },
+      "id": "worker-01/round-01",
+      "parent": "baseline",
+      "vhdl_sha256": "3f2c585b477401734b6123dcd75d78cec96ea62527a7cd5c190ec989f74e1e95"
+    },
+    {
+      "accepted": true,
+      "error": null,
+      "generation_notes": "Expected LUT savings come from explicit two-predecessor survivor selection, fixed-tap carrier reads, sequential shift assembly replacing variable slice writes, and fixed-position divider wiring replacing eight variable bit reads/writes per cycle. Removed resets affect internal buffers fully overwritten before consumption. Complete buffer ordering, divider results, arithmetic precision, handshakes and cycle counts are preserved. No tools or verification were run; resource savings and continued passing status require measurement.",
+      "hardware": {
+        "bram18_equivalents": 28,
+        "dsps": 71,
+        "ffs": 54060,
+        "luts": 69424
+      },
+      "id": "worker-01/round-02",
+      "parent": "worker-01/round-01",
+      "vhdl_sha256": "c236a8c944cb0151424fbbc18b7448abc37d98067f388a2c989a0e8c1e0f4ddd"
+    },
+    {
+      "accepted": true,
+      "error": null,
+      "generation_notes": "Replaces variable symbol-count division with shared narrow constant divisions and shifts, exactly preserving ceil((22+8*length)/dbps) for all eight rates. Narrows correlation arithmetic without truncation: each accumulated component is bounded by 64*2*32768*127=532676608, fitting signed 30 bits; the summed absolute score fits unsigned 30 bits. Expected savings come from eliminating the general divider and reducing correlation adders, comparisons, and score storage widths. Scheduling and throughput are unchanged. No tools or tests run; mapped resource savings and timing remain unmeasured.",
+      "hardware": {
+        "bram18_equivalents": 28,
+        "dsps": 71,
+        "ffs": 53599,
+        "luts": 68544
+      },
+      "id": "worker-02/round-01",
+      "parent": "baseline",
+      "vhdl_sha256": "d2f9453d3cb6244b130eb60bae8ab0f9687a803b404b91361aa92f35befccd13"
+    },
+    {
+      "accepted": true,
+      "error": null,
+      "generation_notes": "Replace correlation tap shift/add networks with signed 16\u00d78 multipliers, enabling DSP inference and expected LUT savings across 64 multiplication sites. All tap coefficients lie within -127..127; the exact products fit in 24 signed bits, preserving arithmetic results, cycle counts and throughput. Additional DSP use should fit comfortably within the budget. No tools or verification run; resource savings and timing remain unmeasured.",
+      "hardware": {
+        "bram18_equivalents": 28,
+        "dsps": 135,
+        "ffs": 53599,
+        "luts": 61034
+      },
+      "id": "worker-02/round-02",
+      "parent": "worker-02/round-01",
+      "vhdl_sha256": "337cec9d81546da783cd725f5afa5db1db521d00d8e8a05224d29ce68214d28c"
+    }
+  ],
+  "evidence_sha256": {
+    "audit": {
+      "candidate.vhd": "337cec9d81546da783cd725f5afa5db1db521d00d8e8a05224d29ce68214d28c",
+      "mapped.v": "58dd311cac924b02db76baa129e65e7aef79c7ba67257e8ecc1c41bae5d3c351",
+      "netlist.json": "17dd664a222af1ed33ac7abd4131bf948fd05c2b234290cb45e6a400135a40e7",
+      "obj_dir/wifi_sim": "8e2d54e1bdf06fee96d5df43832a13e5bea9dad47b1faf671cf40e7e674a7ff9",
+      "proposal.json": "36cf40b3320eb8a0f2a08e15f948c451cb3b0fb43846c7ce146c33615c43bee4",
+      "result.json": "45255b622c36d4b49d2c55ea5980412a366014febf4be4fbc20b4a90d4112e3b",
+      "simulation-models.json": "a6f8d9410dc0435113f3bd8bbb2fd4b96597b8ce20fa2c0882435939445d1f3d"
+    },
+    "development": {
+      "candidate.vhd": "337cec9d81546da783cd725f5afa5db1db521d00d8e8a05224d29ce68214d28c",
+      "mapped.v": "58dd311cac924b02db76baa129e65e7aef79c7ba67257e8ecc1c41bae5d3c351",
+      "netlist.json": "17dd664a222af1ed33ac7abd4131bf948fd05c2b234290cb45e6a400135a40e7",
+      "obj_dir/wifi_sim": "8e2d54e1bdf06fee96d5df43832a13e5bea9dad47b1faf671cf40e7e674a7ff9",
+      "parent.json": "a1568ac901f9e716f2978ad9c7cc2f3a04f2a3c22e72ceaf0170021b28a2c387",
+      "prompt.txt": "8127903ecab7add1725fbb2995c0bae96c6e636df7e020d069687c4f1fbbfe46",
+      "proposal.json": "36cf40b3320eb8a0f2a08e15f948c451cb3b0fb43846c7ce146c33615c43bee4",
+      "response.json": "8d08afd2a3e279b0e96fb4bf334837199f9b45fdf3e160361e46c5051cf7d8c8",
+      "result.json": "935a66d2674c5d46416f8a7a8dbf1f9e3f5fbc23352d266021975df9b29cee81",
+      "simulation-models.json": "a6f8d9410dc0435113f3bd8bbb2fd4b96597b8ce20fa2c0882435939445d1f3d"
+    }
+  },
+  "harness_sha256": {
+    "fpga_lab/__init__.py": "c80c46bc206abd4445f40e49beae933d09759bc7c71e9c4c02cc8aa6e299d78c",
+    "fpga_lab/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "fpga_lab/benchmarks.py": "358af4d801bb840e88f50dd1f752708606bc5d38e1d6c0e1261b71235d27b422",
+    "fpga_lab/cli.py": "ef80d90478b9fac7fe3d63ab64e86baf042a1ad9db5b9522746f783a00999c84",
+    "fpga_lab/contracts.py": "d62448b4847bb180b93a71e67978906423bb63e8db2f49eb017493671a9a24c8",
+    "fpga_lab/cosim.py": "f54962933c34d76bd82533456c1efc2dd137a0b2a8f707d548ec11e4a8ba8229",
+    "fpga_lab/emit_vhdl.py": "a5545e1e6e0c914a7892e1ac0455ab82d5d48255973fb4aba61b1ca16ff72ff4",
+    "fpga_lab/hash_demo.py": "192d57074066ed0164c32797a7c5525a5907a1ee676255c7ce4e99f5bbd7bcb5",
+    "fpga_lab/hdl/RAMB36E1.v": "b6153b595696f7eebe6840b2b8d518e32df698cb8e8b2730c8838648ceec72fb",
+    "fpga_lab/legacy.py": "2ba5e3801c0209731f153c11a082f532c704aa6578c006becd5cdc6b453a5a16",
+    "fpga_lab/problem.py": "f924c59f7f1cecfc609deec318a5808776186e37e5e693a0b983767b51e3d42f",
+    "fpga_lab/providers.py": "ca59561ade89607ba7ad3f05d2273b673bcbc6c7e4bf8d4eb2f3e23591277c8a",
+    "fpga_lab/search.py": "a2e29132e37092d7c3d273170dab158394f1aa542769d1e816ba9d18123defee",
+    "fpga_lab/slam.py": "0b8cad184fde92509171b73a339d79f6ac14b3fddfc40956a14b7a8d43c21c8f",
+    "fpga_lab/slam_kernel.py": "26a149f88a5d1bf8e04fec7cbf759350d0b6d9b3145d04ee298a450f97c1338e",
+    "fpga_lab/structured.py": "6f7fb42c1eeab87624affaa7509224edb09b4be6f5c895fd47338f92d8005f27",
+    "fpga_lab/toolchain.py": "68fdeddcc0b0340880df88b0c3cd50453f7ec4ff51c1d62275900faac979d214",
+    "fpga_lab/translate.py": "768dc85275886536caea6d3c80e95176ce447a28b3e56d76a59aee8a189537d6",
+    "fpga_lab/vhdl.py": "e73722345bf1f94efe85785d73b1f97d18a57c57de81cfa767b6edf4dcffb1be",
+    "fpga_lab/wifi.py": "06d05cf59ff32e25db99126eba75d9f23f3e5c02b69059a2e5d7905079f0692c",
+    "fpga_lab/wifi_backend.py": "25bb91d9abdfeeb845d65191a6857164046763b0c6e834fb1b0e1c16e0892af5",
+    "fpga_lab/wifi_blocks.py": "8866178b4734f59d3118f6648a3ca8a5ab773a118890e0c8ea83c25907065b81",
+    "fpga_lab/wifi_fixtures.py": "f7ad03232976b20e7659f945733771d494f65f637d515631eac0cc93c33c5f63",
+    "fpga_lab/wifi_generate.py": "2cdba3aa09f56e6c34a1677b59068884016cffef1cac0fe07ff69a64bf6bfd48",
+    "fpga_lab/wifi_hardware.py": "faa32170e592b0fd3de41fa0a661afe3584f244f7f40aaa3a8432eea1921989b",
+    "fpga_lab/wifi_reference.py": "390faa5a2cc782a35695f4a789f95e37c3038924342c0b98f8c3c2425cb02331",
+    "fpga_lab/wifi_search.py": "7e9112d6cafa6582e806212c868dce59e139066b73d9aec815628b4e67683605",
+    "fpga_lab/wifi_viterbi.py": "e09d3ed92c611a9158c358df096cc49795707f7c060ae70e083af305a0907bc8"
+  },
+  "improvement": {
+    "after": 61034,
+    "before": 69048,
+    "percent": 11.606418723207044,
+    "reduction": 8014
+  },
+  "model": "gpt-6-astra",
+  "physical_timing_measured": false,
+  "problem_identity": {
+    "bram_unit": "18-Kibit equivalents",
+    "captures_manifest_sha256": "65bb6a545a2bbf72d40fbf7ca6577ed46b851276fb94b6770b1eaf74cb367f31",
+    "development_sha256": "697cab4aca461e1d4dfc3364dd2d3789663ef69faab7e0de501e21487aa28b69",
+    "kind": "wifi",
+    "source_sha256": "76951b2e9c5eb324ce5caec7e1dc3965884ead2e16be25e9d54284620e3db032"
+  },
+  "recorded_at_utc": "2026-09-20T08:02:19.467706+00:00",
+  "resource_limits": {
+    "bram18_equivalents": 730,
+    "dsps": 740,
+    "ffs": 269200,
+    "luts": 134600
+  },
+  "resource_target": "xc7a200t",
+  "search": {
+    "objective": "luts",
+    "rounds": 2,
+    "tool_jobs": 1,
+    "workers": 2
+  },
+  "selected": "worker-02/round-02",
+  "selection_frozen_before_audit": true,
+  "tests": {
+    "real_generic_search_and_resume": "1 passed with GHDL, Yosys and Verilator",
+    "real_wifi_resume": {
+      "elapsed_seconds": 4.188,
+      "model_logs_and_compiled_artifacts_unchanged": true,
+      "pass": true,
+      "summary_unchanged": true,
+      "unchanged_artifacts_checked": 64
+    },
+    "unit_suite": "67 passed, 6 hardware-gated tests skipped"
+  },
+  "toolchain": {
+    "image": "xls-e2e-wifi:local",
+    "image_id": "af9f37da5db78d9ee99c1195aa8074ebb28cb62eb3e37c04d55335f1e15cd924"
+  },
+  "verification": {
+    "audit": {
+      "mapped": {
+        "case_names": [
+          "audit-6Mbps",
+          "audit-9Mbps",
+          "audit-12Mbps",
+          "audit-18Mbps",
+          "audit-24Mbps",
+          "audit-36Mbps",
+          "audit-48Mbps",
+          "audit-54Mbps",
+          "dot11a_12mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "dot11a_18mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "dot11a_24mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42-tail",
+          "dot11a_36mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "dot11a_48mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "dot11a_6mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "dot11a_9mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "ag_54M_len14_pre100_post200_openwifi",
+          "ag_54M_len1537_pre100_post200_openwifi",
+          "ag_54M_len4000_pre100_post200_openwifi",
+          "ag_6M_len14_pre100_post200_openwifi",
+          "ag_6M_len1537_pre100_post200_openwifi",
+          "ag_6M_len4000_pre100_post200_openwifi",
+          "ack-ok-openwifi",
+          "bad-fcs-then-good",
+          "silence",
+          "reset-reacquire",
+          "invalid-signal-recovery",
+          "sustained-short-packets",
+          "sustained-maximum-54Mbps"
+        ],
+        "cases": 28,
+        "matched_packets": 210,
+        "output_bytes": 88934,
+        "pass": true
+      },
+      "rtl": {
+        "case_names": [
+          "audit-6Mbps",
+          "audit-9Mbps",
+          "audit-12Mbps",
+          "audit-18Mbps",
+          "audit-24Mbps",
+          "audit-36Mbps",
+          "audit-48Mbps",
+          "audit-54Mbps",
+          "dot11a_12mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "dot11a_18mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "dot11a_24mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42-tail",
+          "dot11a_36mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "dot11a_48mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "dot11a_6mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "dot11a_9mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "ag_54M_len14_pre100_post200_openwifi",
+          "ag_54M_len1537_pre100_post200_openwifi",
+          "ag_54M_len4000_pre100_post200_openwifi",
+          "ag_6M_len14_pre100_post200_openwifi",
+          "ag_6M_len1537_pre100_post200_openwifi",
+          "ag_6M_len4000_pre100_post200_openwifi",
+          "ack-ok-openwifi",
+          "bad-fcs-then-good",
+          "silence",
+          "reset-reacquire",
+          "invalid-signal-recovery",
+          "sustained-short-packets",
+          "sustained-maximum-54Mbps"
+        ],
+        "cases": 28,
+        "matched_packets": 210,
+        "output_bytes": 88934,
+        "pass": true
+      }
+    },
+    "development": {
+      "mapped": {
+        "case_names": [
+          "dev-6Mbps",
+          "dev-9Mbps",
+          "dev-12Mbps",
+          "dev-18Mbps",
+          "dev-24Mbps",
+          "dev-36Mbps",
+          "dev-48Mbps",
+          "dev-54Mbps",
+          "dot11a_24mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "bad-fcs-then-good",
+          "silence",
+          "reset-reacquire",
+          "invalid-signal-recovery",
+          "sustained-short-packets",
+          "sustained-maximum-54Mbps"
+        ],
+        "cases": 15,
+        "matched_packets": 63,
+        "output_bytes": 67154,
+        "pass": true
+      },
+      "rtl": {
+        "case_names": [
+          "dev-6Mbps",
+          "dev-9Mbps",
+          "dev-12Mbps",
+          "dev-18Mbps",
+          "dev-24Mbps",
+          "dev-36Mbps",
+          "dev-48Mbps",
+          "dev-54Mbps",
+          "dot11a_24mbps_qos_data_e4_90_7e_15_2a_16_e8_de_27_90_6e_42",
+          "bad-fcs-then-good",
+          "silence",
+          "reset-reacquire",
+          "invalid-signal-recovery",
+          "sustained-short-packets",
+          "sustained-maximum-54Mbps"
+        ],
+        "cases": 15,
+        "matched_packets": 63,
+        "output_bytes": 67154,
+        "pass": true
+      }
+    }
+  },
+  "vhdl_sha256": "337cec9d81546da783cd725f5afa5db1db521d00d8e8a05224d29ce68214d28c"
+}
