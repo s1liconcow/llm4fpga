@@ -61,14 +61,16 @@ def main(argv=None) -> int:
     prepare.add_argument('benchmark',choices=['sha256','normalizer','slam'])
     prepare.add_argument('--out',type=Path,required=True)
     prepare.add_argument('--octave',action='store_true')
-    from .search import SearchConfig, read_seed, run_search, translation_problem
+    from .search import SearchConfig, add_resource_arguments, read_seed, run_search, translation_problem
     search_cmd = sub.add_parser('search',help='Search beyond the first passing VHDL design using measured resources')
     search_cmd.add_argument('spec',type=Path)
     search_cmd.add_argument('--out',type=Path,required=True)
     search_cmd.add_argument('--workers',type=int,default=2,help='Concurrent design workers (default: 2)')
     search_cmd.add_argument('--rounds',type=int,default=3,help='Proposals per worker, including improvements after passing')
     search_cmd.add_argument('--tool-jobs',type=int,default=1,help='Maximum concurrent hardware evaluations')
-    search_cmd.add_argument('--objective',choices=['luts','ffs','dsps','brams','latency'],default='luts')
+    search_cmd.add_argument('--objective',choices=['balanced','luts','ffs','dsps','brams','latency'],default='luts',
+                            help='balanced minimizes peak resource utilization; requires all resource budgets')
+    add_resource_arguments(search_cmd)
     search_cmd.add_argument('--seed',type=Path,help='Starting JSON proposal, freshly evaluated as the baseline')
     search_cmd.add_argument('--model')
     search_cmd.add_argument('--resume',action='store_true',help='Resume the same search; reuse unchanged completed evaluations')
@@ -109,13 +111,18 @@ def main(argv=None) -> int:
         if args.command=='doctor':
             return doctor()
         if args.command=='search':
-            config=SearchConfig(args.workers,args.rounds,args.tool_jobs,args.objective)
+            config=SearchConfig.from_args(args)
             if args.seed and args.seed.suffix.lower() in ('.vhd','.vhdl'):
                 raise ValueError('--seed requires a JSON proposal including its declared latency')
             result=run_search(translation_problem(args.spec),args.out,config=config,
                               seed=read_seed(args.seed),model=args.model,resume=args.resume)
             print(json.dumps({'accepted':result['accepted'],'selected':result.get('selected'),
-                              'improvement':result.get('improvement'),'summary':str(args.out/'summary.json')},indent=2))
+                              'improvement':result.get('improvement'),
+                              'resource_changes':result.get('resource_changes'),
+                              'balanced_score':result.get('balanced_score'),
+                              'resource_caps':result.get('resource_caps'),
+                              'leaderboard':str(args.out/'leaderboard.json'),
+                              'summary':str(args.out/'summary.json')},indent=2))
             return 0 if result['accepted'] else 2
         if args.command=='hash':
             message = args.text.encode('utf-8') if args.text is not None else args.file.read_bytes()

@@ -67,5 +67,7 @@ def receiver_problem(data: Path, target: str) -> SearchProblem:
                   'development_sha256': digest(json.dumps(metadata, sort_keys=True).encode()),
                   'captures_manifest_sha256': digest(capture_manifest),
                   'bram_unit': '18-Kibit equivalents'},
-        evaluate=check, objectives=RESOURCE_OBJECTIVES,
+        evaluate=check, objectives=(*RESOURCE_OBJECTIVES, 'balanced'),
+        resource_limits={key: RESOURCE_LIMITS[target]['bram18_equivalents' if key == 'brams' else key]
+                         for key in RESOURCE_OBJECTIVES},
         artifacts=('mapped.v', 'netlist.json', 'obj_dir/wifi_sim', 'simulation-models.json'))

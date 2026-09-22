@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
+from fractions import Fraction
 import fcntl
 import json
 import os
@@ -44,14 +45,37 @@ class SearchConfig:
     rounds: int = 3
     tool_jobs: int = 1
     objective: str = 'luts'
+    max_luts: int | None = None
+    max_ffs: int | None = None
+    max_dsps: int | None = None
+    max_brams: int | None = None
+    allow_resource_tradeoffs: bool = False
 
     def __post_init__(self):
         for name, limit in [('workers', 32), ('rounds', 50), ('tool_jobs', 8)]:
             value = getattr(self, name)
             if type(value) is not int or not 1 <= value <= limit:
                 raise ValueError(f'--{name.replace("_", "-")} must be in 1..{limit}')
-        if self.objective not in (*RESOURCE_OBJECTIVES, 'latency'):
+        if self.objective not in (*RESOURCE_OBJECTIVES, 'latency', 'balanced'):
             raise ValueError('Unknown search objective')
+        for key in RESOURCE_OBJECTIVES:
+            value = getattr(self, f'max_{key}')
+            if value is not None and (type(value) is not int or value < 0):
+                raise ValueError(f'--max-{key} must be a nonnegative integer')
+        if type(self.allow_resource_tradeoffs) is not bool:
+            raise ValueError('allow_resource_tradeoffs must be a boolean')
+
+    @classmethod
+    def from_args(cls, args):
+        return cls(**{name: getattr(args, name) for name in cls.__dataclass_fields__})
+
+
+def add_resource_arguments(parser):
+    for key in RESOURCE_OBJECTIVES:
+        parser.add_argument(f'--max-{key}', type=int,
+                            help=f'Hard search cap for {key}; never relaxes the verification contract')
+    parser.add_argument('--allow-resource-tradeoffs', action='store_true',
+                        help='Allow other resources to grow above the baseline, within explicit and contract caps')
 
 
 @dataclass
@@ -59,8 +83,9 @@ class SearchProblem:
     prompt: str
     identity: dict
     evaluate: Callable[[Proposal, Path, bool], dict]
-    objectives: tuple[str, ...] = (*RESOURCE_OBJECTIVES, 'latency')
+    objectives: tuple[str, ...] = (*RESOURCE_OBJECTIVES, 'latency', 'balanced')
     artifacts: tuple[str, ...] = ()
+    resource_limits: dict[str, int] = field(default_factory=dict)
 
 
 def read_seed(path: Path | None) -> Proposal | None:
@@ -95,18 +120,135 @@ def metrics(result: dict) -> dict:
             'latency': result.get('latency')}
 
 
-def eligible(result: dict, objective: str) -> bool:
+def resource_caps(config: SearchConfig, baseline: dict | None) -> dict:
+    """An explicit cap authorizes growth; otherwise protect other baseline resources."""
+    measured = metrics(baseline or {})
+    caps = {}
+    for key in RESOURCE_OBJECTIVES:
+        explicit = getattr(config, f'max_{key}')
+        if explicit is not None:
+            caps[key] = explicit
+        elif not config.allow_resource_tradeoffs and config.objective != 'balanced' and key != config.objective:
+            value = measured[key]
+            if type(value) is int and value >= 0:
+                caps[key] = value
+    return caps
+
+
+def balanced_budgets(config: SearchConfig, limits: dict | None) -> dict:
+    """Normalize to available budgets, never to unrelated primitive counts."""
+    if config.objective != 'balanced':
+        return {}
+    budgets = {}
+    for key in RESOURCE_OBJECTIVES:
+        values = [value for value in ((limits or {}).get(key), getattr(config, f'max_{key}'))
+                  if value is not None]
+        if not values or any(type(value) is not int or value < 0 for value in values):
+            raise ValueError(f'balanced requires a resource budget for {key}; set --max-{key} or a contract/target limit')
+        budgets[key] = min(values)
+    return budgets
+
+
+def utilization(result: dict, budgets: dict) -> dict:
     measured = metrics(result)
-    required = set(RESOURCE_OBJECTIVES) | {objective}
-    return result.get('accepted') is True and all(
+    return {key: (Fraction(measured[key], limit) if limit else
+                  Fraction(0) if measured[key] == 0 else None)
+            if type(measured[key]) is int and measured[key] >= 0 else None
+            for key, limit in budgets.items()}
+
+
+def balanced_score(result: dict, budgets: dict) -> dict | None:
+    if not budgets:
+        return None
+    fractions = utilization(result, budgets)
+    valid = all(value is not None for value in fractions.values())
+    peak = max(fractions.values()) if valid else None
+    return {'budgets': budgets,
+            'utilization': {key: float(value) if value is not None else None for key, value in fractions.items()},
+            'peak_utilization': float(peak) if peak is not None else None,
+            'total_utilization': float(sum(fractions.values())) if valid else None,
+            'limiting_resources': [key for key, value in fractions.items() if value == peak],
+            'unscorable_resources': [key for key, value in fractions.items() if value is None]}
+
+
+def constraint_violations(result: dict, caps: dict) -> dict:
+    measured = metrics(result)
+    return {key: {'measured': measured[key], 'maximum': limit} for key, limit in caps.items()
+            if type(measured[key]) is not int or not 0 <= measured[key] <= limit}
+
+
+def eligible(result: dict, objective: str, caps: dict | None = None) -> bool:
+    measured = metrics(result)
+    required = set(RESOURCE_OBJECTIVES) | ({'latency'} if objective == 'latency' else set())
+    return (result.get('accepted') is True and all(
         type(measured[key]) is int and measured[key] >= 0 for key in required)
+        and not constraint_violations(result, caps or {}))
 
 
-def rank(record: dict, objective: str) -> tuple:
+def rank(record: dict, objective: str, budgets: dict | None = None) -> tuple:
     measured = metrics(record['result'])
+    if objective == 'balanced':
+        fractions = utilization(record['result'], budgets or {})
+        if not fractions or any(value is None for value in fractions.values()):
+            raise ValueError('Cannot rank balanced candidate without valid resource usage and budgets')
+        return (max(fractions.values()), sum(fractions.values()),
+                *[fractions[key] for key in RESOURCE_OBJECTIVES], record['id'])
     keys = [objective, *(key for key in RESOURCE_OBJECTIVES if key != objective)]
     # Stable ties keep the baseline instead of claiming an identical design improved.
     return (*[measured[key] for key in keys], record['id'])
+
+
+def pareto_front(records: list[dict], objective: str) -> list[dict]:
+    """Keep resource tradeoffs; equal measurements retain one stable representative."""
+    keys = list(dict.fromkeys([*(['latency'] if objective == 'latency' else []), *RESOURCE_OBJECTIVES]))
+    frontier = []
+    for row in sorted(records, key=lambda r: (*[metrics(r['result'])[key] for key in keys], r['id'])):
+        values = metrics(row['result'])
+        if not any(all(metrics(other['result'])[key] <= values[key] for key in keys)
+                   for other in frontier):
+            frontier.append(row)
+    return frontier
+
+
+def resource_changes(result: dict, baseline: dict | None) -> dict:
+    before, after = metrics(baseline or {}), metrics(result)
+    changes = {}
+    for key in RESOURCE_OBJECTIVES:
+        old, new = before[key], after[key]
+        valid = type(old) is int and old >= 0 and type(new) is int and new >= 0
+        changes[key] = {'before': old, 'after': new, 'delta': new-old if valid else None,
+                        'percent': 100*(new-old)/old if valid and old else None}
+    return changes
+
+
+def candidate_report(records: list[dict], config: SearchConfig, baseline: dict | None,
+                     resource_limits: dict | None = None) -> dict:
+    """Development-only comparisons, also usable with previously measured candidates."""
+    budgets = balanced_budgets(config, resource_limits)
+    caps = {**resource_caps(config, baseline), **budgets}
+    verified = [r for r in records if eligible(r.get('result', {}), config.objective)]
+    passing = sorted((r for r in verified if eligible(r['result'], config.objective, caps)),
+                     key=lambda r: rank(r, config.objective, budgets))
+    rows = []
+    for row in sorted(records, key=lambda r: r['id']):
+        result = row.get('result', {})
+        rows.append({'id': row['id'], 'parent': row.get('parent'),
+                     'vhdl_sha256': result.get('vhdl_sha256'),
+                     'verified': eligible(result, config.objective),
+                     'accepted': eligible(result, config.objective, caps),
+                     'resources': metrics(result), 'resource_changes': resource_changes(result, baseline),
+                     'balanced_score': balanced_score(result, budgets),
+                     'constraint_violations': constraint_violations(result, caps),
+                     'error': result.get('error', row.get('provider_error'))})
+    return {'objective': config.objective, 'resource_caps': caps,
+            'balanced_budgets': budgets,
+            'baseline_resource_protection': baseline is not None and not config.allow_resource_tradeoffs and config.objective != 'balanced',
+            'verification_scope': 'development_only',
+            'best': passing[0]['id'] if passing else None,
+            'ranking': [r['id'] for r in passing],
+            'pareto': [r['id'] for r in pareto_front(verified, config.objective)],
+            'feasible_pareto': [r['id'] for r in pareto_front(passing, config.objective)],
+            'candidates': rows}
 
 
 def feedback(result: dict) -> dict:
@@ -175,7 +317,9 @@ def translation_problem(spec_path: Path) -> SearchProblem:
         identity={'kind': 'translation', 'contract': spec.public_contract(),
                   'source_sha256': digest(source.encode()),
                   'development_sha256': digest(dev_path.read_bytes()), 'audit_sha256': audit_hash},
-        evaluate=check, artifacts=('mapped.v', 'netlist.json', 'obj_dir/gate_sim'))
+        evaluate=check, artifacts=('mapped.v', 'netlist.json', 'obj_dir/gate_sim'),
+        resource_limits={key: getattr(spec, f'max_{key}') for key in RESOURCE_OBJECTIVES
+                         if getattr(spec, f'max_{key}') is not None})
 
 
 def run_search(problem: SearchProblem, out: Path, *, config: SearchConfig | None = None,
@@ -184,6 +328,7 @@ def run_search(problem: SearchProblem, out: Path, *, config: SearchConfig | None
     config = config or SearchConfig()
     if config.objective not in problem.objectives:
         raise ValueError(f'{config.objective} is not measured for this search problem')
+    balanced_budgets(config, problem.resource_limits)  # Fail before generation or hardware work.
     if progress is None:
         progress = lambda message: print(message, flush=True)
     out = out.resolve()
@@ -194,7 +339,8 @@ def run_search(problem: SearchProblem, out: Path, *, config: SearchConfig | None
         except BlockingIOError as exc:
             raise ValueError('Another search owns this output directory') from exc
         provider = provider or CodexProvider(model, timeout=3600)
-        manifest = {'version': 1, 'problem': problem.identity,
+        manifest = {'version': 2, 'problem': problem.identity,
+                    'resource_limits': problem.resource_limits,
                     'prompt_sha256': digest(problem.prompt.encode()), 'config': asdict(config),
                     'seed_sha256': digest(json.dumps(asdict(seed), sort_keys=True).encode()) if seed else None,
                     'model': provider.model,
@@ -217,6 +363,9 @@ class _Search:
         self.problem, self.out, self.config = problem, out, config
         self.provider, self.progress = provider, progress
         self.records: dict[str, dict] = {}
+        self.baseline = None
+        self.budgets = balanced_budgets(config, problem.resource_limits)
+        self.caps = {**resource_caps(config, None), **self.budgets}
         self.lock = threading.Lock()
         self.tools = threading.Semaphore(config.tool_jobs)
         self.stop = threading.Event()
@@ -244,25 +393,24 @@ class _Search:
         return record
 
     def passing(self):
-        return sorted((r for r in self.records.values() if eligible(r.get('result', {}), self.config.objective)),
-                      key=lambda row: rank(row, self.config.objective))
+        return sorted((r for r in self.records.values()
+                       if eligible(r.get('result', {}), self.config.objective, self.caps)),
+                      key=lambda row: rank(row, self.config.objective, self.budgets))
+
+    def report(self):
+        return candidate_report(list(self.records.values()), self.config,
+                                self.baseline['result'] if self.baseline else None,
+                                self.problem.resource_limits)
 
     def publish(self, record):
         with self.lock:
             self.records[record['id']] = record
-            passing = self.passing()
-            rows = []
-            for row in sorted(self.records.values(), key=lambda r: r['id']):
-                result = row.get('result', {})
-                rows.append({'id': row['id'], 'accepted': eligible(result, self.config.objective),
-                             'resources': metrics(result), 'error': result.get('error', row.get('provider_error'))})
-            write_json(self.out/'leaderboard.json', {'objective': self.config.objective,
-                'best': passing[0]['id'] if passing else None,
-                'ranking': [r['id'] for r in passing], 'candidates': rows})
+            write_json(self.out/'leaderboard.json', self.report())
         result = record.get('result', {})
-        self.progress(f'{record["id"]}: accepted={eligible(result, self.config.objective)}; '
-                      f'{self.config.objective}={metrics(result)[self.config.objective]}; '
-                      f'{result.get("error", record.get("provider_error", ""))[:300]}')
+        self.progress(f'{record["id"]}: accepted={eligible(result, self.config.objective, self.caps)}; '
+                      f'resources={json.dumps(metrics(result))}; '
+                      f'cap_violations={json.dumps(constraint_violations(result, self.caps))}; '
+                      f'{str(result.get("error", record.get("provider_error", "")))[:300]}')
 
     def evaluate(self, folder, proposal, *, audit=False):
         write_json(folder/'proposal.json', asdict(proposal))
@@ -313,27 +461,44 @@ class _Search:
                 parent = Proposal.parse(json.dumps(context['proposal'])) if context['proposal'] else None
                 prompt = (folder/'prompt.txt').read_text()
             else:
+                # Keep one worker on the requested objective; other workers explore
+                # resource-efficient branches rather than all copying one incumbent.
+                alternatives = [key for key in ('dsps', 'brams', 'ffs', 'luts') if key != self.config.objective]
+                focus = self.config.objective if index == 0 else alternatives[(index+iteration-1) % len(alternatives)]
                 with self.lock:
                     passing = self.passing()
                     best = passing[0] if passing else None
+                    frontier = pareto_front(passing, self.config.objective)
+                    branch = min(frontier, key=lambda r: rank(r, focus, self.budgets)) if frontier else None
                 # Keep a failed local candidate available for repair. Once it passes,
-                # branch from the global incumbent with this worker's own strategy.
-                base = previous if previous and not previous['result'].get('accepted') else best
+                # branch from a resource-specific member of the feasible frontier.
+                base = previous if previous and not eligible(previous['result'], self.config.objective, self.caps) else branch
                 if base is None:
-                    base = previous or getattr(self, 'baseline', None)
+                    base = previous or self.baseline
                 parent = Proposal.parse((self.out/base['id']/'proposal.json').read_text()) if base else None
                 context = {'parent': base['id'] if base else None,
                            'proposal': asdict(parent) if parent else None,
+                           'focus': focus, 'resource_caps': self.caps,
+                           'balanced_budgets': self.budgets,
+                           'frontier': [{'id': r['id'], 'resources': metrics(r['result'])} for r in frontier],
                            'best': {'id': best['id'], 'feedback': feedback(best['result'])} if best else None}
                 prompt = (self.problem.prompt+f'\nSEARCH worker {index+1}, round {iteration+1}.\n'
                           +STRATEGIES[index % len(STRATEGIES)]
-                          +f'\nMinimize measured {self.config.objective} subject to EVERY contract constraint. '
+                          +f'\nThis branch explores lower {focus}; final selection minimizes measured {self.config.objective}. '
+                          'Obey EVERY contract constraint and the additional hard search caps below. '
+                          'An explicit cap overrides baseline protection for that resource only, never the contract. '
                           'Continue improving passing designs. Resource counts are measured after Xilinx mapping; '
                           'do not claim physical timing or power results. No tools or testbench changes.\n'
-                          +'CURRENT BEST DEVELOPMENT RESULT:\n'+json.dumps(context['best']))
+                          +('Balanced minimizes the highest usage/budget ratio across LUTs, FFs, DSPs and BRAMs, '
+                            'then the sum of those ratios. Trade resources within caps to reduce the bottleneck.\n'
+                            if self.budgets else '')
+                          +'HARD SEARCH RESOURCE CAPS:\n'+json.dumps(self.caps)
+                          +'\nFEASIBLE DEVELOPMENT PARETO FRONTIER:\n'+json.dumps(context['frontier'])
+                          +'\nCURRENT BEST DEVELOPMENT RESULT:\n'+json.dumps(context['best']))
                 if parent:
                     prompt += ('\nCOMPLETE BASE CANDIDATE:\n'+parent.vhdl
                                +'\nBASE DEVELOPMENT FEEDBACK:\n'+json.dumps(feedback(base['result']))
+                               +'\nBASE CAP VIOLATIONS:\n'+json.dumps(constraint_violations(base['result'], self.caps))
                                +'\nFor this search iteration return the EDIT schema instead of full VHDL: '
                                '{edits:[{old,new}],latency,notes}. Each nonempty old string must match exactly '
                                'once in the current source, applied in order. Include exact whitespace and enough '
@@ -355,8 +520,12 @@ class _Search:
 
     def finish(self, selection):
         identifier = selection['id']
+        baseline = self.load(self.out/'baseline')
+        self.caps = {**resource_caps(self.config, baseline['result'] if baseline else None), **self.budgets}
+        if selection['resource_caps'] != self.caps:
+            raise ValueError('Frozen resource caps changed')
         selected = self.load(self.out/identifier)
-        if not selected or not eligible(selected.get('result', {}), self.config.objective):
+        if not selected or not eligible(selected.get('result', {}), self.config.objective, self.caps):
             raise ValueError('Frozen selection is missing or no longer eligible')
         proposal = Proposal.parse((self.out/identifier/'proposal.json').read_text())
         if digest(proposal.vhdl.encode()) != selection['vhdl_sha256']:
@@ -370,14 +539,22 @@ class _Search:
         if audit_record['selected'] != identifier or audit_record['result']['vhdl_sha256'] != selection['vhdl_sha256']:
             raise ValueError('Final audit does not match the frozen selection')
         audit = audit_record['result']
-        accepted = eligible(audit, self.config.objective)
-        baseline = self.load(self.out/'baseline')
-        before = metrics(baseline['result'])[self.config.objective] if baseline else None
-        after = metrics(selected['result'])[self.config.objective]
+        accepted = eligible(audit, self.config.objective, self.caps)
+        baseline_score = balanced_score(baseline['result'], self.budgets) if baseline else None
+        selected_score = balanced_score(selected['result'], self.budgets)
+        before = (baseline_score['peak_utilization'] if baseline_score else
+                  metrics(baseline['result'])[self.config.objective] if baseline else None)
+        after = selected_score['peak_utilization'] if selected_score else metrics(selected['result'])[self.config.objective]
         summary = {'accepted': accepted, 'status': 'passed' if accepted else 'audit_failed',
                    'objective': self.config.objective, 'selected': identifier,
                    'development': selected['result'], 'audit': audit,
                    'baseline': baseline['result'] if baseline else None,
+                   'resource_caps': self.caps,
+                   'balanced_score': selected_score, 'baseline_balanced_score': baseline_score,
+                   'resource_changes': resource_changes(selected['result'], baseline['result'] if baseline else None),
+                   'audit_constraint_violations': constraint_violations(audit, self.caps),
+                   'pareto': selection['pareto'],
+                   'alternatives_verification_scope': 'development_only',
                    'improvement': {'before': before, 'after': after,
                        'reduction': before-after if before is not None else None,
                        'percent': 100*(before-after)/before if before else None},
@@ -400,24 +577,31 @@ class _Search:
                 if record is None:
                     result = self.evaluate(folder, seed)
                     record = self.save(folder, {'id': 'baseline', 'parent': None, 'result': result})
-                self.publish(record)
                 # A baseline outside the budgets still supplies useful source and
                 # feedback; it is never eligible for selection until it passes.
                 self.baseline = record
+                self.caps = {**resource_caps(self.config, record['result']), **self.budgets}
+                self.publish(record)
             pool = ThreadPoolExecutor(max_workers=self.config.workers)
             futures = [pool.submit(self.worker, i) for i in range(self.config.workers)]
             for future in as_completed(futures):
                 future.result()
             pool.shutdown()
             passing = self.passing()
+            report = self.report()
+            frontier_rows = [row for row in report['candidates'] if row['id'] in report['pareto']]
             if not passing:
                 summary = {'accepted': False, 'status': 'no_passing_candidate', 'audit': None,
-                           'objective': self.config.objective, 'candidates': len(self.records)}
+                           'objective': self.config.objective, 'candidates': len(self.records),
+                           'resource_caps': self.caps, 'pareto': frontier_rows,
+                           'alternatives_verification_scope': 'development_only'}
                 write_json(self.out/'summary.json', summary)
                 return summary
             best = passing[0]
             selection = {'id': best['id'], 'vhdl_sha256': best['result']['vhdl_sha256'],
-                         'objective': self.config.objective, 'resources': metrics(best['result'])}
+                         'objective': self.config.objective, 'resources': metrics(best['result']),
+                         'resource_caps': self.caps,
+                         'pareto': frontier_rows}
             write_json(self.out/'selection.json', selection)
             return self.finish(selection)
         except BaseException:

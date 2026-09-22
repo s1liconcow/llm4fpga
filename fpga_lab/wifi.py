@@ -9,6 +9,7 @@ from .wifi_fixtures import cases,fetch,reference_report
 
 
 def add_parser(sub):
+    from .search import add_resource_arguments
     p=sub.add_parser('wifi',help='Verify and translate the streaming 802.11a/g receiver')
     p.add_argument('action',choices=['fetch','reference','verify','search','fft','plan','viterbi','backend','receiver'])
     p.add_argument('--data',type=Path,default=Path('runs/wifi-data/openofdm'))
@@ -19,7 +20,9 @@ def add_parser(sub):
     p.add_argument('--rounds',type=int,default=5)
     p.add_argument('--workers',type=int,default=2,help='Concurrent design workers for search')
     p.add_argument('--tool-jobs',type=int,default=1,help='Maximum concurrent hardware evaluations for search')
-    p.add_argument('--objective',choices=['luts','ffs','dsps','brams'],default='luts',help='Measured search objective; brams uses BRAM18 equivalents')
+    p.add_argument('--objective',choices=['balanced','luts','ffs','dsps','brams'],default='balanced',
+                   help='Search objective (default: balanced resource utilization); brams uses BRAM18 equivalents')
+    add_resource_arguments(p)
     p.add_argument('--model')
     p.add_argument('--replay',type=Path,help='Replay a recorded FFT proposal (fft action only)')
     p.add_argument('--simulation-only',action='store_true',help='Skip mapping for verify or fft')
@@ -41,16 +44,24 @@ def run(args):
         raise ValueError('--audit requires verify; generation audits the selected candidate automatically')
     if args.target!='compact' and args.action not in ('verify','search'):
         raise ValueError('--target applies to verify or search')
+    if args.action!='search' and (args.allow_resource_tradeoffs or any(
+            getattr(args, f'max_{key}') is not None for key in ('luts','ffs','dsps','brams'))):
+        raise ValueError('--max-* and --allow-resource-tradeoffs apply only to search')
     if args.action=='search':
         from .search import SearchConfig, read_seed, run_search
         from .wifi_search import receiver_problem
         if args.candidate is None:
             raise ValueError('wifi search requires --candidate with a complete receiver VHDL or JSON proposal')
-        config=SearchConfig(args.workers,args.rounds,args.tool_jobs,args.objective)
+        config=SearchConfig.from_args(args)
         result=run_search(receiver_problem(args.data,args.target),args.out,config=config,
                           seed=read_seed(args.candidate),model=args.model,resume=args.resume)
         print(json.dumps({'accepted':result['accepted'],'selected':result.get('selected'),
-                          'improvement':result.get('improvement'),'summary':str(args.out/'summary.json')},indent=2))
+                          'improvement':result.get('improvement'),
+                          'resource_changes':result.get('resource_changes'),
+                          'balanced_score':result.get('balanced_score'),
+                          'resource_caps':result.get('resource_caps'),
+                          'leaderboard':str(args.out/'leaderboard.json'),
+                          'summary':str(args.out/'summary.json')},indent=2))
         return 0 if result['accepted'] else 2
     if args.action=='fetch':
         report=fetch(args.data)

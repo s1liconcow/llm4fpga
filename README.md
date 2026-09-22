@@ -161,11 +161,35 @@ Each worker proposes up to `--rounds` candidates, including improvements to pass
 designs. `--workers 4 --rounds 6` permits 24 model proposals. `--tool-jobs` limits
 concurrent hardware evaluations independently of generation. Workers explore
 different implementation strategies and receive measured development feedback.
-The lowest-cost passing candidate remains available if later attempts fail or get
-larger. All candidates must satisfy the numerical, protocol, and resource contract.
+The search retains a Pareto frontier: candidates for which no other measured design
+is at least as good in every resource and better in one. One worker focuses on the
+requested objective; other workers explore different resources from this frontier.
+All candidates must satisfy the numerical, protocol, and resource contract.
 
-`--objective` selects `luts` (default), `ffs`, `dsps`, `brams`, or declared cycle
-`latency`. Other resource budgets remain hard constraints. Equal objective values
+`--objective balanced` minimizes the highest resource utilization (usage / budget)
+across LUTs, FFs, DSPs and BRAMs, then the sum of those utilization fractions.
+This favors reducing the most constrained resource while accounting for the
+capacity consumed elsewhere. It permits resource tradeoffs within hard caps and
+retains the Pareto alternatives. All four budgets must be supplied by the contract
+or `--max-*` options; explicit caps can tighten, but never enlarge, contract budgets.
+Zero budgets require zero usage. `balanced_score` reports budgets, utilization,
+the limiting resources, and both ranking terms. Scores measure resource fit;
+timing and power remain unmeasured. An LLM proposes designs but does not judge
+correctness or override measured scores.
+
+Single-objective search selects `luts` (the generic CLI default), `ffs`, `dsps`,
+`brams`, or declared cycle `latency`. **With a seed, other hardware resources cannot exceed their measured
+baseline usage by default.** For example, a LUT search cannot silently trade 64
+additional DSPs for fewer LUTs. Use `--max-dsps 100` to authorize up to 100 DSPs while
+protecting the other baseline resources, or `--allow-resource-tradeoffs` to allow
+growth within contract limits. `--max-luts`, `--max-ffs`, `--max-dsps`, and
+`--max-brams` are hard caps (zero is allowed), enforced in development selection
+and the final audit. Explicit caps override baseline protection for that resource
+only; they never relax the verification contract. `balanced` already permits
+tradeoffs and uses target/explicit budgets, without implicit baseline caps.
+Without a seed, only explicit
+and contract limits apply. Timing, throughput and numerical requirements remain
+part of the contract. Equal objective values
 are compared by the remaining resource counts, then a stable candidate identifier.
 The generic `brams` objective uses the evaluator's RAMB primitive count; Wi-Fi
 reports 18-Kibit equivalents. Generic LUT counts currently include LUT1–LUT6
@@ -179,11 +203,17 @@ harness saves and evaluates a complete VHDL file for every attempt. Full candida
 source stays in the prompt, while resource inventories and packet traces are
 summarized for feedback. The provider cannot run tools or edit the scorer.
 
-`leaderboard.json` records candidate resources and the current best. Each
+`leaderboard.json` records all candidate resources, deltas from the baseline, cap
+violations, the full `pareto` frontier and the `feasible_pareto` subset satisfying
+the search caps. `verified` means the development evaluator passed; `accepted`
+also requires the search caps. Equal resource points retain a stable representative.
+Over-cap alternatives remain visible but cannot be selected. Each
 `worker-NN/round-NN/` retains its prompt, response, complete proposal, logs, and
 evaluation. After the proposal budget is exhausted, `selection.json` freezes the
 winner before opening the held-out audit. `final/` contains the audited VHDL and
-Vivado handoff; `summary.json` reports acceptance and improvement over the baseline.
+Vivado handoff; `summary.json` reports acceptance, changes in every resource, and
+the retained alternatives. Alternatives carry development evidence only; the
+final audit applies exclusively to the frozen selection.
 An unchanged baseline may win, and a run can pass with zero improvement. Audit
 failure fails the run and never triggers another candidate selection.
 
@@ -193,11 +223,15 @@ source, contract, fixture identities, seed, model, search settings, harness, and
 container image identity still match. A generated proposal saved before an
 interrupted evaluation is rechecked without another model request. Once selection
 is frozen, resume only completes or reuses that candidate's audit. Use a fresh
-output directory to change the search budget or objective.
+output directory to change the search budget, objective, caps or tradeoff policy.
+Runs from the earlier search version remain historical artifacts; they cannot be
+resumed with the changed harness and selection policy.
 
 The streaming receiver has its own adapter; see [Wi-Fi design search](examples/wifi/README.md#search-for-a-smaller-receiver).
 The [recorded four-proposal experiment](docs/wifi-search-results.md) reduced receiver
 LUTs by 11.61%, trading 64 additional DSPs, and passed the independent audit.
+The [policy comparison](docs/wifi-search-policy-results.md) shows how balanced
+selection changes with the available DSP budget using those same measurements.
 
 The fixed interface is `dut(clk, rst, in_valid, input_data, out_valid, output_data)`.
 Reset is synchronous and active high. Latency counts the acceptance edge as edge 1;

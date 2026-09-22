@@ -1,0 +1,613 @@
+{
+  "candidates": [
+    {
+      "accepted": true,
+      "balanced_score": {
+        "budgets": {
+          "brams": 730,
+          "dsps": 740,
+          "ffs": 269200,
+          "luts": 134600
+        },
+        "limiting_resources": [
+          "luts"
+        ],
+        "peak_utilization": 0.5129866270430906,
+        "total_utilization": 0.8481282618896859,
+        "unscorable_resources": [],
+        "utilization": {
+          "brams": 0.038356164383561646,
+          "dsps": 0.09594594594594595,
+          "ffs": 0.20083952451708767,
+          "luts": 0.5129866270430906
+        }
+      },
+      "constraint_violations": {},
+      "error": null,
+      "id": "baseline",
+      "parent": null,
+      "resource_changes": {
+        "brams": {
+          "after": 28,
+          "before": 28,
+          "delta": 0,
+          "percent": 0.0
+        },
+        "dsps": {
+          "after": 71,
+          "before": 71,
+          "delta": 0,
+          "percent": 0.0
+        },
+        "ffs": {
+          "after": 54066,
+          "before": 54066,
+          "delta": 0,
+          "percent": 0.0
+        },
+        "luts": {
+          "after": 69048,
+          "before": 69048,
+          "delta": 0,
+          "percent": 0.0
+        }
+      },
+      "resources": {
+        "brams": 28,
+        "dsps": 71,
+        "ffs": 54066,
+        "latency": null,
+        "luts": 69048
+      },
+      "verified": true,
+      "vhdl_sha256": "53c7341503bf39344a204948af523b404934543d27dc62279da27fe16e932841"
+    },
+    {
+      "accepted": true,
+      "balanced_score": {
+        "budgets": {
+          "brams": 730,
+          "dsps": 740,
+          "ffs": 269200,
+          "luts": 134600
+        },
+        "limiting_resources": [
+          "luts"
+        ],
+        "peak_utilization": 0.5119762258543834,
+        "total_utilization": 0.8471178607009786,
+        "unscorable_resources": [],
+        "utilization": {
+          "brams": 0.038356164383561646,
+          "dsps": 0.09594594594594595,
+          "ffs": 0.20083952451708767,
+          "luts": 0.5119762258543834
+        }
+      },
+      "constraint_violations": {},
+      "error": null,
+      "id": "worker-01/round-01",
+      "parent": "baseline",
+      "resource_changes": {
+        "brams": {
+          "after": 28,
+          "before": 28,
+          "delta": 0,
+          "percent": 0.0
+        },
+        "dsps": {
+          "after": 71,
+          "before": 71,
+          "delta": 0,
+          "percent": 0.0
+        },
+        "ffs": {
+          "after": 54066,
+          "before": 54066,
+          "delta": 0,
+          "percent": 0.0
+        },
+        "luts": {
+          "after": 68912,
+          "before": 69048,
+          "delta": -136,
+          "percent": -0.19696443054107288
+        }
+      },
+      "resources": {
+        "brams": 28,
+        "dsps": 71,
+        "ffs": 54066,
+        "latency": null,
+        "luts": 68912
+      },
+      "verified": true,
+      "vhdl_sha256": "3f2c585b477401734b6123dcd75d78cec96ea62527a7cd5c190ec989f74e1e95"
+    },
+    {
+      "accepted": true,
+      "balanced_score": {
+        "budgets": {
+          "brams": 730,
+          "dsps": 740,
+          "ffs": 269200,
+          "luts": 134600
+        },
+        "limiting_resources": [
+          "luts"
+        ],
+        "peak_utilization": 0.5157800891530461,
+        "total_utilization": 0.8508994357381258,
+        "unscorable_resources": [],
+        "utilization": {
+          "brams": 0.038356164383561646,
+          "dsps": 0.09594594594594595,
+          "ffs": 0.20081723625557207,
+          "luts": 0.5157800891530461
+        }
+      },
+      "constraint_violations": {},
+      "error": null,
+      "id": "worker-01/round-02",
+      "parent": "worker-01/round-01",
+      "resource_changes": {
+        "brams": {
+          "after": 28,
+          "before": 28,
+          "delta": 0,
+          "percent": 0.0
+        },
+        "dsps": {
+          "after": 71,
+          "before": 71,
+          "delta": 0,
+          "percent": 0.0
+        },
+        "ffs": {
+          "after": 54060,
+          "before": 54066,
+          "delta": -6,
+          "percent": -0.011097547442015314
+        },
+        "luts": {
+          "after": 69424,
+          "before": 69048,
+          "delta": 376,
+          "percent": 0.5445487197312014
+        }
+      },
+      "resources": {
+        "brams": 28,
+        "dsps": 71,
+        "ffs": 54060,
+        "latency": null,
+        "luts": 69424
+      },
+      "verified": true,
+      "vhdl_sha256": "c236a8c944cb0151424fbbc18b7448abc37d98067f388a2c989a0e8c1e0f4ddd"
+    },
+    {
+      "accepted": true,
+      "balanced_score": {
+        "budgets": {
+          "brams": 730,
+          "dsps": 740,
+          "ffs": 269200,
+          "luts": 134600
+        },
+        "limiting_resources": [
+          "luts"
+        ],
+        "peak_utilization": 0.5092421991084696,
+        "total_utilization": 0.8426490642671005,
+        "unscorable_resources": [],
+        "utilization": {
+          "brams": 0.038356164383561646,
+          "dsps": 0.09594594594594595,
+          "ffs": 0.19910475482912332,
+          "luts": 0.5092421991084696
+        }
+      },
+      "constraint_violations": {},
+      "error": null,
+      "id": "worker-02/round-01",
+      "parent": "baseline",
+      "resource_changes": {
+        "brams": {
+          "after": 28,
+          "before": 28,
+          "delta": 0,
+          "percent": 0.0
+        },
+        "dsps": {
+          "after": 71,
+          "before": 71,
+          "delta": 0,
+          "percent": 0.0
+        },
+        "ffs": {
+          "after": 53599,
+          "before": 54066,
+          "delta": -467,
+          "percent": -0.8637591092368586
+        },
+        "luts": {
+          "after": 68544,
+          "before": 69048,
+          "delta": -504,
+          "percent": -0.7299270072992701
+        }
+      },
+      "resources": {
+        "brams": 28,
+        "dsps": 71,
+        "ffs": 53599,
+        "latency": null,
+        "luts": 68544
+      },
+      "verified": true,
+      "vhdl_sha256": "d2f9453d3cb6244b130eb60bae8ab0f9687a803b404b91361aa92f35befccd13"
+    },
+    {
+      "accepted": true,
+      "balanced_score": {
+        "budgets": {
+          "brams": 730,
+          "dsps": 740,
+          "ffs": 269200,
+          "luts": 134600
+        },
+        "limiting_resources": [
+          "luts"
+        ],
+        "peak_utilization": 0.4534472511144131,
+        "total_utilization": 0.8733406027595305,
+        "unscorable_resources": [],
+        "utilization": {
+          "brams": 0.038356164383561646,
+          "dsps": 0.18243243243243243,
+          "ffs": 0.19910475482912332,
+          "luts": 0.4534472511144131
+        }
+      },
+      "constraint_violations": {},
+      "error": null,
+      "id": "worker-02/round-02",
+      "parent": "worker-02/round-01",
+      "resource_changes": {
+        "brams": {
+          "after": 28,
+          "before": 28,
+          "delta": 0,
+          "percent": 0.0
+        },
+        "dsps": {
+          "after": 135,
+          "before": 71,
+          "delta": 64,
+          "percent": 90.14084507042253
+        },
+        "ffs": {
+          "after": 53599,
+          "before": 54066,
+          "delta": -467,
+          "percent": -0.8637591092368586
+        },
+        "luts": {
+          "after": 61034,
+          "before": 69048,
+          "delta": -8014,
+          "percent": -11.606418723207044
+        }
+      },
+      "resources": {
+        "brams": 28,
+        "dsps": 135,
+        "ffs": 53599,
+        "latency": null,
+        "luts": 61034
+      },
+      "verified": true,
+      "vhdl_sha256": "337cec9d81546da783cd725f5afa5db1db521d00d8e8a05224d29ce68214d28c"
+    }
+  ],
+  "new_audits": 0,
+  "new_hardware_evaluations": 0,
+  "new_model_proposals": 0,
+  "note": "Policy replay only. The original frozen selection and audit are unchanged; the lower-DSP alternative has development verification only.",
+  "policies": {
+    "balanced_dsp_cap_100": {
+      "balanced_score": {
+        "budgets": {
+          "brams": 730,
+          "dsps": 100,
+          "ffs": 269200,
+          "luts": 134600
+        },
+        "limiting_resources": [
+          "dsps"
+        ],
+        "peak_utilization": 0.71,
+        "total_utilization": 1.4567031183211545,
+        "unscorable_resources": [],
+        "utilization": {
+          "brams": 0.038356164383561646,
+          "dsps": 0.71,
+          "ffs": 0.19910475482912332,
+          "luts": 0.5092421991084696
+        }
+      },
+      "best": "worker-02/round-01",
+      "config": {
+        "allow_resource_tradeoffs": false,
+        "max_brams": null,
+        "max_dsps": 100,
+        "max_ffs": null,
+        "max_luts": null,
+        "objective": "balanced",
+        "rounds": 3,
+        "tool_jobs": 1,
+        "workers": 2
+      },
+      "feasible_pareto": [
+        "worker-02/round-01"
+      ],
+      "pareto": [
+        "worker-02/round-02",
+        "worker-02/round-01"
+      ],
+      "resource_caps": {
+        "brams": 730,
+        "dsps": 100,
+        "ffs": 269200,
+        "luts": 134600
+      },
+      "resources": {
+        "brams": 28,
+        "dsps": 71,
+        "ffs": 53599,
+        "latency": null,
+        "luts": 68544
+      }
+    },
+    "balanced_dsp_cap_135": {
+      "balanced_score": {
+        "budgets": {
+          "brams": 730,
+          "dsps": 135,
+          "ffs": 269200,
+          "luts": 134600
+        },
+        "limiting_resources": [
+          "dsps"
+        ],
+        "peak_utilization": 0.5259259259259259,
+        "total_utilization": 1.2726290442470805,
+        "unscorable_resources": [],
+        "utilization": {
+          "brams": 0.038356164383561646,
+          "dsps": 0.5259259259259259,
+          "ffs": 0.19910475482912332,
+          "luts": 0.5092421991084696
+        }
+      },
+      "best": "worker-02/round-01",
+      "config": {
+        "allow_resource_tradeoffs": false,
+        "max_brams": null,
+        "max_dsps": 135,
+        "max_ffs": null,
+        "max_luts": null,
+        "objective": "balanced",
+        "rounds": 3,
+        "tool_jobs": 1,
+        "workers": 2
+      },
+      "feasible_pareto": [
+        "worker-02/round-02",
+        "worker-02/round-01"
+      ],
+      "pareto": [
+        "worker-02/round-02",
+        "worker-02/round-01"
+      ],
+      "resource_caps": {
+        "brams": 730,
+        "dsps": 135,
+        "ffs": 269200,
+        "luts": 134600
+      },
+      "resources": {
+        "brams": 28,
+        "dsps": 71,
+        "ffs": 53599,
+        "latency": null,
+        "luts": 68544
+      }
+    },
+    "balanced_dsp_cap_71": {
+      "balanced_score": {
+        "budgets": {
+          "brams": 730,
+          "dsps": 71,
+          "ffs": 269200,
+          "luts": 134600
+        },
+        "limiting_resources": [
+          "dsps"
+        ],
+        "peak_utilization": 1.0,
+        "total_utilization": 1.7467031183211545,
+        "unscorable_resources": [],
+        "utilization": {
+          "brams": 0.038356164383561646,
+          "dsps": 1.0,
+          "ffs": 0.19910475482912332,
+          "luts": 0.5092421991084696
+        }
+      },
+      "best": "worker-02/round-01",
+      "config": {
+        "allow_resource_tradeoffs": false,
+        "max_brams": null,
+        "max_dsps": 71,
+        "max_ffs": null,
+        "max_luts": null,
+        "objective": "balanced",
+        "rounds": 3,
+        "tool_jobs": 1,
+        "workers": 2
+      },
+      "feasible_pareto": [
+        "worker-02/round-01"
+      ],
+      "pareto": [
+        "worker-02/round-02",
+        "worker-02/round-01"
+      ],
+      "resource_caps": {
+        "brams": 730,
+        "dsps": 71,
+        "ffs": 269200,
+        "luts": 134600
+      },
+      "resources": {
+        "brams": 28,
+        "dsps": 71,
+        "ffs": 53599,
+        "latency": null,
+        "luts": 68544
+      }
+    },
+    "balanced_full_target": {
+      "balanced_score": {
+        "budgets": {
+          "brams": 730,
+          "dsps": 740,
+          "ffs": 269200,
+          "luts": 134600
+        },
+        "limiting_resources": [
+          "luts"
+        ],
+        "peak_utilization": 0.4534472511144131,
+        "total_utilization": 0.8733406027595305,
+        "unscorable_resources": [],
+        "utilization": {
+          "brams": 0.038356164383561646,
+          "dsps": 0.18243243243243243,
+          "ffs": 0.19910475482912332,
+          "luts": 0.4534472511144131
+        }
+      },
+      "best": "worker-02/round-02",
+      "config": {
+        "allow_resource_tradeoffs": false,
+        "max_brams": null,
+        "max_dsps": null,
+        "max_ffs": null,
+        "max_luts": null,
+        "objective": "balanced",
+        "rounds": 3,
+        "tool_jobs": 1,
+        "workers": 2
+      },
+      "feasible_pareto": [
+        "worker-02/round-02",
+        "worker-02/round-01"
+      ],
+      "pareto": [
+        "worker-02/round-02",
+        "worker-02/round-01"
+      ],
+      "resource_caps": {
+        "brams": 730,
+        "dsps": 740,
+        "ffs": 269200,
+        "luts": 134600
+      },
+      "resources": {
+        "brams": 28,
+        "dsps": 135,
+        "ffs": 53599,
+        "latency": null,
+        "luts": 61034
+      }
+    },
+    "luts_allow_tradeoffs": {
+      "balanced_score": null,
+      "best": "worker-02/round-02",
+      "config": {
+        "allow_resource_tradeoffs": true,
+        "max_brams": null,
+        "max_dsps": null,
+        "max_ffs": null,
+        "max_luts": null,
+        "objective": "luts",
+        "rounds": 3,
+        "tool_jobs": 1,
+        "workers": 2
+      },
+      "feasible_pareto": [
+        "worker-02/round-02",
+        "worker-02/round-01"
+      ],
+      "pareto": [
+        "worker-02/round-02",
+        "worker-02/round-01"
+      ],
+      "resource_caps": {},
+      "resources": {
+        "brams": 28,
+        "dsps": 135,
+        "ffs": 53599,
+        "latency": null,
+        "luts": 61034
+      }
+    },
+    "luts_protected": {
+      "balanced_score": null,
+      "best": "worker-02/round-01",
+      "config": {
+        "allow_resource_tradeoffs": false,
+        "max_brams": null,
+        "max_dsps": null,
+        "max_ffs": null,
+        "max_luts": null,
+        "objective": "luts",
+        "rounds": 3,
+        "tool_jobs": 1,
+        "workers": 2
+      },
+      "feasible_pareto": [
+        "worker-02/round-01"
+      ],
+      "pareto": [
+        "worker-02/round-02",
+        "worker-02/round-01"
+      ],
+      "resource_caps": {
+        "brams": 28,
+        "dsps": 71,
+        "ffs": 54066
+      },
+      "resources": {
+        "brams": 28,
+        "dsps": 71,
+        "ffs": 53599,
+        "latency": null,
+        "luts": 68544
+      }
+    }
+  },
+  "source": "wifi-search-results.json",
+  "source_sha256": "f0d91fb914bc6a6371bc296744db77573d7683299d1d5635138e60949f6d6167",
+  "target": "xc7a200t",
+  "target_limits": {
+    "brams": 730,
+    "dsps": 740,
+    "ffs": 269200,
+    "luts": 134600
+  },
+  "verification_scope": "recorded_development_measurements_only"
+}

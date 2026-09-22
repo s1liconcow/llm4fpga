@@ -99,8 +99,8 @@ Start from the complete saved receiver and search using its streaming scoreboard
 ```sh
 fpga-lab wifi search --candidate examples/wifi/generated/receiver.vhd \
   --data runs/wifi-data/openofdm --target xc7a200t \
-  --workers 2 --rounds 2 --tool-jobs 1 --objective luts \
-  --out runs/wifi-search
+  --workers 2 --rounds 2 --tool-jobs 1 --objective balanced --max-dsps 71 \
+  --out runs/wifi-search-capped
 ```
 
 Set `--data` to the directory containing the fetched `testing_inputs/` tree. The
@@ -109,9 +109,26 @@ final held-out audit. The saved receiver exceeds the default `compact` limits, s
 the example explicitly selects `xc7a200t`. Selecting `compact` instead asks workers
 to meet the smaller budgets; an oversized baseline cannot win that search.
 
+The Wi-Fi default is `balanced`: minimize the highest resource usage / budget
+ratio across LUTs, FFs, DSPs and BRAM18 equivalents, then total utilization. The
+target supplies the budgets; `--max-*` options can tighten them to reserve capacity
+for other logic. All caps remain mandatory. The explicit `--max-dsps 71` above
+prevents DSP growth. Remove it to use the full target DSP budget, or set
+`--max-dsps 100` for limited growth. A cap can never relax the target profile.
+
+On the recorded measurements, balanced selection with the full XC7A200T budget
+prefers 61,034 LUTs / 135 DSPs. With only 135 DSPs available to the receiver, it
+prefers 68,544 LUTs / 71 DSPs, retaining DSP headroom. This is resource allocation,
+not a prediction of timing or power. See the
+[recorded policy comparison](../../docs/wifi-search-policy-results.md).
+
+Single-objective searches such as `--objective luts` protect other resources at
+baseline usage unless an explicit cap authorizes growth for a resource or
+`--allow-resource-tradeoffs` permits growth within the target limits.
+
 Workers receive the reference algorithm, streaming contract, complete current
 VHDL, and development feedback. They propose exact source edits, which the host
-applies and saves as complete candidate files. The measured objective is one of
+applies and saves as complete candidate files. The objective is `balanced`,
 `luts`, `ffs`, `dsps`, or `brams` (18-Kibit equivalents). Packet correctness, output
 stalls, reset, sustained processing rate, and every selected resource limit remain
 mandatory. The receiver's JSON `latency` field is a schema placeholder and is not
@@ -119,15 +136,24 @@ used as a streaming performance objective.
 
 Every evaluated candidate uses GHDL RTL simulation, Xilinx mapping, and mapped
 Verilator replay when earlier stages pass. Each worker continues after a passing
-candidate; the lowest-resource passing implementation is retained. A fresh audit
+candidate. Workers explore the best resource tradeoffs, and the selected objective
+chooses a winner within the search caps. A fresh audit
 checks the frozen winner, and audit failures never feed back into generation.
 The original receiver remains unchanged; the selected implementation is written
-to `runs/wifi-search/final/candidate.vhd` with a Vivado handoff.
+to `runs/wifi-search-capped/final/candidate.vhd` with a Vivado handoff.
 
-Inspect `leaderboard.json` for candidate comparisons and `summary.json` for the
-baseline, winner, improvement, and audit verdict. Add `--resume` to the same command
+Inspect `leaderboard.json` for resource deltas, cap violations, the complete Pareto
+frontier, and its feasible subset. Over-cap alternatives remain available for
+inspection but cannot win. `summary.json` includes the baseline, winner, all
+resource changes, and audit verdict; frontier alternatives have development
+verification only. `balanced_score` includes both score terms, the per-resource
+utilization, budgets, and limiting resources. An LLM proposes changes; the
+deterministic scorer and independent checks decide selection and acceptance.
+Add `--resume` to the same command
 to reuse completed evaluations and continue interrupted work. After the winner is
-frozen, resume cannot extend the search or choose a different candidate.
+frozen, resume cannot extend the search or choose a different candidate. Changing
+caps or tradeoff policy requires a new output directory; old-version runs cannot
+resume with the changed harness.
 
 Full receiver mapping and simulator builds can take tens of minutes per candidate.
 Keep `--tool-jobs 1` on the 8 GiB VM; generation can still run concurrently. The
