@@ -1,0 +1,3 @@
+Selected round: round-02
+
+Flattened line-buffer storage and removed the multidimensional continuous reads responsible for the Icarus assertion. Uses the specified causal stencil, with the current pixel at bottom-right; every accepted input produces a registered output, leaving no pending drain results. Signed arithmetic shift implements floor truncation; overflow wraps to output width. COEFFS packs signed 32-bit row-major entries starting at the least-significant bits. Reset between images. No tools were run.

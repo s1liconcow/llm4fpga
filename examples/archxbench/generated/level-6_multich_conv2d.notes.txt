@@ -1,0 +1,3 @@
+Selected round: round-02
+
+Uses unsigned pixels, signed weights/bias, and signed output saturation. Assumes MSB-first packed kernel/bias ordering; feedback indicates an ordering issue beyond unsigned arithmetic. Banked frame storage supports channel-major input and a pipelined MAC tree producing consecutive channel-major outputs. Frame length determines completion; last_in is advisory. done accompanies only the final output. No tools were used; verification was not run.

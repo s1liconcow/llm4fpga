@@ -1,0 +1,3 @@
+Selected round: round-02
+
+Pipelines each zero-padded convolution result together with its validity through KERNEL_SIZE-1 registered stages, correcting both the data/valid misalignment and extra valid stage. Drain emits pending input-associated results. Signed arithmetic shift provides floor truncation; output overflow wraps. COEFFS uses packed signed 32-bit entries, oldest tap in the least-significant entry. A single-tap configuration uses one registered stage.

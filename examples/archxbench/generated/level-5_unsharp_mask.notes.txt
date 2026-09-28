@@ -1,0 +1,3 @@
+Selected round: round-08
+
+Registers input transactions before line-buffer updates and computes the stencil combinationally before its pipeline register. Four rotating line banks support raster throughput, zero padding, input gaps, and automatic final-row draining. Gain is sampled per input pixel. Scaling retains the explicitly specified PIXEL_W+GAIN_W bits; reconstruction explicitly clamps to 0–255.

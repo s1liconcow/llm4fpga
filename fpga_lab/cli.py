@@ -103,6 +103,16 @@ def main(argv=None) -> int:
     xls = sub.add_parser('xls',help='Compile DSLX with pinned upstream XLS in its x86 Linux container')
     xls.add_argument('source',type=Path)
     xls.add_argument('--out',type=Path,required=True)
+    archx = sub.add_parser('archxbench',help='Codex compile-test-repair loop on ArchXBench Levels 4-6')
+    archx.add_argument('bench',type=Path,help='Checkout of github.com/sureshpurini/ArchXBench')
+    archx.add_argument('--out',type=Path,required=True)
+    archx.add_argument('--rounds',type=int,default=8,help='Maximum model rounds per problem (round 1 is zero-shot)')
+    archx.add_argument('--workers',type=int,default=6,help='Problems solved concurrently')
+    archx.add_argument('--tool-jobs',type=int,default=3,help='Maximum concurrent container evaluations')
+    archx.add_argument('--only',nargs='*',help='Substring filter on level/problem names')
+    archx.add_argument('--model')
+    archx.add_argument('--audit',action='store_true',help='Audit designs already in --out on fresh held-out stimuli')
+    archx.add_argument('--finalize',action='store_true',help='Recheck passing designs and settle synthesis with more memory')
     args = parser.parse_args(argv)
     try:
         if args.command=='wifi':
@@ -110,6 +120,22 @@ def main(argv=None) -> int:
             return run_wifi(args)
         if args.command=='doctor':
             return doctor()
+        if args.command=='archxbench':
+            if args.finalize:
+                from .archxbench import finalize
+                report=finalize(args.bench,args.out,tool_jobs=args.tool_jobs,only=args.only)
+                print(json.dumps({k:report[k] for k in ('official_pass','round1_official_pass','official_and_synth')},indent=2))
+                return 0
+            if args.audit:
+                from .archxbench_audit import audit_run
+                report=audit_run(args.bench,args.out,tool_jobs=args.tool_jobs,only=args.only)
+                print(json.dumps({k:report[k] for k in ('audited','audit_passed')},indent=2))
+                return 0
+            from .archxbench import run as run_archx
+            report=run_archx(args.bench,args.out,rounds=args.rounds,workers=args.workers,
+                             tool_jobs=args.tool_jobs,model=args.model,only=args.only)
+            print(json.dumps({k:report[k] for k in ('solved','solved_round1','problems')},indent=2))
+            return 0
         if args.command=='search':
             config=SearchConfig.from_args(args)
             if args.seed and args.seed.suffix.lower() in ('.vhd','.vhdl'):

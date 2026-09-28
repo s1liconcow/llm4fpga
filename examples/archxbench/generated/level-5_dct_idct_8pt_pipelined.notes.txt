@@ -1,0 +1,3 @@
+Selected round: round-01
+
+Eight parallel MAC lanes use registered full-width products and 37-bit accumulators at default parameters. IDCT transposes the combined alpha/cosine Q1.15 matrix. Inputs follow indices 0–7; valid gaps are supported. Output index 0 appears two clocks after accepting index 7, followed by seven consecutive outputs. Arithmetic shift and width truncation implement the specified extraction without saturation.

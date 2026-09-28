@@ -1,0 +1,3 @@
+Selected round: round-03
+
+Replaced arithmetic-indexed 2048-bit S-box selects with explicit byte case tables to eliminate synthesis-heavy variable shifts and index arithmetic. Preserves the verified datapath and handshake: accepts start && valid_in each cycle; done equals valid_out. Pipelined output appears 2*ceil(10/U) clocks after acceptance, with U clamped to 1–10. Mode is ignored for fixed decryption. INLINE_KEY_EXP retains inline scheduling for both settings because no external schedule interface is specified. No tools were run.

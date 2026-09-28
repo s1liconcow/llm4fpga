@@ -108,6 +108,21 @@ and sustained input processing in RTL and Xilinx-mapped simulation. Add
 `--simulation-only` for an RTL check. [Results and plots](docs/demo-results.md#wi-fi-a-complete-streaming-receiver)
 show real radio captures and the scheduling repairs that eliminated backlog.
 
+## ArchXBench Levels 4–6
+
+The same compile→test→repair loop generates Verilog for the hardest
+[ArchXBench](https://github.com/sureshpurini/ArchXBench) levels. It solves **21 of 21**
+Level 4–6 problems, each also passing three held-out stimulus audits. In the benchmark
+paper's zero-shot evaluation, every model solved at most 3. With one round, as a zero-shot
+design, this model solves 11. See [results, protocol and caveats](docs/archxbench-results.md).
+
+```bash
+podman build -t xls-e2e-archx:local -f Dockerfile.archx .
+fpga-lab archxbench ../ArchXBench --out runs/archx --rounds 8
+fpga-lab archxbench ../ArchXBench --out runs/archx --finalize   # recheck + larger synthesis budget
+fpga-lab archxbench ../ArchXBench --out runs/archx --audit      # fresh held-out stimuli
+```
+
 ## Translate another algorithm
 
 Provide a `.py` or `.m` specification, a JSON contract, and separate independently

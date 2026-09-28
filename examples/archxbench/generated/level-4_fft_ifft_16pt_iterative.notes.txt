@@ -1,0 +1,3 @@
+Selected round: round-01
+
+Reuses one complex butterfly for 32 execution cycles, then publishes outputs and pulses done. Inputs and mode latch on start; starts while busy are ignored. FFT uses negative-imaginary twiddles. Positive unity saturates to 32767 in Q1.15; conjugation is widened to preserve +32768. Multiply rounding adds half an LSB before arithmetic shifting (ties toward positive infinity). IFFT normalization uses an arithmetic shift. Power-of-two N is supported with suitable GAIN_W; twiddles are elaboration-time constants.

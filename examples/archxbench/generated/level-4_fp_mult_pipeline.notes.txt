@@ -1,0 +1,3 @@
+Selected round: round-02
+
+Fixed gradual underflow: subnormal alignment preserves sticky bits before a single nearest-even rounding operation, including promotion to minimum normal. Following IEEE-754 and trusted feedback resolves the conflicting flush-to-zero requirement. Preserves the exact 32-bit interface, five default stages, one-result-per-cycle throughput, configurable positive LATENCY, and synchronous zero reset.

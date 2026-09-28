@@ -1,0 +1,3 @@
+Selected round: round-02
+
+Replaced multidimensional dynamic memory reads with flat, fixed-tap shift buffers to avoid the reported Icarus assertion and reduce synthesis mux complexity. A registered stencil and balanced pipelined MAC tree sustain one output per cycle with continuous input; input gaps pause window advancement. Border masks suppress uninitialized buffer contents. Flush tokens complete all N outputs, with done accompanying the final output. Complete K2-row windows use K2-1 line delays per depth plane. Arithmetic is unsigned; default OUT_W assumes binary coefficients. No tools were invoked.

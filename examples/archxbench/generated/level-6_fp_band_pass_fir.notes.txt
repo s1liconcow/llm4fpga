@@ -1,0 +1,3 @@
+Selected round: round-03
+
+Addresses synthesis sharing explosion by isolating operators with preserved hierarchy, narrowing exponent arithmetic, and replacing variable sticky shifts with fixed mux stages. Preserves the previously passing tree order, coefficient memory, zero-padded prefix outputs, and valid timing. Arithmetic uses round-to-nearest-even with gradual underflow and canonical NaNs. Coefficients remain internal to match the exact port signature. No tools were run; this revision is unverified.

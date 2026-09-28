@@ -1,0 +1,3 @@
+Selected round: round-01
+
+Registered multipliers and a balanced adder tree sustain one output per clock, with latency ceil(log2(TAP_CNT))+1 clock periods. Widened bias addition and arithmetic shifting implement the required rounding, including negative ties. History advances every clock, following the specified 'k cycles ago'; valid_in marks output transactions. Reset zeroes history and flushes validity without altering coefficients. Output overflow wraps; saturation was not specified.

@@ -1,0 +1,3 @@
+Selected round: round-01
+
+Uses VLEN parallel quantizers per matrix and VLEN² MACs, overlapping quantization and accumulation across K cycles. Inputs are captured on an idle start; busy starts are ignored. Done pulses K+2 clocks after acceptance. Assumptions: FP_W=32, positive dimensions, unsigned scales, nearest-even quantization with signed QBW saturation, and ACC_W wrapping accumulation. Exact binary scale arithmetic avoids real-valued hardware; dequantization rounds once to FP32. NaNs and zero scales quantize to the zero-point; infinities saturate.

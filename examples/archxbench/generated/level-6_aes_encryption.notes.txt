@@ -1,0 +1,3 @@
+Selected round: round-02
+
+Replaced the variable-index 2048-bit S-box with an explicit 256-entry case lookup, removing the wide index arithmetic implicated by the synthesis log. Preserves the previously passing datapath and handshake: one block per cycle, ten stages by default, grouped rounds with UNROLL, and one registered stage when PIPELINED=0. Reset flushes validity; done equals valid_out. Key expansion remains inline for either INLINE_KEY_EXP value because no external schedule interface is specified. No tools were invoked; synthesis was not rerun.

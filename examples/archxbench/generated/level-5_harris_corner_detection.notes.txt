@@ -1,0 +1,3 @@
+Selected round: round-01
+
+Both stencils use zero padding and rotating IMG_WIDTH-deep line banks. Availability counters support input gaps, consecutive frames, and automatic draining after the final pixel. Wide intermediates preserve arithmetic precision; R is truncated to signed RESP_W before comparison. k_param is sampled during response calculation and threshold during comparison. Frames contain IMG_WIDTH*IMG_HEIGHT accepted pixels. Centered lookahead permits approximately 2*IMG_WIDTH cycles of initial latency, with one output per clock thereafter for continuous input.

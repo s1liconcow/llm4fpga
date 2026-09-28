@@ -1,0 +1,3 @@
+Selected round: round-02
+
+Preserves the 16-PE signed MAC wavefront. The feedback shows completion before the final products accumulated; done now asserts on the twelfth post-reset rising edge and remains high until reset. Inputs must be externally staggered and zero-padded outside the four valid elements. Accumulators use 64-bit modular arithmetic.

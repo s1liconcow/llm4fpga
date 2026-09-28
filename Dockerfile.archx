@@ -1,0 +1,12 @@
+# ArchXBench scoring toolchain: Icarus (official scorer), Python golden/compare deps,
+# plus Yosys and Verilator for synthesizability/lint feedback. Benchmarks are mounted.
+FROM ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        iverilog make octave python3 python3-venv yosys verilator g++ libgl1 libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+ENV VIRTUAL_ENV=/opt/venv PATH=/opt/venv/bin:$PATH MPLBACKEND=Agg HOME=/tmp
+RUN python3 -m venv $VIRTUAL_ENV && pip install --no-cache-dir \
+        'numpy>=1.24' 'scipy>=1.10' 'matplotlib>=3.7' 'opencv-python-headless>=4.8' \
+        'Pillow>=10.0' 'scikit-image>=0.21'
+WORKDIR /work

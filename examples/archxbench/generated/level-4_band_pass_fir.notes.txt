@@ -1,0 +1,3 @@
+Selected round: round-01
+
+Registered multipliers and a balanced adder tree sustain one sample per clock with latency ceil(log2(TAP_CNT))+1 clock intervals. Rounding uses signed (acc+16384) >>> 15, including negative ties. Invalid cycles are interpreted as bubbles: history advances only on accepted samples. Reset clears history and pipeline but preserves externally loaded coefficients. Output overflow wraps; saturation was not specified.

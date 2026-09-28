@@ -1,0 +1,3 @@
+Selected round: round-03
+
+The reported spectral mixing is consistent with duplicated adjacent input samples from a same-edge drive/capture race. Falling-edge input registers now feed the rising-edge FFT pipeline; inputs must meet falling-edge setup/hold. Uses spatial radix-2 DIF stages, Q1.15 twiddles, convergent rounding, saturation, and natural-order serialization. Supports power-of-two POINTS >= 2. For 64 points, scaling is 1/8 and first-output latency includes frame collection plus six FFT stages. Frames contain POINTS valid samples; last_in is redundant, and done pulses with last_out. No tools were run.

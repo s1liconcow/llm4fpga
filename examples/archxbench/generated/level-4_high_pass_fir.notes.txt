@@ -1,0 +1,3 @@
+Selected round: round-01
+
+Three registered stages provide one output per clock, two clock intervals after input acceptance. Invalid cycles pause sample history and propagate pipeline bubbles. Reset zero-pads history without changing externally loaded coefficients. Signed bias addition and arithmetic shift implement exact round-half-up, including negative ties. Accumulator includes an extra rounding guard bit; output overflow wraps, as saturation is unspecified.

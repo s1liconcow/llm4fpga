@@ -1,0 +1,3 @@
+Selected round: round-01
+
+Supports positive LATENCY values with one operation per cycle; LATENCY=5 registers each specified arithmetic stage. Smaller depths combine stages, and larger depths add delay registers. Exact 278-bit alignment trades area for straightforward cancellation and subnormal correctness. Rounding is nearest-even; NaNs produce canonical quiet NaN 0x7fc00000. Synchronous reset clears pipeline data and validity. No exception-status ports are specified.
