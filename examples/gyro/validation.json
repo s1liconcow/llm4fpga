@@ -1,0 +1,1018 @@
+{
+  "analytic_demodulation": {
+    "expected_iq": [
+      0.03125,
+      0.015625
+    ],
+    "kind": "analytic carrier demodulation; not a MEMS plant model",
+    "max_abs_error": 1.52587890625e-05,
+    "measured_iq": [
+      0.0312347412109375,
+      0.0156097412109375
+    ],
+    "pass": true
+  },
+  "audit_seed": 92731,
+  "closed_loop": {
+    "accepted": true,
+    "controller_config": {
+      "coefficients": [
+        [
+          0,
+          0,
+          0,
+          0,
+          -65536
+        ],
+        [
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          -65536
+        ],
+        [
+          65536
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          65536
+        ],
+        [
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096
+        ],
+        [
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096,
+          4096
+        ]
+      ],
+      "gains": [
+        65536,
+        0,
+        65536,
+        0,
+        0,
+        65536,
+        0,
+        -65536
+      ],
+      "i_max": 65536,
+      "i_min": -65536,
+      "ki": 64,
+      "kp": 114688,
+      "reference": 19661,
+      "u_max": 65536,
+      "u_min": -65536
+    },
+    "driver_sha256": "8a35300efb639cfec00f993d5b015443ef8a7c0ffbe50bda2c8dca80747c4048",
+    "feedback_source": "live Verilator RTL actuator outputs",
+    "loop_model_sha256": "263183d274fc7c3b6d9a544126b26ab70f484c880e996f101fde47f6ce1ff74b",
+    "plant": "synthetic two-mode difference equation; not calibrated sensor dynamics",
+    "rtl_oracle_max_error_lsb": 0,
+    "rtl_sha256": "acc46ad67143b98d4f3aad07a8129ecca87dfcca51e83e79a028dd1a5f1124d4",
+    "samples": 10000,
+    "sense_rebalance_attenuation_db": 17.537319123011716,
+    "settled_mean_absolute_drive": 0.2987510211101569,
+    "target_mean_absolute_drive": 0.3
+  },
+  "development_seed": 8301,
+  "final_testbench_sha256": "fa27947a3b6afab937018cc2d7098f98681aa463e478531694da7bc4cbdf901b",
+  "generic_gate_replay": {
+    "cases": [
+      {
+        "max_cycles": 142,
+        "min_cycles": 125,
+        "name": "carrier_iq",
+        "samples": 512
+      },
+      {
+        "max_cycles": 91,
+        "min_cycles": 91,
+        "name": "carrier_iq_reset",
+        "samples": 1
+      },
+      {
+        "max_cycles": 972,
+        "min_cycles": 965,
+        "name": "full_128_taps",
+        "samples": 300
+      },
+      {
+        "max_cycles": 76,
+        "min_cycles": 76,
+        "name": "full_128_taps_reset",
+        "samples": 1
+      },
+      {
+        "max_cycles": 425,
+        "min_cycles": 410,
+        "name": "mixed_lengths",
+        "samples": 300
+      },
+      {
+        "max_cycles": 76,
+        "min_cycles": 76,
+        "name": "mixed_lengths_reset",
+        "samples": 1
+      },
+      {
+        "max_cycles": 102,
+        "min_cycles": 89,
+        "name": "saturation",
+        "samples": 300
+      },
+      {
+        "max_cycles": 95,
+        "min_cycles": 95,
+        "name": "saturation_reset",
+        "samples": 1
+      },
+      {
+        "max_cycles": 972,
+        "min_cycles": 965,
+        "name": "accumulator_extremes",
+        "samples": 280
+      },
+      {
+        "max_cycles": 76,
+        "min_cycles": 76,
+        "name": "accumulator_extremes_reset",
+        "samples": 1
+      }
+    ],
+    "failures": [],
+    "outputs": 1697,
+    "pass": true
+  },
+  "generic_synthesis": {
+    "num_cells": 86684,
+    "num_cells_by_type": {
+      "$_ANDNOT_": 4292,
+      "$_AND_": 169,
+      "$_DFFE_PP_": 35898,
+      "$_DFF_P_": 29,
+      "$_MUX_": 37714,
+      "$_NAND_": 409,
+      "$_NOR_": 982,
+      "$_NOT_": 1021,
+      "$_ORNOT_": 165,
+      "$_OR_": 3115,
+      "$_SDFFCE_PN0P_": 695,
+      "$_SDFFE_PP0P_": 453,
+      "$_SDFFE_PP1P_": 46,
+      "$_SDFF_PP0_": 6,
+      "$_XNOR_": 729,
+      "$_XOR_": 961
+    },
+    "num_memories": 0,
+    "num_memory_bits": 0,
+    "num_processes": 0,
+    "num_pub_wire_bits": 37733,
+    "num_pub_wires": 1890,
+    "num_wire_bits": 87234,
+    "num_wires": 51248
+  },
+  "oracle_sha256": "bf8cac45ad722fed43db1c3db50287644c1474ef0550ec18e44986cdc3090165",
+  "physical_iteration": {
+    "capacitance_repair": {
+      "antenna_diodes": 10,
+      "antenna_violations": 0,
+      "branch_repeaters": 67,
+      "fresh_extraction": {
+        "design__max_cap_violation__count": 0,
+        "design__max_slew_violation__count": 0,
+        "timing__hold__ws": 0.006192602161892948,
+        "timing__hold_vio__count": 0,
+        "timing__setup__ws": 13.224337554882489,
+        "timing__setup_vio__count": 0,
+        "timing__unannotated_net_filtered__count": 0
+      },
+      "invalidated_signal_nets": 891,
+      "prior_max_rc_tt_cap_pf": 0.200839,
+      "prior_violating_pin": "fanout9573/X",
+      "repair_cap_limit_pf": 0.16,
+      "resizing_events": 70,
+      "routing_drc": 0,
+      "run": "runs/gyro-sky130-cap-eco",
+      "signoff_cap_limit_pf": 0.2,
+      "source_buffers": 21,
+      "status": "passed: all nine timing corners, both DRC engines, antenna, connectivity, GDS comparison, overlap and LVS"
+    },
+    "changes": [
+      "Register scalar operands and multiplier products",
+      "Pipeline FIR multiply/accumulate",
+      "Exclude intentional clock-delay cells from general buffering"
+    ],
+    "clock_entry_repair": {
+      "pre_route_nominal_capacitance_violations": 0,
+      "pre_route_nominal_slew_violations": 0,
+      "status": "completed: clean nominal pre-route electrical checks",
+      "strategy": "One clkbuf_8 near the clock input; preserve balanced CTS tree"
+    },
+    "clock_repair": {
+      "first_pass_clock_buffers": 913,
+      "first_pass_long_clock_wires": 307,
+      "hold_violations": 17201,
+      "initial_tool_error": "OpenROAD legalization assertion with routed parasitics",
+      "retry": "Use the standard CTS placement-parasitics sequence",
+      "status": "superseded; broad buffering caused excessive insertion delay",
+      "worst_hold_slack_ns": -6.34
+    },
+    "detailed_route_antenna_repair": {
+      "diodes_added_by_pass": [
+        1873,
+        87,
+        4
+      ],
+      "disconnected_pins": 0,
+      "final_net_violations": 0,
+      "final_routing_drc_violations": 0,
+      "net_violations_by_pass": [
+        991,
+        54,
+        3
+      ],
+      "status": "completed: zero antenna and routing DRC violations"
+    },
+    "electrical_changes": [
+      "Disable heuristic diode insertion; retain measured antenna checking and targeted repair",
+      "Move post-global-route electrical repair after antenna protection",
+      "Enable post-global-route multicorner timing repair"
+    ],
+    "electrical_repair_resources": {
+      "first_attempt": "cgroup OOM at 6 GiB",
+      "retry_container_gib": 10,
+      "retry_vm_gib": 12
+    },
+    "extracted_baseline": {
+      "hold_violations": 0,
+      "run": "runs/gyro-sky130-clockentry",
+      "setup_violations": 0,
+      "status": "superseded: extracted-load electrical repair required",
+      "worst_corner_capacitance_violation_count": 147,
+      "worst_corner_slew_violation_count": 47031,
+      "worst_hold_slack_ns": 0.014270585117526548,
+      "worst_setup_slack_ns": 8.09500400735012
+    },
+    "extracted_repair": {
+      "antenna_diodes_by_pass": [
+        774,
+        30
+      ],
+      "antenna_net_violations_by_pass": [
+        480,
+        23,
+        0
+      ],
+      "clock_trunk": {
+        "connectivity_probe": "verified root input net and actual driver; handles OpenROAD numeric suffixes",
+        "inserted_cell": "sky130_fd_sc_hd__clkbuf_16 gyro_clock_midpoint33089",
+        "limit_ns": 0.75,
+        "max_rc_slow_slew_ns": 1.008677,
+        "midpoint_um": [
+          561.545,
+          1641.52
+        ],
+        "repair": "one clkbuf_16 at trunk midpoint; balanced CTS branches preserved",
+        "violating_pin": "clkbuf_0_clk/A"
+      },
+      "container_memory_adjustment": {
+        "final_gib": 11,
+        "initial_gib": 10,
+        "reason": "antenna reroute approaching initial memory limit",
+        "vm_gib": 12
+      },
+      "first_antenna_repair_diodes": 774,
+      "first_attempt": "unsupported read_spef -delete_after_reduce flag; parser inspected and invocation corrected",
+      "first_routing_pass_final_drc": 0,
+      "fresh_extraction": {
+        "design__max_cap_violation__count": 46,
+        "design__max_slew_violation__count": 24655,
+        "timing__hold__ws": 0.01339417503710088,
+        "timing__hold_vio__count": 0,
+        "timing__setup__ws": 8.731778214292811,
+        "timing__setup_vio__count": 0
+      },
+      "inserted_buffers": 121,
+      "max_placement_displacement_um": 8.2,
+      "prior_reroute_failure": "v4: detailed-router connectivity failure with stale wire fragments after cell movement",
+      "rc_models": "all nine RC/PVT combinations; reduced for repair; full fresh extraction for final STA",
+      "repair_margin_percent": 30,
+      "reported_cell_area_increase_percent": 0.2,
+      "resized_cells": 9114,
+      "routing_correction": "Discard old detailed signal/clock wires and guides before rebuilding routes; preserve power-grid special wires",
+      "status": "v5: clean route, antenna and connectivity; all-corner setup/hold passed; electrical checks still fail"
+    },
+    "first_electrical_repair": {
+      "inserted_buffers": 114,
+      "nominal_hold_slack_ns": 0.175334,
+      "nominal_setup_slack_ns": 22.4813,
+      "remaining_nominal_slew_violations": 30,
+      "resized_cells": 2111,
+      "status": "superseded; three weak-buffer nets and clock-entry slew need repair"
+    },
+    "heuristic_diode_trial": {
+      "antenna_violations_after_repair": 0,
+      "global_route_congestion_overflow": 0,
+      "nominal_hold_slack_ns": 0.175386,
+      "nominal_setup_slack_ns": 21.562,
+      "nominal_slew_violations": 25895,
+      "status": "superseded before completing detailed routing"
+    },
+    "hold_repair_trials": [
+      {
+        "margin_ps": 100,
+        "status": "superseded",
+        "targeted_endpoints": 36783
+      },
+      {
+        "margin_ps": 30,
+        "status": "superseded",
+        "targeted_endpoints": 35917
+      },
+      {
+        "inserted_buffers": 8,
+        "margin_ps": 10,
+        "status": "post-CTS repair passed; used in current detailed-route candidate",
+        "worst_hold_slack_ns": 0.011
+      }
+    ],
+    "initial_rtl_sha256": "cb6f53fbfb05d7df88132d9841f20ac268f7cc3bdae1e8fa6ce424c7513a5d59",
+    "initial_run_status": "Stopped during timing repair; superseded by pipelined RTL",
+    "initial_slow_corner_setup_slack_ns": -10.265,
+    "last_observed_slack_before_superseding_ns": -6.915,
+    "post_route_sta_resources": {
+      "container_gib": 10,
+      "first_attempt": "cgroup OOM with four simultaneous timing corners",
+      "retry_sta_threads": 1,
+      "routing_and_rcx_reused": true
+    },
+    "source_buffer_repair": {
+      "antenna_diodes": 42,
+      "antenna_violations": 0,
+      "branch_repeaters": 30,
+      "fresh_extraction": {
+        "design__max_cap_violation__count": 1,
+        "design__max_slew_violation__count": 0,
+        "timing__hold__ws": 0.010861534201697998,
+        "timing__hold_vio__count": 0,
+        "timing__setup__ws": 13.2193637555915,
+        "timing__setup_vio__count": 0,
+        "timing__unannotated_net_filtered__count": 0
+      },
+      "resizing_events": 410,
+      "routing": "Invalidate all signal/clock wires incident to changed or moved instances; retain unaffected detailed routes",
+      "routing_drc": 0,
+      "run": "runs/gyro-sky130-final-eco",
+      "source_buffers": 65,
+      "status": "superseded: all-corner setup/hold/slew clean; one overloaded net at maximum RC"
+    },
+    "targeted_antenna_repair": {
+      "diodes": 1310,
+      "violations_after_repair": 0
+    },
+    "targeted_repair": {
+      "diagnostic_capacitance_violations_after_sizing": 32,
+      "diagnostic_signoff": false,
+      "diagnostic_slew_violations_after_sizing": 153,
+      "diagnostic_slew_violations_before": 24655,
+      "estimated_after_repair_capacitance_violations": 0,
+      "estimated_after_repair_slew_violations": 0,
+      "fresh_extraction": {
+        "design__max_cap_violation__count": 0,
+        "design__max_slew_violation__count": 11,
+        "timing__hold__ws": 0.0035156323292068934,
+        "timing__hold_vio__count": 0,
+        "timing__setup__ws": 13.239631987702282,
+        "timing__setup_vio__count": 0
+      },
+      "inserted_repeaters": 665,
+      "maximum_sizing_placement_displacement_um": 18.2,
+      "new_buffer_minimum_drive": 8,
+      "optimization_corner": "max_ss_100C_1v60",
+      "overloaded_signal_nets": 247,
+      "rc_model": "full retained SPEF; fresh nine-corner extraction/STA required afterward",
+      "replacement_events": 13202,
+      "signoff_slew_limit_ns": 0.75,
+      "sizing_target_ns": 0.45,
+      "source_checkpoint": "runs/gyro-sky130-extracted-v5",
+      "status": "superseded: setup, hold and capacitance clean; 11 max-corner slew violations on three signal nets",
+      "targeted_buffer_branch_limit_um": 200
+    }
+  },
+  "physical_pre_route_check": {
+    "capacitance_violations": 0,
+    "corner": "nom_tt_025C_1v80",
+    "fanout_target_advisories": 718,
+    "hold_slack_ns": 0.175334,
+    "run": "runs/gyro-sky130-clockentry",
+    "setup_slack_ns": 22.4774,
+    "slew_violations": 0,
+    "source": "03-openroad-stamidpnr-3/or_metrics_out.json",
+    "status": "historical pre-route estimate; superseded by final extracted signoff"
+  },
+  "physical_run": "runs/gyro-sky130-cap-eco",
+  "physical_signoff": {
+    "advisories": {
+      "max_fanout_target_violations": 813,
+      "note": "Generic fanout target is advisory; slew/capacitance limits are acceptance checks. Review loads at integration."
+    },
+    "cell_area_before_final_fill_um2": 2070598.37,
+    "checks": {
+      "design__critical_disconnected_pin__count": {
+        "pass": true,
+        "value": 0
+      },
+      "design__lvs_error__count": {
+        "pass": true,
+        "value": 0
+      },
+      "design__lvs_property_fail__count": {
+        "pass": true,
+        "value": 0
+      },
+      "design__lvs_unmatched_device__count": {
+        "pass": true,
+        "value": 0
+      },
+      "design__lvs_unmatched_net__count": {
+        "pass": true,
+        "value": 0
+      },
+      "design__lvs_unmatched_pin__count": {
+        "pass": true,
+        "value": 0
+      },
+      "design__max_cap_violation__count": {
+        "pass": true,
+        "value": 0
+      },
+      "design__max_slew_violation__count": {
+        "pass": true,
+        "value": 0
+      },
+      "design__power_grid_violation__count": {
+        "pass": true,
+        "value": 0
+      },
+      "design__xor_difference__count": {
+        "pass": true,
+        "value": 0
+      },
+      "klayout__drc_error__count": {
+        "pass": true,
+        "value": 0
+      },
+      "magic__drc_error__count": {
+        "pass": true,
+        "value": 0
+      },
+      "magic__illegal_overlap__count": {
+        "pass": true,
+        "value": 0
+      },
+      "route__antenna_violation__count": {
+        "pass": true,
+        "value": 0
+      },
+      "route__drc_errors": {
+        "pass": true,
+        "value": 0
+      },
+      "timing__hold_vio__count": {
+        "pass": true,
+        "value": 0
+      },
+      "timing__setup_vio__count": {
+        "pass": true,
+        "value": 0
+      },
+      "timing__unannotated_net_filtered__count": {
+        "pass": true,
+        "value": 0
+      }
+    },
+    "die_area_um2": 4800170,
+    "flow_exit_code": 0,
+    "macro_signoff_pass": true,
+    "report": "runs/gyro-sky130-cap-eco/signoff.json",
+    "tapeout_ready": false,
+    "worst_hold_slack_ns": 0.006192602161892948,
+    "worst_setup_slack_ns": 13.224337554882489
+  },
+  "physical_verification": {
+    "gds_xor_differences": 0,
+    "klayout_drc": 0,
+    "lvs": 0,
+    "magic_drc_errors": 0,
+    "power_grid_violations": 0
+  },
+  "routed_netlist_replay": {
+    "accepted": true,
+    "final_export_hash_check": "passed",
+    "final_netlist": "runs/gyro-sky130-cap-eco/runs/sky130/final/nl/gyro_core.nl.v",
+    "library_sha256": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135",
+    "netlist_sha256": "5bf1fff2eb268cff37c776584834d06c4aad7439700277ba13a5d16f272b417d",
+    "netlist_source": "/Users/david/projects/llm4fpga/runs/gyro-sky130-cap-eco/runs/sky130/01-gyro-extractedrepair/7-openroad-fillinsertion/gyro_core.nl.v",
+    "replay": {
+      "cases": [
+        {
+          "max_cycles": 142,
+          "min_cycles": 125,
+          "name": "carrier_iq",
+          "samples": 512
+        },
+        {
+          "max_cycles": 91,
+          "min_cycles": 91,
+          "name": "carrier_iq_reset",
+          "samples": 1
+        },
+        {
+          "max_cycles": 972,
+          "min_cycles": 965,
+          "name": "full_128_taps",
+          "samples": 300
+        },
+        {
+          "max_cycles": 76,
+          "min_cycles": 76,
+          "name": "full_128_taps_reset",
+          "samples": 1
+        },
+        {
+          "max_cycles": 425,
+          "min_cycles": 410,
+          "name": "mixed_lengths",
+          "samples": 300
+        },
+        {
+          "max_cycles": 76,
+          "min_cycles": 76,
+          "name": "mixed_lengths_reset",
+          "samples": 1
+        },
+        {
+          "max_cycles": 102,
+          "min_cycles": 89,
+          "name": "saturation",
+          "samples": 300
+        },
+        {
+          "max_cycles": 95,
+          "min_cycles": 95,
+          "name": "saturation_reset",
+          "samples": 1
+        },
+        {
+          "max_cycles": 972,
+          "min_cycles": 965,
+          "name": "accumulator_extremes",
+          "samples": 280
+        },
+        {
+          "max_cycles": 76,
+          "min_cycles": 76,
+          "name": "accumulator_extremes_reset",
+          "samples": 1
+        }
+      ],
+      "failures": [],
+      "outputs": 1697,
+      "pass": true
+    },
+    "rtl_sha256": "acc46ad67143b98d4f3aad07a8129ecca87dfcca51e83e79a028dd1a5f1124d4",
+    "scope": "zero-delay functional replay; STA is separate",
+    "status": "passed"
+  },
+  "rtl_audit": {
+    "cases": [
+      {
+        "max_cycles": 142,
+        "min_cycles": 125,
+        "name": "carrier_iq",
+        "samples": 512
+      },
+      {
+        "max_cycles": 91,
+        "min_cycles": 91,
+        "name": "carrier_iq_reset",
+        "samples": 1
+      },
+      {
+        "max_cycles": 972,
+        "min_cycles": 965,
+        "name": "full_128_taps",
+        "samples": 300
+      },
+      {
+        "max_cycles": 76,
+        "min_cycles": 76,
+        "name": "full_128_taps_reset",
+        "samples": 1
+      },
+      {
+        "max_cycles": 425,
+        "min_cycles": 410,
+        "name": "mixed_lengths",
+        "samples": 300
+      },
+      {
+        "max_cycles": 76,
+        "min_cycles": 76,
+        "name": "mixed_lengths_reset",
+        "samples": 1
+      },
+      {
+        "max_cycles": 102,
+        "min_cycles": 89,
+        "name": "saturation",
+        "samples": 300
+      },
+      {
+        "max_cycles": 95,
+        "min_cycles": 95,
+        "name": "saturation_reset",
+        "samples": 1
+      },
+      {
+        "max_cycles": 972,
+        "min_cycles": 965,
+        "name": "accumulator_extremes",
+        "samples": 280
+      },
+      {
+        "max_cycles": 76,
+        "min_cycles": 76,
+        "name": "accumulator_extremes_reset",
+        "samples": 1
+      }
+    ],
+    "failures": [],
+    "outputs": 1697,
+    "pass": true
+  },
+  "rtl_development": {
+    "cases": [
+      {
+        "max_cycles": 142,
+        "min_cycles": 125,
+        "name": "carrier_iq",
+        "samples": 512
+      },
+      {
+        "max_cycles": 91,
+        "min_cycles": 91,
+        "name": "carrier_iq_reset",
+        "samples": 1
+      },
+      {
+        "max_cycles": 972,
+        "min_cycles": 965,
+        "name": "full_128_taps",
+        "samples": 300
+      },
+      {
+        "max_cycles": 76,
+        "min_cycles": 76,
+        "name": "full_128_taps_reset",
+        "samples": 1
+      },
+      {
+        "max_cycles": 425,
+        "min_cycles": 410,
+        "name": "mixed_lengths",
+        "samples": 300
+      },
+      {
+        "max_cycles": 76,
+        "min_cycles": 76,
+        "name": "mixed_lengths_reset",
+        "samples": 1
+      },
+      {
+        "max_cycles": 102,
+        "min_cycles": 89,
+        "name": "saturation",
+        "samples": 300
+      },
+      {
+        "max_cycles": 95,
+        "min_cycles": 95,
+        "name": "saturation_reset",
+        "samples": 1
+      },
+      {
+        "max_cycles": 972,
+        "min_cycles": 965,
+        "name": "accumulator_extremes",
+        "samples": 280
+      },
+      {
+        "max_cycles": 76,
+        "min_cycles": 76,
+        "name": "accumulator_extremes_reset",
+        "samples": 1
+      }
+    ],
+    "failures": [],
+    "outputs": 1697,
+    "pass": true
+  },
+  "rtl_sha256": "acc46ad67143b98d4f3aad07a8129ecca87dfcca51e83e79a028dd1a5f1124d4",
+  "sky130_synthesis": {
+    "functional_gate_replay": {
+      "cases": [
+        {
+          "max_cycles": 142,
+          "min_cycles": 125,
+          "name": "carrier_iq",
+          "samples": 512
+        },
+        {
+          "max_cycles": 91,
+          "min_cycles": 91,
+          "name": "carrier_iq_reset",
+          "samples": 1
+        },
+        {
+          "max_cycles": 972,
+          "min_cycles": 965,
+          "name": "full_128_taps",
+          "samples": 300
+        },
+        {
+          "max_cycles": 76,
+          "min_cycles": 76,
+          "name": "full_128_taps_reset",
+          "samples": 1
+        },
+        {
+          "max_cycles": 425,
+          "min_cycles": 410,
+          "name": "mixed_lengths",
+          "samples": 300
+        },
+        {
+          "max_cycles": 76,
+          "min_cycles": 76,
+          "name": "mixed_lengths_reset",
+          "samples": 1
+        },
+        {
+          "max_cycles": 102,
+          "min_cycles": 89,
+          "name": "saturation",
+          "samples": 300
+        },
+        {
+          "max_cycles": 95,
+          "min_cycles": 95,
+          "name": "saturation_reset",
+          "samples": 1
+        },
+        {
+          "max_cycles": 972,
+          "min_cycles": 965,
+          "name": "accumulator_extremes",
+          "samples": 280
+        },
+        {
+          "max_cycles": 76,
+          "min_cycles": 76,
+          "name": "accumulator_extremes_reset",
+          "samples": 1
+        }
+      ],
+      "failures": [],
+      "outputs": 1697,
+      "pass": true
+    },
+    "library_sha256": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135",
+    "mapped_sha256": "720c778c935ec1b5bf42b0d1c1050ddf9d7765466eee74e6bab1c07680b84c30",
+    "pass": true,
+    "scope": "Sky130 TT cell mapping only; no physical timing, DRC, LVS, or power signoff",
+    "simulation_models": "Yosys Liberty-derived Boolean/FF models; zero-delay, two-state",
+    "statistics": {
+      "creator": "Yosys 0.33 (git sha1 2584903a060)",
+      "design": {
+        "area": 1399285.776,
+        "num_cells": 140470,
+        "num_cells_by_type": {
+          "sky130_fd_sc_hd__a2111oi_0": 2,
+          "sky130_fd_sc_hd__a211o_1": 6,
+          "sky130_fd_sc_hd__a211oi_1": 511,
+          "sky130_fd_sc_hd__a21bo_1": 1,
+          "sky130_fd_sc_hd__a21boi_0": 28,
+          "sky130_fd_sc_hd__a21o_1": 55,
+          "sky130_fd_sc_hd__a21oi_1": 24059,
+          "sky130_fd_sc_hd__a221o_1": 4,
+          "sky130_fd_sc_hd__a221oi_1": 6,
+          "sky130_fd_sc_hd__a222oi_1": 10,
+          "sky130_fd_sc_hd__a22o_1": 11,
+          "sky130_fd_sc_hd__a22oi_1": 82,
+          "sky130_fd_sc_hd__a2bb2oi_1": 3,
+          "sky130_fd_sc_hd__a311o_1": 1,
+          "sky130_fd_sc_hd__a311oi_1": 62,
+          "sky130_fd_sc_hd__a31o_1": 7,
+          "sky130_fd_sc_hd__a31oi_1": 61,
+          "sky130_fd_sc_hd__a32o_1": 38,
+          "sky130_fd_sc_hd__a32oi_1": 35,
+          "sky130_fd_sc_hd__a41o_1": 1,
+          "sky130_fd_sc_hd__a41oi_1": 3,
+          "sky130_fd_sc_hd__and2_0": 122,
+          "sky130_fd_sc_hd__and3_1": 40,
+          "sky130_fd_sc_hd__and4_1": 3,
+          "sky130_fd_sc_hd__buf_1": 7,
+          "sky130_fd_sc_hd__clkinv_1": 128,
+          "sky130_fd_sc_hd__dfxtp_1": 37127,
+          "sky130_fd_sc_hd__lpflow_inputiso1p_1": 54,
+          "sky130_fd_sc_hd__lpflow_isobufsrc_1": 162,
+          "sky130_fd_sc_hd__maj3_1": 278,
+          "sky130_fd_sc_hd__mux2_1": 117,
+          "sky130_fd_sc_hd__mux2i_1": 362,
+          "sky130_fd_sc_hd__mux4_2": 10334,
+          "sky130_fd_sc_hd__nand2_1": 23534,
+          "sky130_fd_sc_hd__nand2b_1": 106,
+          "sky130_fd_sc_hd__nand3_1": 129,
+          "sky130_fd_sc_hd__nand3b_1": 2,
+          "sky130_fd_sc_hd__nand4_1": 154,
+          "sky130_fd_sc_hd__nand4b_1": 1,
+          "sky130_fd_sc_hd__nand4bb_1": 14,
+          "sky130_fd_sc_hd__nor2_1": 22190,
+          "sky130_fd_sc_hd__nor2b_1": 163,
+          "sky130_fd_sc_hd__nor3_1": 191,
+          "sky130_fd_sc_hd__nor3b_1": 9,
+          "sky130_fd_sc_hd__nor4_1": 15,
+          "sky130_fd_sc_hd__o2111ai_1": 3,
+          "sky130_fd_sc_hd__o211ai_1": 87,
+          "sky130_fd_sc_hd__o21a_1": 41,
+          "sky130_fd_sc_hd__o21ai_0": 17851,
+          "sky130_fd_sc_hd__o21bai_1": 4,
+          "sky130_fd_sc_hd__o22a_1": 2,
+          "sky130_fd_sc_hd__o22ai_1": 158,
+          "sky130_fd_sc_hd__o2bb2ai_1": 2,
+          "sky130_fd_sc_hd__o311a_1": 3,
+          "sky130_fd_sc_hd__o311ai_0": 2,
+          "sky130_fd_sc_hd__o31a_1": 5,
+          "sky130_fd_sc_hd__o31ai_1": 772,
+          "sky130_fd_sc_hd__o32ai_1": 21,
+          "sky130_fd_sc_hd__o41a_1": 1,
+          "sky130_fd_sc_hd__o41ai_1": 23,
+          "sky130_fd_sc_hd__or3_1": 52,
+          "sky130_fd_sc_hd__or4_1": 8,
+          "sky130_fd_sc_hd__or4b_1": 3,
+          "sky130_fd_sc_hd__xnor2_1": 725,
+          "sky130_fd_sc_hd__xnor3_1": 10,
+          "sky130_fd_sc_hd__xor2_1": 463,
+          "sky130_fd_sc_hd__xor3_1": 6
+        },
+        "num_memories": 0,
+        "num_memory_bits": 0,
+        "num_processes": 0,
+        "num_pub_wire_bits": 37681,
+        "num_pub_wires": 1887,
+        "num_wire_bits": 141047,
+        "num_wires": 105231
+      },
+      "invocation": "stat -json -liberty sky130.lib ",
+      "modules": {
+        "\\gyro_core": {
+          "area": 1399285.776,
+          "num_cells": 140470,
+          "num_cells_by_type": {
+            "sky130_fd_sc_hd__a2111oi_0": 2,
+            "sky130_fd_sc_hd__a211o_1": 6,
+            "sky130_fd_sc_hd__a211oi_1": 511,
+            "sky130_fd_sc_hd__a21bo_1": 1,
+            "sky130_fd_sc_hd__a21boi_0": 28,
+            "sky130_fd_sc_hd__a21o_1": 55,
+            "sky130_fd_sc_hd__a21oi_1": 24059,
+            "sky130_fd_sc_hd__a221o_1": 4,
+            "sky130_fd_sc_hd__a221oi_1": 6,
+            "sky130_fd_sc_hd__a222oi_1": 10,
+            "sky130_fd_sc_hd__a22o_1": 11,
+            "sky130_fd_sc_hd__a22oi_1": 82,
+            "sky130_fd_sc_hd__a2bb2oi_1": 3,
+            "sky130_fd_sc_hd__a311o_1": 1,
+            "sky130_fd_sc_hd__a311oi_1": 62,
+            "sky130_fd_sc_hd__a31o_1": 7,
+            "sky130_fd_sc_hd__a31oi_1": 61,
+            "sky130_fd_sc_hd__a32o_1": 38,
+            "sky130_fd_sc_hd__a32oi_1": 35,
+            "sky130_fd_sc_hd__a41o_1": 1,
+            "sky130_fd_sc_hd__a41oi_1": 3,
+            "sky130_fd_sc_hd__and2_0": 122,
+            "sky130_fd_sc_hd__and3_1": 40,
+            "sky130_fd_sc_hd__and4_1": 3,
+            "sky130_fd_sc_hd__buf_1": 7,
+            "sky130_fd_sc_hd__clkinv_1": 128,
+            "sky130_fd_sc_hd__dfxtp_1": 37127,
+            "sky130_fd_sc_hd__lpflow_inputiso1p_1": 54,
+            "sky130_fd_sc_hd__lpflow_isobufsrc_1": 162,
+            "sky130_fd_sc_hd__maj3_1": 278,
+            "sky130_fd_sc_hd__mux2_1": 117,
+            "sky130_fd_sc_hd__mux2i_1": 362,
+            "sky130_fd_sc_hd__mux4_2": 10334,
+            "sky130_fd_sc_hd__nand2_1": 23534,
+            "sky130_fd_sc_hd__nand2b_1": 106,
+            "sky130_fd_sc_hd__nand3_1": 129,
+            "sky130_fd_sc_hd__nand3b_1": 2,
+            "sky130_fd_sc_hd__nand4_1": 154,
+            "sky130_fd_sc_hd__nand4b_1": 1,
+            "sky130_fd_sc_hd__nand4bb_1": 14,
+            "sky130_fd_sc_hd__nor2_1": 22190,
+            "sky130_fd_sc_hd__nor2b_1": 163,
+            "sky130_fd_sc_hd__nor3_1": 191,
+            "sky130_fd_sc_hd__nor3b_1": 9,
+            "sky130_fd_sc_hd__nor4_1": 15,
+            "sky130_fd_sc_hd__o2111ai_1": 3,
+            "sky130_fd_sc_hd__o211ai_1": 87,
+            "sky130_fd_sc_hd__o21a_1": 41,
+            "sky130_fd_sc_hd__o21ai_0": 17851,
+            "sky130_fd_sc_hd__o21bai_1": 4,
+            "sky130_fd_sc_hd__o22a_1": 2,
+            "sky130_fd_sc_hd__o22ai_1": 158,
+            "sky130_fd_sc_hd__o2bb2ai_1": 2,
+            "sky130_fd_sc_hd__o311a_1": 3,
+            "sky130_fd_sc_hd__o311ai_0": 2,
+            "sky130_fd_sc_hd__o31a_1": 5,
+            "sky130_fd_sc_hd__o31ai_1": 772,
+            "sky130_fd_sc_hd__o32ai_1": 21,
+            "sky130_fd_sc_hd__o41a_1": 1,
+            "sky130_fd_sc_hd__o41ai_1": 23,
+            "sky130_fd_sc_hd__or3_1": 52,
+            "sky130_fd_sc_hd__or4_1": 8,
+            "sky130_fd_sc_hd__or4b_1": 3,
+            "sky130_fd_sc_hd__xnor2_1": 725,
+            "sky130_fd_sc_hd__xnor3_1": 10,
+            "sky130_fd_sc_hd__xor2_1": 463,
+            "sky130_fd_sc_hd__xor3_1": 6
+          },
+          "num_memories": 0,
+          "num_memory_bits": 0,
+          "num_processes": 0,
+          "num_pub_wire_bits": 37681,
+          "num_pub_wires": 1887,
+          "num_wire_bits": 141047,
+          "num_wires": 105231
+        }
+      }
+    }
+  },
+  "tapeout_ready": false,
+  "test_suite": {
+    "passed": 110,
+    "skipped": 9
+  }
+}

@@ -51,6 +51,8 @@ def main(argv=None) -> int:
     sub.add_parser('doctor',help='Check Codex and container hardware tools')
     from .wifi import add_parser as add_wifi_parser
     add_wifi_parser(sub)
+    from .gyro_hardware import add_parser as add_gyro_parser
+    add_gyro_parser(sub)
     hash_cmd = sub.add_parser('hash',help='Hash text or a file through the generated VHDL core in simulation')
     data = hash_cmd.add_mutually_exclusive_group(required=True)
     data.add_argument('--text')
@@ -115,6 +117,9 @@ def main(argv=None) -> int:
     archx.add_argument('--finalize',action='store_true',help='Recheck passing designs and settle synthesis with more memory')
     args = parser.parse_args(argv)
     try:
+        if args.command=='gyro':
+            from .gyro_hardware import command as run_gyro
+            return run_gyro(args)
         if args.command=='wifi':
             from .wifi import run as run_wifi
             return run_wifi(args)

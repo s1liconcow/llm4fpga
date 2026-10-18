@@ -1,0 +1,40 @@
+{
+  "DESIGN_NAME": "gyro_core",
+  "VERILOG_FILES": [
+    "dir::../../../fpga_lab/hdl/gyro_core.v"
+  ],
+  "PDK": "sky130A",
+  "STD_CELL_LIBRARY": "sky130_fd_sc_hd",
+  "CLOCK_PORT": "clk",
+  "CLOCK_PERIOD": 40.0,
+  "FP_CORE_UTIL": 35,
+  "PL_TARGET_DENSITY_PCT": 45,
+  "EXTRA_EXCLUDED_CELLS": [
+    "sky130_fd_sc_hd__clkdlybuf*"
+  ],
+  "RUN_HEURISTIC_DIODE_INSERTION": false,
+  "PL_RESIZER_HOLD_SLACK_MARGIN": 0.01,
+  "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.01,
+  "RUN_POST_GRT_DESIGN_REPAIR": true,
+  "RUN_POST_GRT_RESIZER_TIMING": true,
+  "meta": {
+    "version": 2,
+    "flow": "Classic",
+    "substituting_steps": [
+      [
+        "OpenROAD.RepairDesignPostGRT",
+        null
+      ],
+      [
+        "+OpenROAD.RepairAntennas",
+        "Gyro.ElectricalRepair"
+      ],
+      [
+        "+OpenROAD.RCX",
+        "Gyro.ExtractedRepair"
+      ]
+    ]
+  },
+  "GRT_DESIGN_REPAIR_MAX_SLEW_PCT": 20,
+  "GRT_DESIGN_REPAIR_MAX_CAP_PCT": 20
+}

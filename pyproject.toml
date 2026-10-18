@@ -16,7 +16,7 @@ fpga-lab = "fpga_lab.cli:main"
 [tool.setuptools.packages.find]
 include = ["fpga_lab*"]
 [tool.setuptools.package-data]
-fpga_lab = ["hdl/*.v", "hdl/LICENSE.*", "hdl/*.md"]
+fpga_lab = ["hdl/*.v", "hdl/*.cpp", "hdl/LICENSE.*", "hdl/*.md"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["hardware: requires the Podman tools image", "xls: requires the pinned XLS image"]

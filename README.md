@@ -14,6 +14,15 @@ path is also working in a separate x86 Linux container.
 [2D LiDAR SLAM](docs/demo-results.md#slam-hardware-in-a-feedback-loop), and a complete
 [802.11a/g Wi-Fi receiver](docs/demo-results.md#wi-fi-a-complete-streaming-receiver).
 See [measured results](docs/demo-results.md) and [architecture and scope](docs/architecture.md).
+
+The [MEMS gyro extension](docs/gyro-design.md) translates a seven-FIR AGC,
+sense-rebalance, and I/Q-demodulation diagram into programmable Verilog, an
+independent fixed-point Python model, live RTL/plant cosimulation, and a pinned
+Sky130 macro flow. Run `FPGA_LAB_MEMORY=4g fpga-lab gyro --out runs/gyro --synthesize` to validate it;
+`--closed-loop` runs the synthetic resonator experiment. Physical macro signoff
+and complete-chip tapeout readiness are reported separately.
+The recorded Sky130 macro passes nine-corner timing/electrical checks at 25 MHz,
+both DRC engines, LVS, and a bit-exact replay of its final netlist.
 This research prototype translates bounded algorithms with explicit numerical and
 streaming contracts. Floating-point source becomes bounded-error fixed-point
 hardware; SHA-256 exercises integer and bitwise computation.
@@ -296,6 +305,8 @@ it is not represented as a VHDL backend. Structured-search `proxy_cost` is only 
 search heuristic. The legacy `--provider astra` API experiment is optional and requires
 `pip install -e '.[agent]'`, `OPENAI_API_KEY`, `ASTRA_MODEL` and optionally `ASTRA_BASE_URL`.
 
-Containers have no network, a read-only root, resource limits, and only the attempt
-folder mounted. Codex credentials stay on the host. Stop the VM when finished with
+The HDL tool containers have no network, a read-only root, resource limits, and
+only the attempt folder mounted. The Sky130 physical flow additionally mounts a
+read-only PDK and uses a disposable writable container root for tool caches.
+Codex credentials stay on the host. Stop the VM when finished with
 `podman machine stop`.
